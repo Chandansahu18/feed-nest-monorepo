@@ -2989,9 +2989,9 @@ export namespace Prisma {
   export type SocialHandleGroupByOutputType = {
     id: string
     userId: string
-    linkedInHandle: string
-    twitterHandle: string
-    githubHandle: string
+    linkedInHandle: string | null
+    twitterHandle: string | null
+    githubHandle: string | null
     _count: SocialHandleCountAggregateOutputType | null
     _min: SocialHandleMinAggregateOutputType | null
     _max: SocialHandleMaxAggregateOutputType | null
@@ -3065,9 +3065,9 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: string
       userId: string
-      linkedInHandle: string
-      twitterHandle: string
-      githubHandle: string
+      linkedInHandle: string | null
+      twitterHandle: string | null
+      githubHandle: string | null
     }, ExtArgs["result"]["socialHandle"]>
     composites: {}
   }
@@ -4066,7 +4066,7 @@ export namespace Prisma {
     id: string
     postBannerImage: string | null
     postTitle: string
-    postDescription: string | null
+    postDescription: string
     published: boolean
     creatorId: string
     createdAt: Date
@@ -4168,7 +4168,7 @@ export namespace Prisma {
       id: string
       postBannerImage: string | null
       postTitle: string
-      postDescription: string | null
+      postDescription: string
       published: boolean
       creatorId: string
       createdAt: Date
@@ -6148,7 +6148,7 @@ export namespace Prisma {
     id: string | null
     postId: string | null
     userId: string | null
-    commentContent: string | null
+    comment: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -6157,7 +6157,7 @@ export namespace Prisma {
     id: string | null
     postId: string | null
     userId: string | null
-    commentContent: string | null
+    comment: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -6166,7 +6166,7 @@ export namespace Prisma {
     id: number
     postId: number
     userId: number
-    commentContent: number
+    comment: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -6177,7 +6177,7 @@ export namespace Prisma {
     id?: true
     postId?: true
     userId?: true
-    commentContent?: true
+    comment?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -6186,7 +6186,7 @@ export namespace Prisma {
     id?: true
     postId?: true
     userId?: true
-    commentContent?: true
+    comment?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -6195,7 +6195,7 @@ export namespace Prisma {
     id?: true
     postId?: true
     userId?: true
-    commentContent?: true
+    comment?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -6277,7 +6277,7 @@ export namespace Prisma {
     id: string
     postId: string
     userId: string
-    commentContent: string
+    comment: string
     createdAt: Date
     updatedAt: Date
     _count: PostCommentCountAggregateOutputType | null
@@ -6303,7 +6303,7 @@ export namespace Prisma {
     id?: boolean
     postId?: boolean
     userId?: boolean
-    commentContent?: boolean
+    comment?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     post?: boolean | PostDefaultArgs<ExtArgs>
@@ -6314,7 +6314,7 @@ export namespace Prisma {
     id?: boolean
     postId?: boolean
     userId?: boolean
-    commentContent?: boolean
+    comment?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     post?: boolean | PostDefaultArgs<ExtArgs>
@@ -6325,7 +6325,7 @@ export namespace Prisma {
     id?: boolean
     postId?: boolean
     userId?: boolean
-    commentContent?: boolean
+    comment?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     post?: boolean | PostDefaultArgs<ExtArgs>
@@ -6336,12 +6336,12 @@ export namespace Prisma {
     id?: boolean
     postId?: boolean
     userId?: boolean
-    commentContent?: boolean
+    comment?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type PostCommentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "postId" | "userId" | "commentContent" | "createdAt" | "updatedAt", ExtArgs["result"]["postComment"]>
+  export type PostCommentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "postId" | "userId" | "comment" | "createdAt" | "updatedAt", ExtArgs["result"]["postComment"]>
   export type PostCommentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     post?: boolean | PostDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -6365,7 +6365,7 @@ export namespace Prisma {
       id: string
       postId: string
       userId: string
-      commentContent: string
+      comment: string
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["postComment"]>
@@ -6796,7 +6796,7 @@ export namespace Prisma {
     readonly id: FieldRef<"PostComment", 'String'>
     readonly postId: FieldRef<"PostComment", 'String'>
     readonly userId: FieldRef<"PostComment", 'String'>
-    readonly commentContent: FieldRef<"PostComment", 'String'>
+    readonly comment: FieldRef<"PostComment", 'String'>
     readonly createdAt: FieldRef<"PostComment", 'DateTime'>
     readonly updatedAt: FieldRef<"PostComment", 'DateTime'>
   }
@@ -9356,7 +9356,7 @@ export namespace Prisma {
     id: 'id',
     postId: 'postId',
     userId: 'userId',
-    commentContent: 'commentContent',
+    comment: 'comment',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -9579,18 +9579,18 @@ export namespace Prisma {
     NOT?: SocialHandleWhereInput | SocialHandleWhereInput[]
     id?: StringFilter<"SocialHandle"> | string
     userId?: StringFilter<"SocialHandle"> | string
-    linkedInHandle?: StringFilter<"SocialHandle"> | string
-    twitterHandle?: StringFilter<"SocialHandle"> | string
-    githubHandle?: StringFilter<"SocialHandle"> | string
+    linkedInHandle?: StringNullableFilter<"SocialHandle"> | string | null
+    twitterHandle?: StringNullableFilter<"SocialHandle"> | string | null
+    githubHandle?: StringNullableFilter<"SocialHandle"> | string | null
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }
 
   export type SocialHandleOrderByWithRelationInput = {
     id?: SortOrder
     userId?: SortOrder
-    linkedInHandle?: SortOrder
-    twitterHandle?: SortOrder
-    githubHandle?: SortOrder
+    linkedInHandle?: SortOrderInput | SortOrder
+    twitterHandle?: SortOrderInput | SortOrder
+    githubHandle?: SortOrderInput | SortOrder
     user?: UserOrderByWithRelationInput
   }
 
@@ -9600,18 +9600,18 @@ export namespace Prisma {
     OR?: SocialHandleWhereInput[]
     NOT?: SocialHandleWhereInput | SocialHandleWhereInput[]
     userId?: StringFilter<"SocialHandle"> | string
-    linkedInHandle?: StringFilter<"SocialHandle"> | string
-    twitterHandle?: StringFilter<"SocialHandle"> | string
-    githubHandle?: StringFilter<"SocialHandle"> | string
+    linkedInHandle?: StringNullableFilter<"SocialHandle"> | string | null
+    twitterHandle?: StringNullableFilter<"SocialHandle"> | string | null
+    githubHandle?: StringNullableFilter<"SocialHandle"> | string | null
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }, "id">
 
   export type SocialHandleOrderByWithAggregationInput = {
     id?: SortOrder
     userId?: SortOrder
-    linkedInHandle?: SortOrder
-    twitterHandle?: SortOrder
-    githubHandle?: SortOrder
+    linkedInHandle?: SortOrderInput | SortOrder
+    twitterHandle?: SortOrderInput | SortOrder
+    githubHandle?: SortOrderInput | SortOrder
     _count?: SocialHandleCountOrderByAggregateInput
     _max?: SocialHandleMaxOrderByAggregateInput
     _min?: SocialHandleMinOrderByAggregateInput
@@ -9623,9 +9623,9 @@ export namespace Prisma {
     NOT?: SocialHandleScalarWhereWithAggregatesInput | SocialHandleScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"SocialHandle"> | string
     userId?: StringWithAggregatesFilter<"SocialHandle"> | string
-    linkedInHandle?: StringWithAggregatesFilter<"SocialHandle"> | string
-    twitterHandle?: StringWithAggregatesFilter<"SocialHandle"> | string
-    githubHandle?: StringWithAggregatesFilter<"SocialHandle"> | string
+    linkedInHandle?: StringNullableWithAggregatesFilter<"SocialHandle"> | string | null
+    twitterHandle?: StringNullableWithAggregatesFilter<"SocialHandle"> | string | null
+    githubHandle?: StringNullableWithAggregatesFilter<"SocialHandle"> | string | null
   }
 
   export type PostWhereInput = {
@@ -9635,7 +9635,7 @@ export namespace Prisma {
     id?: StringFilter<"Post"> | string
     postBannerImage?: StringNullableFilter<"Post"> | string | null
     postTitle?: StringFilter<"Post"> | string
-    postDescription?: StringNullableFilter<"Post"> | string | null
+    postDescription?: StringFilter<"Post"> | string
     published?: BoolFilter<"Post"> | boolean
     creatorId?: StringFilter<"Post"> | string
     createdAt?: DateTimeFilter<"Post"> | Date | string
@@ -9650,7 +9650,7 @@ export namespace Prisma {
     id?: SortOrder
     postBannerImage?: SortOrderInput | SortOrder
     postTitle?: SortOrder
-    postDescription?: SortOrderInput | SortOrder
+    postDescription?: SortOrder
     published?: SortOrder
     creatorId?: SortOrder
     createdAt?: SortOrder
@@ -9668,7 +9668,7 @@ export namespace Prisma {
     NOT?: PostWhereInput | PostWhereInput[]
     postBannerImage?: StringNullableFilter<"Post"> | string | null
     postTitle?: StringFilter<"Post"> | string
-    postDescription?: StringNullableFilter<"Post"> | string | null
+    postDescription?: StringFilter<"Post"> | string
     published?: BoolFilter<"Post"> | boolean
     creatorId?: StringFilter<"Post"> | string
     createdAt?: DateTimeFilter<"Post"> | Date | string
@@ -9683,7 +9683,7 @@ export namespace Prisma {
     id?: SortOrder
     postBannerImage?: SortOrderInput | SortOrder
     postTitle?: SortOrder
-    postDescription?: SortOrderInput | SortOrder
+    postDescription?: SortOrder
     published?: SortOrder
     creatorId?: SortOrder
     createdAt?: SortOrder
@@ -9700,7 +9700,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"Post"> | string
     postBannerImage?: StringNullableWithAggregatesFilter<"Post"> | string | null
     postTitle?: StringWithAggregatesFilter<"Post"> | string
-    postDescription?: StringNullableWithAggregatesFilter<"Post"> | string | null
+    postDescription?: StringWithAggregatesFilter<"Post"> | string
     published?: BoolWithAggregatesFilter<"Post"> | boolean
     creatorId?: StringWithAggregatesFilter<"Post"> | string
     createdAt?: DateTimeWithAggregatesFilter<"Post"> | Date | string
@@ -9762,7 +9762,7 @@ export namespace Prisma {
     id?: StringFilter<"PostComment"> | string
     postId?: StringFilter<"PostComment"> | string
     userId?: StringFilter<"PostComment"> | string
-    commentContent?: StringFilter<"PostComment"> | string
+    comment?: StringFilter<"PostComment"> | string
     createdAt?: DateTimeFilter<"PostComment"> | Date | string
     updatedAt?: DateTimeFilter<"PostComment"> | Date | string
     post?: XOR<PostScalarRelationFilter, PostWhereInput>
@@ -9773,7 +9773,7 @@ export namespace Prisma {
     id?: SortOrder
     postId?: SortOrder
     userId?: SortOrder
-    commentContent?: SortOrder
+    comment?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     post?: PostOrderByWithRelationInput
@@ -9787,7 +9787,7 @@ export namespace Prisma {
     NOT?: PostCommentWhereInput | PostCommentWhereInput[]
     postId?: StringFilter<"PostComment"> | string
     userId?: StringFilter<"PostComment"> | string
-    commentContent?: StringFilter<"PostComment"> | string
+    comment?: StringFilter<"PostComment"> | string
     createdAt?: DateTimeFilter<"PostComment"> | Date | string
     updatedAt?: DateTimeFilter<"PostComment"> | Date | string
     post?: XOR<PostScalarRelationFilter, PostWhereInput>
@@ -9798,7 +9798,7 @@ export namespace Prisma {
     id?: SortOrder
     postId?: SortOrder
     userId?: SortOrder
-    commentContent?: SortOrder
+    comment?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: PostCommentCountOrderByAggregateInput
@@ -9813,7 +9813,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"PostComment"> | string
     postId?: StringWithAggregatesFilter<"PostComment"> | string
     userId?: StringWithAggregatesFilter<"PostComment"> | string
-    commentContent?: StringWithAggregatesFilter<"PostComment"> | string
+    comment?: StringWithAggregatesFilter<"PostComment"> | string
     createdAt?: DateTimeWithAggregatesFilter<"PostComment"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"PostComment"> | Date | string
   }
@@ -10049,64 +10049,64 @@ export namespace Prisma {
 
   export type SocialHandleCreateInput = {
     id?: string
-    linkedInHandle: string
-    twitterHandle: string
-    githubHandle: string
+    linkedInHandle?: string | null
+    twitterHandle?: string | null
+    githubHandle?: string | null
     user: UserCreateNestedOneWithoutSocialHandlesInput
   }
 
   export type SocialHandleUncheckedCreateInput = {
     id?: string
     userId: string
-    linkedInHandle: string
-    twitterHandle: string
-    githubHandle: string
+    linkedInHandle?: string | null
+    twitterHandle?: string | null
+    githubHandle?: string | null
   }
 
   export type SocialHandleUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    linkedInHandle?: StringFieldUpdateOperationsInput | string
-    twitterHandle?: StringFieldUpdateOperationsInput | string
-    githubHandle?: StringFieldUpdateOperationsInput | string
+    linkedInHandle?: NullableStringFieldUpdateOperationsInput | string | null
+    twitterHandle?: NullableStringFieldUpdateOperationsInput | string | null
+    githubHandle?: NullableStringFieldUpdateOperationsInput | string | null
     user?: UserUpdateOneRequiredWithoutSocialHandlesNestedInput
   }
 
   export type SocialHandleUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
-    linkedInHandle?: StringFieldUpdateOperationsInput | string
-    twitterHandle?: StringFieldUpdateOperationsInput | string
-    githubHandle?: StringFieldUpdateOperationsInput | string
+    linkedInHandle?: NullableStringFieldUpdateOperationsInput | string | null
+    twitterHandle?: NullableStringFieldUpdateOperationsInput | string | null
+    githubHandle?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SocialHandleCreateManyInput = {
     id?: string
     userId: string
-    linkedInHandle: string
-    twitterHandle: string
-    githubHandle: string
+    linkedInHandle?: string | null
+    twitterHandle?: string | null
+    githubHandle?: string | null
   }
 
   export type SocialHandleUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    linkedInHandle?: StringFieldUpdateOperationsInput | string
-    twitterHandle?: StringFieldUpdateOperationsInput | string
-    githubHandle?: StringFieldUpdateOperationsInput | string
+    linkedInHandle?: NullableStringFieldUpdateOperationsInput | string | null
+    twitterHandle?: NullableStringFieldUpdateOperationsInput | string | null
+    githubHandle?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SocialHandleUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
-    linkedInHandle?: StringFieldUpdateOperationsInput | string
-    twitterHandle?: StringFieldUpdateOperationsInput | string
-    githubHandle?: StringFieldUpdateOperationsInput | string
+    linkedInHandle?: NullableStringFieldUpdateOperationsInput | string | null
+    twitterHandle?: NullableStringFieldUpdateOperationsInput | string | null
+    githubHandle?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PostCreateInput = {
     id?: string
     postBannerImage?: string | null
     postTitle: string
-    postDescription?: string | null
+    postDescription: string
     published?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -10120,7 +10120,7 @@ export namespace Prisma {
     id?: string
     postBannerImage?: string | null
     postTitle: string
-    postDescription?: string | null
+    postDescription: string
     published?: boolean
     creatorId: string
     createdAt?: Date | string
@@ -10134,7 +10134,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     postBannerImage?: NullableStringFieldUpdateOperationsInput | string | null
     postTitle?: StringFieldUpdateOperationsInput | string
-    postDescription?: NullableStringFieldUpdateOperationsInput | string | null
+    postDescription?: StringFieldUpdateOperationsInput | string
     published?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -10148,7 +10148,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     postBannerImage?: NullableStringFieldUpdateOperationsInput | string | null
     postTitle?: StringFieldUpdateOperationsInput | string
-    postDescription?: NullableStringFieldUpdateOperationsInput | string | null
+    postDescription?: StringFieldUpdateOperationsInput | string
     published?: BoolFieldUpdateOperationsInput | boolean
     creatorId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -10162,7 +10162,7 @@ export namespace Prisma {
     id?: string
     postBannerImage?: string | null
     postTitle: string
-    postDescription?: string | null
+    postDescription: string
     published?: boolean
     creatorId: string
     createdAt?: Date | string
@@ -10173,7 +10173,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     postBannerImage?: NullableStringFieldUpdateOperationsInput | string | null
     postTitle?: StringFieldUpdateOperationsInput | string
-    postDescription?: NullableStringFieldUpdateOperationsInput | string | null
+    postDescription?: StringFieldUpdateOperationsInput | string
     published?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -10183,7 +10183,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     postBannerImage?: NullableStringFieldUpdateOperationsInput | string | null
     postTitle?: StringFieldUpdateOperationsInput | string
-    postDescription?: NullableStringFieldUpdateOperationsInput | string | null
+    postDescription?: StringFieldUpdateOperationsInput | string
     published?: BoolFieldUpdateOperationsInput | boolean
     creatorId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -10232,7 +10232,7 @@ export namespace Prisma {
 
   export type PostCommentCreateInput = {
     id?: string
-    commentContent: string
+    comment: string
     createdAt?: Date | string
     updatedAt?: Date | string
     post: PostCreateNestedOneWithoutPostCommentsInput
@@ -10243,14 +10243,14 @@ export namespace Prisma {
     id?: string
     postId: string
     userId: string
-    commentContent: string
+    comment: string
     createdAt?: Date | string
     updatedAt?: Date | string
   }
 
   export type PostCommentUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    commentContent?: StringFieldUpdateOperationsInput | string
+    comment?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     post?: PostUpdateOneRequiredWithoutPostCommentsNestedInput
@@ -10261,7 +10261,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     postId?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
-    commentContent?: StringFieldUpdateOperationsInput | string
+    comment?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -10270,14 +10270,14 @@ export namespace Prisma {
     id?: string
     postId: string
     userId: string
-    commentContent: string
+    comment: string
     createdAt?: Date | string
     updatedAt?: Date | string
   }
 
   export type PostCommentUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    commentContent?: StringFieldUpdateOperationsInput | string
+    comment?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -10286,7 +10286,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     postId?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
-    commentContent?: StringFieldUpdateOperationsInput | string
+    comment?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -10678,7 +10678,7 @@ export namespace Prisma {
     id?: SortOrder
     postId?: SortOrder
     userId?: SortOrder
-    commentContent?: SortOrder
+    comment?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -10687,7 +10687,7 @@ export namespace Prisma {
     id?: SortOrder
     postId?: SortOrder
     userId?: SortOrder
-    commentContent?: SortOrder
+    comment?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -10696,7 +10696,7 @@ export namespace Prisma {
     id?: SortOrder
     postId?: SortOrder
     userId?: SortOrder
-    commentContent?: SortOrder
+    comment?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -11383,7 +11383,7 @@ export namespace Prisma {
     id?: string
     postBannerImage?: string | null
     postTitle: string
-    postDescription?: string | null
+    postDescription: string
     published?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -11396,7 +11396,7 @@ export namespace Prisma {
     id?: string
     postBannerImage?: string | null
     postTitle: string
-    postDescription?: string | null
+    postDescription: string
     published?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -11457,16 +11457,16 @@ export namespace Prisma {
 
   export type SocialHandleCreateWithoutUserInput = {
     id?: string
-    linkedInHandle: string
-    twitterHandle: string
-    githubHandle: string
+    linkedInHandle?: string | null
+    twitterHandle?: string | null
+    githubHandle?: string | null
   }
 
   export type SocialHandleUncheckedCreateWithoutUserInput = {
     id?: string
-    linkedInHandle: string
-    twitterHandle: string
-    githubHandle: string
+    linkedInHandle?: string | null
+    twitterHandle?: string | null
+    githubHandle?: string | null
   }
 
   export type SocialHandleCreateOrConnectWithoutUserInput = {
@@ -11501,7 +11501,7 @@ export namespace Prisma {
 
   export type PostCommentCreateWithoutUserInput = {
     id?: string
-    commentContent: string
+    comment: string
     createdAt?: Date | string
     updatedAt?: Date | string
     post: PostCreateNestedOneWithoutPostCommentsInput
@@ -11510,7 +11510,7 @@ export namespace Prisma {
   export type PostCommentUncheckedCreateWithoutUserInput = {
     id?: string
     postId: string
-    commentContent: string
+    comment: string
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -11548,7 +11548,7 @@ export namespace Prisma {
     id?: StringFilter<"Post"> | string
     postBannerImage?: StringNullableFilter<"Post"> | string | null
     postTitle?: StringFilter<"Post"> | string
-    postDescription?: StringNullableFilter<"Post"> | string | null
+    postDescription?: StringFilter<"Post"> | string
     published?: BoolFilter<"Post"> | boolean
     creatorId?: StringFilter<"Post"> | string
     createdAt?: DateTimeFilter<"Post"> | Date | string
@@ -11627,9 +11627,9 @@ export namespace Prisma {
     NOT?: SocialHandleScalarWhereInput | SocialHandleScalarWhereInput[]
     id?: StringFilter<"SocialHandle"> | string
     userId?: StringFilter<"SocialHandle"> | string
-    linkedInHandle?: StringFilter<"SocialHandle"> | string
-    twitterHandle?: StringFilter<"SocialHandle"> | string
-    githubHandle?: StringFilter<"SocialHandle"> | string
+    linkedInHandle?: StringNullableFilter<"SocialHandle"> | string | null
+    twitterHandle?: StringNullableFilter<"SocialHandle"> | string | null
+    githubHandle?: StringNullableFilter<"SocialHandle"> | string | null
   }
 
   export type PostLikeUpsertWithWhereUniqueWithoutUserInput = {
@@ -11680,7 +11680,7 @@ export namespace Prisma {
     id?: StringFilter<"PostComment"> | string
     postId?: StringFilter<"PostComment"> | string
     userId?: StringFilter<"PostComment"> | string
-    commentContent?: StringFilter<"PostComment"> | string
+    comment?: StringFilter<"PostComment"> | string
     createdAt?: DateTimeFilter<"PostComment"> | Date | string
     updatedAt?: DateTimeFilter<"PostComment"> | Date | string
   }
@@ -11874,7 +11874,7 @@ export namespace Prisma {
 
   export type PostCommentCreateWithoutPostInput = {
     id?: string
-    commentContent: string
+    comment: string
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutPostCommentsInput
@@ -11883,7 +11883,7 @@ export namespace Prisma {
   export type PostCommentUncheckedCreateWithoutPostInput = {
     id?: string
     userId: string
-    commentContent: string
+    comment: string
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -12003,7 +12003,7 @@ export namespace Prisma {
     id?: string
     postBannerImage?: string | null
     postTitle: string
-    postDescription?: string | null
+    postDescription: string
     published?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -12016,7 +12016,7 @@ export namespace Prisma {
     id?: string
     postBannerImage?: string | null
     postTitle: string
-    postDescription?: string | null
+    postDescription: string
     published?: boolean
     creatorId: string
     createdAt?: Date | string
@@ -12092,7 +12092,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     postBannerImage?: NullableStringFieldUpdateOperationsInput | string | null
     postTitle?: StringFieldUpdateOperationsInput | string
-    postDescription?: NullableStringFieldUpdateOperationsInput | string | null
+    postDescription?: StringFieldUpdateOperationsInput | string
     published?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -12105,7 +12105,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     postBannerImage?: NullableStringFieldUpdateOperationsInput | string | null
     postTitle?: StringFieldUpdateOperationsInput | string
-    postDescription?: NullableStringFieldUpdateOperationsInput | string | null
+    postDescription?: StringFieldUpdateOperationsInput | string
     published?: BoolFieldUpdateOperationsInput | boolean
     creatorId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -12171,7 +12171,7 @@ export namespace Prisma {
     id?: string
     postBannerImage?: string | null
     postTitle: string
-    postDescription?: string | null
+    postDescription: string
     published?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -12184,7 +12184,7 @@ export namespace Prisma {
     id?: string
     postBannerImage?: string | null
     postTitle: string
-    postDescription?: string | null
+    postDescription: string
     published?: boolean
     creatorId: string
     createdAt?: Date | string
@@ -12260,7 +12260,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     postBannerImage?: NullableStringFieldUpdateOperationsInput | string | null
     postTitle?: StringFieldUpdateOperationsInput | string
-    postDescription?: NullableStringFieldUpdateOperationsInput | string | null
+    postDescription?: StringFieldUpdateOperationsInput | string
     published?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -12273,7 +12273,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     postBannerImage?: NullableStringFieldUpdateOperationsInput | string | null
     postTitle?: StringFieldUpdateOperationsInput | string
-    postDescription?: NullableStringFieldUpdateOperationsInput | string | null
+    postDescription?: StringFieldUpdateOperationsInput | string
     published?: BoolFieldUpdateOperationsInput | boolean
     creatorId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -12339,7 +12339,7 @@ export namespace Prisma {
     id?: string
     postBannerImage?: string | null
     postTitle: string
-    postDescription?: string | null
+    postDescription: string
     published?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -12352,7 +12352,7 @@ export namespace Prisma {
     id?: string
     postBannerImage?: string | null
     postTitle: string
-    postDescription?: string | null
+    postDescription: string
     published?: boolean
     creatorId: string
     createdAt?: Date | string
@@ -12428,7 +12428,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     postBannerImage?: NullableStringFieldUpdateOperationsInput | string | null
     postTitle?: StringFieldUpdateOperationsInput | string
-    postDescription?: NullableStringFieldUpdateOperationsInput | string | null
+    postDescription?: StringFieldUpdateOperationsInput | string
     published?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -12441,7 +12441,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     postBannerImage?: NullableStringFieldUpdateOperationsInput | string | null
     postTitle?: StringFieldUpdateOperationsInput | string
-    postDescription?: NullableStringFieldUpdateOperationsInput | string | null
+    postDescription?: StringFieldUpdateOperationsInput | string
     published?: BoolFieldUpdateOperationsInput | boolean
     creatorId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -12607,7 +12607,7 @@ export namespace Prisma {
     id?: string
     postBannerImage?: string | null
     postTitle: string
-    postDescription?: string | null
+    postDescription: string
     published?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -12625,9 +12625,9 @@ export namespace Prisma {
 
   export type SocialHandleCreateManyUserInput = {
     id?: string
-    linkedInHandle: string
-    twitterHandle: string
-    githubHandle: string
+    linkedInHandle?: string | null
+    twitterHandle?: string | null
+    githubHandle?: string | null
   }
 
   export type PostLikeCreateManyUserInput = {
@@ -12638,7 +12638,7 @@ export namespace Prisma {
   export type PostCommentCreateManyUserInput = {
     id?: string
     postId: string
-    commentContent: string
+    comment: string
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -12647,7 +12647,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     postBannerImage?: NullableStringFieldUpdateOperationsInput | string | null
     postTitle?: StringFieldUpdateOperationsInput | string
-    postDescription?: NullableStringFieldUpdateOperationsInput | string | null
+    postDescription?: StringFieldUpdateOperationsInput | string
     published?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -12660,7 +12660,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     postBannerImage?: NullableStringFieldUpdateOperationsInput | string | null
     postTitle?: StringFieldUpdateOperationsInput | string
-    postDescription?: NullableStringFieldUpdateOperationsInput | string | null
+    postDescription?: StringFieldUpdateOperationsInput | string
     published?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -12673,7 +12673,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     postBannerImage?: NullableStringFieldUpdateOperationsInput | string | null
     postTitle?: StringFieldUpdateOperationsInput | string
-    postDescription?: NullableStringFieldUpdateOperationsInput | string | null
+    postDescription?: StringFieldUpdateOperationsInput | string
     published?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -12711,23 +12711,23 @@ export namespace Prisma {
 
   export type SocialHandleUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
-    linkedInHandle?: StringFieldUpdateOperationsInput | string
-    twitterHandle?: StringFieldUpdateOperationsInput | string
-    githubHandle?: StringFieldUpdateOperationsInput | string
+    linkedInHandle?: NullableStringFieldUpdateOperationsInput | string | null
+    twitterHandle?: NullableStringFieldUpdateOperationsInput | string | null
+    githubHandle?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SocialHandleUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
-    linkedInHandle?: StringFieldUpdateOperationsInput | string
-    twitterHandle?: StringFieldUpdateOperationsInput | string
-    githubHandle?: StringFieldUpdateOperationsInput | string
+    linkedInHandle?: NullableStringFieldUpdateOperationsInput | string | null
+    twitterHandle?: NullableStringFieldUpdateOperationsInput | string | null
+    githubHandle?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SocialHandleUncheckedUpdateManyWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
-    linkedInHandle?: StringFieldUpdateOperationsInput | string
-    twitterHandle?: StringFieldUpdateOperationsInput | string
-    githubHandle?: StringFieldUpdateOperationsInput | string
+    linkedInHandle?: NullableStringFieldUpdateOperationsInput | string | null
+    twitterHandle?: NullableStringFieldUpdateOperationsInput | string | null
+    githubHandle?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PostLikeUpdateWithoutUserInput = {
@@ -12747,7 +12747,7 @@ export namespace Prisma {
 
   export type PostCommentUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
-    commentContent?: StringFieldUpdateOperationsInput | string
+    comment?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     post?: PostUpdateOneRequiredWithoutPostCommentsNestedInput
@@ -12756,7 +12756,7 @@ export namespace Prisma {
   export type PostCommentUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     postId?: StringFieldUpdateOperationsInput | string
-    commentContent?: StringFieldUpdateOperationsInput | string
+    comment?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -12764,7 +12764,7 @@ export namespace Prisma {
   export type PostCommentUncheckedUpdateManyWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     postId?: StringFieldUpdateOperationsInput | string
-    commentContent?: StringFieldUpdateOperationsInput | string
+    comment?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -12782,7 +12782,7 @@ export namespace Prisma {
   export type PostCommentCreateManyPostInput = {
     id?: string
     userId: string
-    commentContent: string
+    comment: string
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -12819,7 +12819,7 @@ export namespace Prisma {
 
   export type PostCommentUpdateWithoutPostInput = {
     id?: StringFieldUpdateOperationsInput | string
-    commentContent?: StringFieldUpdateOperationsInput | string
+    comment?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutPostCommentsNestedInput
@@ -12828,7 +12828,7 @@ export namespace Prisma {
   export type PostCommentUncheckedUpdateWithoutPostInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
-    commentContent?: StringFieldUpdateOperationsInput | string
+    comment?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -12836,7 +12836,7 @@ export namespace Prisma {
   export type PostCommentUncheckedUpdateManyWithoutPostInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
-    commentContent?: StringFieldUpdateOperationsInput | string
+    comment?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
