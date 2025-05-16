@@ -15,17 +15,81 @@ datasource db {
 }
 
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
-  posts Post[]
+  id                 String               @id @default(uuid())
+  email              String               @unique
+  name               String
+  userName           String
+  isEmailVerified    Boolean              @default(false)
+  hashedpassword     String
+  avatar             String?
+  profileBanner      String?
+  bio                String?
+  accessToken        String
+  refreshToken       String
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  posts              Post[]
+  savedPosts         SavedPost[]
+  followingRelations FollowingRelations[]
+  socialHandles      SocialHandle[]
+  postLikes          PostLike[]
+  postComments       PostComment[]
+}
+
+model SocialHandle {
+  id             String @id @default(uuid())
+  user           User   @relation(fields: [userId], references: [id])
+  userId         String
+  linkedInHandle String
+  twitterHandle  String
+  githubHandle   String
 }
 
 model Post {
-  id        Int     @id @default(autoincrement())
-  title     String
-  content   String?
-  published Boolean @default(false)
-  author    User    @relation(fields: [authorId], references: [id])
-  authorId  Int
+  id              String        @id @default(uuid())
+  postBannerImage String?
+  postTitle       String
+  postDescription String?
+  published       Boolean       @default(false)
+  creator         User          @relation(fields: [creatorId], references: [id])
+  creatorId       String
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  postLikes       PostLike[]
+  savedPosts      SavedPost[]
+  postComments    PostComment[]
+}
+
+model PostLike {
+  id     String @id @default(uuid())
+  post   Post   @relation(fields: [postId], references: [id])
+  postId String
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+}
+
+model PostComment {
+  id             String   @id @default(uuid())
+  post           Post     @relation(fields: [postId], references: [id])
+  postId         String
+  user           User     @relation(fields: [userId], references: [id])
+  userId         String
+  commentContent String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model SavedPost {
+  id     String @id @default(uuid())
+  post   Post   @relation(fields: [postId], references: [id])
+  postId String
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+}
+
+model FollowingRelations {
+  id              String @id @default(uuid())
+  user            User   @relation(fields: [userId], references: [id])
+  userId          String
+  followingUserId String
 }
