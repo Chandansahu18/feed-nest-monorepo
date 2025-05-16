@@ -1,0 +1,15 @@
+import express from "express";
+import handleGetPost from "../controllers/post/handleGetPost.controller";
+import handleGetAllPosts from "../controllers/post/handleGetAllPosts.controller";
+import handleCreateNewPost from "../controllers/post/handleCreateNewPost.controller";
+import handlePostDetailsUpdate from "../controllers/post/handlePostDetailsUpdate.controller";
+import handleComment from "../controllers/post/handleComment.controller";
+import handleCommentUpdate from "../controllers/post/handleCommentUpdate.controller";
+
+const router = express.Router();
+
+router.route("/v1/all-posts").get(handleGetAllPosts);
+router.route("/v1/post").get(handleGetPost).post(handleCreateNewPost).patch(handlePostDetailsUpdate);
+router.route("/v1/comment").post(handleComment).patch(handleCommentUpdate);
+
+export default router;
