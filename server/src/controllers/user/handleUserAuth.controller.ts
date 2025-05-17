@@ -4,11 +4,6 @@ import { Request, Response } from 'express';
 const prisma = new PrismaClient();
 const accessToken = process.env.ACCESS_TOKEN;
 const refreshToken = process.env.REFRESH_TOKEN;
-interface IResponseSchema {
-  success: boolean;
-  message: string;
-  data: User;
-}
 
 const handleUserAuth = async (req: Request, res: Response): Promise<void> => {
   try {
