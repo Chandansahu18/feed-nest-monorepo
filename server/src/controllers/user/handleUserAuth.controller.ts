@@ -2,7 +2,8 @@ import { PrismaClient, User } from '../../../generated/prisma';
 import { Request, Response } from 'express';
 
 const prisma = new PrismaClient();
-
+const accessToken = process.env.ACCESS_TOKEN;
+const refreshToken = process.env.REFRESH_TOKEN;
 interface IResponseSchema {
   success: boolean;
   message: string;
@@ -26,8 +27,8 @@ const handleUserAuth = async (req: Request, res: Response): Promise<void> => {
           userName,
           email,
           hashedpassword: password,
-          accessToken: '1234',
-          refreshToken: '1234',
+          accessToken: accessToken ?? '',
+          refreshToken: refreshToken ?? '',
         },
       });
 
@@ -37,7 +38,7 @@ const handleUserAuth = async (req: Request, res: Response): Promise<void> => {
         data: newUser,
       });
       return;
-    }else{
+    } else {
       res.status(200).json({
         success: true,
         message: 'User already exist.',
@@ -46,14 +47,17 @@ const handleUserAuth = async (req: Request, res: Response): Promise<void> => {
       return;
     }
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Internal server error, please try again later';
-    
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : 'Internal server error, please try again later';
+
     res.status(500).json({
       success: false,
       message: errorMessage,
-      error: error 
+      error: error,
     });
-}
+  }
 };
 
 export default handleUserAuth;
