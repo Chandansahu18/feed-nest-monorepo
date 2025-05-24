@@ -5,6 +5,9 @@ import { verifyToken } from '../../utils/authTokens';
 import { JwtPayload } from 'jsonwebtoken';
 
 const prisma = new PrismaClient();
+
+const frontendURL = process.env.FRONTEND_BASE_URL as string
+
 export const handleUserPasswordReset = async (
   req: Request,
   res: Response,
@@ -12,6 +15,10 @@ export const handleUserPasswordReset = async (
   try {
     const { token } = req.params;
     
+    if (!token) {
+        throw new Error("missing required url parameters");
+    }
+
     const isResetPasswordTokenExpired = verifyToken(token) as JwtPayload;
 
     if (!isResetPasswordTokenExpired) {
@@ -34,7 +41,7 @@ export const handleUserPasswordReset = async (
     return res
       .status(200)
       .render('resetPasswordForm', { email, token });
-  } catch (error) {
+  } catch (error:unknown) {
     return res.status(500).render('resetPasswordLinkExpired');
   }
 };
@@ -91,7 +98,7 @@ export const handleNewPassword = async (req:Request, res:Response):Promise<void>
         }
     })
 
-    res.redirect("https://www.google.com")
+    res.redirect(frontendURL)
   } catch (error) {
     res.status(500).json({
       success: false,

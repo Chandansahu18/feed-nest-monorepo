@@ -18,7 +18,11 @@ export const handleForgetPassword = async (
 ): Promise<void> => {
   try {
     const validateUserEmail = isUserEmailValid.safeParse(req.query.email);
+    if (!validateUserEmail.data) {
+      throw new Error("missing query parameters");
+    }
     const email = validateUserEmail.data;
+    
 
     // Check if user exists
     const user = await prisma.user.findFirst({
