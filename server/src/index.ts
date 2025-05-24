@@ -12,9 +12,9 @@ const port = process.env.PORT;
 
 app.use(cookieParser());
 app.use(cors({
-  origin: 'http://localhost:5173/',
+  origin: `${process.env.FRONTEND_BASE_URL as string}`,
   credentials: true,
-  methods:["GET","POST"]
+  methods:["GET","POST","PATCH","DELETE"]
 }));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());

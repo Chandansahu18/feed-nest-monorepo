@@ -4,15 +4,15 @@ import { PrismaClient } from '../../../generated/prisma';
 import { JwtPayload } from 'jsonwebtoken';
 
 const prisma = new PrismaClient();
-const accessTokenExpiryTime = 60 * 60 * 1000;
-const refreshTokenExpiryTime = 24 * 60 * 60 * 1000;
+const accessTokenExpiryTime = parseInt(process.env.ACCESS_TOKEN_EXPIRY as string) ;
+const refreshTokenExpiryTime = parseInt(process.env.REFRESH_TOKEN_EXPIRY as string) ;
 
 export const handleUserEmailVerification = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
   try {
-    const token = req.params.token;
+    const token = req.params.token;    
     if (!token) {
       throw new Error('verification token missing.');
     }
