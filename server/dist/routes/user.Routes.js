@@ -4,7 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const handleUserAuth_controller_1 = __importDefault(require("../controllers/user/handleUserAuth.controller"));
 const handleGetUser_controller_1 = __importDefault(require("../controllers/user/handleGetUser.controller"));
 const handleGetUserPosts_controller_1 = __importDefault(require("../controllers/user/handleGetUserPosts.controller"));
 const handleGetUserSavedPosts_controller_1 = __importDefault(require("../controllers/user/handleGetUserSavedPosts.controller"));
@@ -17,6 +16,5 @@ router.route("/v1/user").get(handleGetUser_controller_1.default).patch(handleUse
 router.route("/v1/user/posts").get(handleGetUserPosts_controller_1.default);
 router.route("/v1/user/posts/saved").get(handleGetUserSavedPosts_controller_1.default).post(handleUserSavedPost_controller_1.default);
 router.route("/v1/search").get(handleSearch_controller_1.default);
-router.route("/v1/auth").post(handleUserAuth_controller_1.default);
 router.route("/v1/account/delete").delete(handleUserAccountDelete_controller_1.default);
 exports.default = router;

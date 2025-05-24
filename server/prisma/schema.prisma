@@ -17,15 +17,14 @@ datasource db {
 model User {
   id                 String               @id @default(uuid())
   email              String               @unique
-  name               String
-  userName           String
+  name               String?
+  userName           String?
   isEmailVerified    Boolean              @default(false)
-  hashedpassword     String
+  hashedPassword     String?
   avatar             String?
   profileBanner      String?
   bio                String?
-  accessToken        String
-  refreshToken       String
+  refreshToken       String?
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
   posts              Post[]
@@ -62,7 +61,7 @@ model Post {
 
 model PostLike {
   id     String @id @default(uuid())
-  post   Post   @relation(fields: [postId], references: [id],onDelete: Cascade)
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String

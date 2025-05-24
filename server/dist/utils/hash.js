@@ -8,14 +8,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const prisma_1 = require("../../../generated/prisma");
-const prisma = new prisma_1.PrismaClient();
-const handleGetUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { accessToken } = req.cookies;
-    }
-    catch (error) {
-    }
+exports.compareHash = exports.generateHash = void 0;
+const bcrypt_1 = __importDefault(require("bcrypt"));
+const generateHash = (password) => __awaiter(void 0, void 0, void 0, function* () {
+    const saltRounds = 12;
+    const hash = yield bcrypt_1.default.hash(password, saltRounds);
+    return hash;
 });
-exports.default = handleGetUser;
+exports.generateHash = generateHash;
+const compareHash = (password, hashedPassword) => __awaiter(void 0, void 0, void 0, function* () {
+    const isPasswordCorrect = yield bcrypt_1.default.compare(password, hashedPassword);
+    return isPasswordCorrect;
+});
+exports.compareHash = compareHash;

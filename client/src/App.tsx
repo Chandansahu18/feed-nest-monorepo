@@ -1,11 +1,10 @@
+import GoogleAuthButton from './components/GoogleAuthButton';
 
 function App() {
   return (
     <>
-    <div className="bg-black h-screen w-screen">
-      <p className="text-white">
-        Hello World!
-        </p>
+    <div className="bg-sky-300 h-screen w-screen">
+      <GoogleAuthButton />
     </div>
     </>
   )

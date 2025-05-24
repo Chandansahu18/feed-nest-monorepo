@@ -16,13 +16,25 @@ const express_1 = __importDefault(require("express"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const user_Routes_1 = __importDefault(require("./routes/user.Routes"));
 const post_Routes_1 = __importDefault(require("./routes/post.Routes"));
+const auth_Routes_1 = __importDefault(require("./routes/auth.Routes"));
+const cookie_parser_1 = __importDefault(require("cookie-parser"));
+const cors_1 = __importDefault(require("cors"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const port = process.env.PORT;
+// for parsing cookies
+app.use((0, cookie_parser_1.default)());
+app.use((0, cors_1.default)({
+    origin: 'http://localhost:5173/',
+    credentials: true,
+    methods: ["GET", "POST"]
+}));
+app.use(express_1.default.urlencoded({ extended: true }));
 // middleware for parsing json data
 app.use(express_1.default.json());
-app.use('/', user_Routes_1.default);
-app.use('/', post_Routes_1.default);
+app.use('/', auth_Routes_1.default);
+app.use('/user', user_Routes_1.default);
+app.use('/post', post_Routes_1.default);
 app.listen(port, () => __awaiter(void 0, void 0, void 0, function* () {
     console.log('Server started at port:', port);
 }));

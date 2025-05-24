@@ -1555,11 +1555,10 @@ export namespace Prisma {
     name: string | null
     userName: string | null
     isEmailVerified: boolean | null
-    hashedpassword: string | null
+    hashedPassword: string | null
     avatar: string | null
     profileBanner: string | null
     bio: string | null
-    accessToken: string | null
     refreshToken: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -1571,11 +1570,10 @@ export namespace Prisma {
     name: string | null
     userName: string | null
     isEmailVerified: boolean | null
-    hashedpassword: string | null
+    hashedPassword: string | null
     avatar: string | null
     profileBanner: string | null
     bio: string | null
-    accessToken: string | null
     refreshToken: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -1587,11 +1585,10 @@ export namespace Prisma {
     name: number
     userName: number
     isEmailVerified: number
-    hashedpassword: number
+    hashedPassword: number
     avatar: number
     profileBanner: number
     bio: number
-    accessToken: number
     refreshToken: number
     createdAt: number
     updatedAt: number
@@ -1605,11 +1602,10 @@ export namespace Prisma {
     name?: true
     userName?: true
     isEmailVerified?: true
-    hashedpassword?: true
+    hashedPassword?: true
     avatar?: true
     profileBanner?: true
     bio?: true
-    accessToken?: true
     refreshToken?: true
     createdAt?: true
     updatedAt?: true
@@ -1621,11 +1617,10 @@ export namespace Prisma {
     name?: true
     userName?: true
     isEmailVerified?: true
-    hashedpassword?: true
+    hashedPassword?: true
     avatar?: true
     profileBanner?: true
     bio?: true
-    accessToken?: true
     refreshToken?: true
     createdAt?: true
     updatedAt?: true
@@ -1637,11 +1632,10 @@ export namespace Prisma {
     name?: true
     userName?: true
     isEmailVerified?: true
-    hashedpassword?: true
+    hashedPassword?: true
     avatar?: true
     profileBanner?: true
     bio?: true
-    accessToken?: true
     refreshToken?: true
     createdAt?: true
     updatedAt?: true
@@ -1723,15 +1717,14 @@ export namespace Prisma {
   export type UserGroupByOutputType = {
     id: string
     email: string
-    name: string
-    userName: string
+    name: string | null
+    userName: string | null
     isEmailVerified: boolean
-    hashedpassword: string
+    hashedPassword: string | null
     avatar: string | null
     profileBanner: string | null
     bio: string | null
-    accessToken: string
-    refreshToken: string
+    refreshToken: string | null
     createdAt: Date
     updatedAt: Date
     _count: UserCountAggregateOutputType | null
@@ -1759,11 +1752,10 @@ export namespace Prisma {
     name?: boolean
     userName?: boolean
     isEmailVerified?: boolean
-    hashedpassword?: boolean
+    hashedPassword?: boolean
     avatar?: boolean
     profileBanner?: boolean
     bio?: boolean
-    accessToken?: boolean
     refreshToken?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -1782,11 +1774,10 @@ export namespace Prisma {
     name?: boolean
     userName?: boolean
     isEmailVerified?: boolean
-    hashedpassword?: boolean
+    hashedPassword?: boolean
     avatar?: boolean
     profileBanner?: boolean
     bio?: boolean
-    accessToken?: boolean
     refreshToken?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -1798,11 +1789,10 @@ export namespace Prisma {
     name?: boolean
     userName?: boolean
     isEmailVerified?: boolean
-    hashedpassword?: boolean
+    hashedPassword?: boolean
     avatar?: boolean
     profileBanner?: boolean
     bio?: boolean
-    accessToken?: boolean
     refreshToken?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -1814,17 +1804,16 @@ export namespace Prisma {
     name?: boolean
     userName?: boolean
     isEmailVerified?: boolean
-    hashedpassword?: boolean
+    hashedPassword?: boolean
     avatar?: boolean
     profileBanner?: boolean
     bio?: boolean
-    accessToken?: boolean
     refreshToken?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "name" | "userName" | "isEmailVerified" | "hashedpassword" | "avatar" | "profileBanner" | "bio" | "accessToken" | "refreshToken" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "name" | "userName" | "isEmailVerified" | "hashedPassword" | "avatar" | "profileBanner" | "bio" | "refreshToken" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     posts?: boolean | User$postsArgs<ExtArgs>
     savedPosts?: boolean | User$savedPostsArgs<ExtArgs>
@@ -1850,15 +1839,14 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: string
       email: string
-      name: string
-      userName: string
+      name: string | null
+      userName: string | null
       isEmailVerified: boolean
-      hashedpassword: string
+      hashedPassword: string | null
       avatar: string | null
       profileBanner: string | null
       bio: string | null
-      accessToken: string
-      refreshToken: string
+      refreshToken: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["user"]>
@@ -2295,11 +2283,10 @@ export namespace Prisma {
     readonly name: FieldRef<"User", 'String'>
     readonly userName: FieldRef<"User", 'String'>
     readonly isEmailVerified: FieldRef<"User", 'Boolean'>
-    readonly hashedpassword: FieldRef<"User", 'String'>
+    readonly hashedPassword: FieldRef<"User", 'String'>
     readonly avatar: FieldRef<"User", 'String'>
     readonly profileBanner: FieldRef<"User", 'String'>
     readonly bio: FieldRef<"User", 'String'>
-    readonly accessToken: FieldRef<"User", 'String'>
     readonly refreshToken: FieldRef<"User", 'String'>
     readonly createdAt: FieldRef<"User", 'DateTime'>
     readonly updatedAt: FieldRef<"User", 'DateTime'>
@@ -9305,11 +9292,10 @@ export namespace Prisma {
     name: 'name',
     userName: 'userName',
     isEmailVerified: 'isEmailVerified',
-    hashedpassword: 'hashedpassword',
+    hashedPassword: 'hashedPassword',
     avatar: 'avatar',
     profileBanner: 'profileBanner',
     bio: 'bio',
-    accessToken: 'accessToken',
     refreshToken: 'refreshToken',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -9469,15 +9455,14 @@ export namespace Prisma {
     NOT?: UserWhereInput | UserWhereInput[]
     id?: StringFilter<"User"> | string
     email?: StringFilter<"User"> | string
-    name?: StringFilter<"User"> | string
-    userName?: StringFilter<"User"> | string
+    name?: StringNullableFilter<"User"> | string | null
+    userName?: StringNullableFilter<"User"> | string | null
     isEmailVerified?: BoolFilter<"User"> | boolean
-    hashedpassword?: StringFilter<"User"> | string
+    hashedPassword?: StringNullableFilter<"User"> | string | null
     avatar?: StringNullableFilter<"User"> | string | null
     profileBanner?: StringNullableFilter<"User"> | string | null
     bio?: StringNullableFilter<"User"> | string | null
-    accessToken?: StringFilter<"User"> | string
-    refreshToken?: StringFilter<"User"> | string
+    refreshToken?: StringNullableFilter<"User"> | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
     posts?: PostListRelationFilter
@@ -9491,15 +9476,14 @@ export namespace Prisma {
   export type UserOrderByWithRelationInput = {
     id?: SortOrder
     email?: SortOrder
-    name?: SortOrder
-    userName?: SortOrder
+    name?: SortOrderInput | SortOrder
+    userName?: SortOrderInput | SortOrder
     isEmailVerified?: SortOrder
-    hashedpassword?: SortOrder
+    hashedPassword?: SortOrderInput | SortOrder
     avatar?: SortOrderInput | SortOrder
     profileBanner?: SortOrderInput | SortOrder
     bio?: SortOrderInput | SortOrder
-    accessToken?: SortOrder
-    refreshToken?: SortOrder
+    refreshToken?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     posts?: PostOrderByRelationAggregateInput
@@ -9516,15 +9500,14 @@ export namespace Prisma {
     AND?: UserWhereInput | UserWhereInput[]
     OR?: UserWhereInput[]
     NOT?: UserWhereInput | UserWhereInput[]
-    name?: StringFilter<"User"> | string
-    userName?: StringFilter<"User"> | string
+    name?: StringNullableFilter<"User"> | string | null
+    userName?: StringNullableFilter<"User"> | string | null
     isEmailVerified?: BoolFilter<"User"> | boolean
-    hashedpassword?: StringFilter<"User"> | string
+    hashedPassword?: StringNullableFilter<"User"> | string | null
     avatar?: StringNullableFilter<"User"> | string | null
     profileBanner?: StringNullableFilter<"User"> | string | null
     bio?: StringNullableFilter<"User"> | string | null
-    accessToken?: StringFilter<"User"> | string
-    refreshToken?: StringFilter<"User"> | string
+    refreshToken?: StringNullableFilter<"User"> | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
     posts?: PostListRelationFilter
@@ -9538,15 +9521,14 @@ export namespace Prisma {
   export type UserOrderByWithAggregationInput = {
     id?: SortOrder
     email?: SortOrder
-    name?: SortOrder
-    userName?: SortOrder
+    name?: SortOrderInput | SortOrder
+    userName?: SortOrderInput | SortOrder
     isEmailVerified?: SortOrder
-    hashedpassword?: SortOrder
+    hashedPassword?: SortOrderInput | SortOrder
     avatar?: SortOrderInput | SortOrder
     profileBanner?: SortOrderInput | SortOrder
     bio?: SortOrderInput | SortOrder
-    accessToken?: SortOrder
-    refreshToken?: SortOrder
+    refreshToken?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: UserCountOrderByAggregateInput
@@ -9560,15 +9542,14 @@ export namespace Prisma {
     NOT?: UserScalarWhereWithAggregatesInput | UserScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"User"> | string
     email?: StringWithAggregatesFilter<"User"> | string
-    name?: StringWithAggregatesFilter<"User"> | string
-    userName?: StringWithAggregatesFilter<"User"> | string
+    name?: StringNullableWithAggregatesFilter<"User"> | string | null
+    userName?: StringNullableWithAggregatesFilter<"User"> | string | null
     isEmailVerified?: BoolWithAggregatesFilter<"User"> | boolean
-    hashedpassword?: StringWithAggregatesFilter<"User"> | string
+    hashedPassword?: StringNullableWithAggregatesFilter<"User"> | string | null
     avatar?: StringNullableWithAggregatesFilter<"User"> | string | null
     profileBanner?: StringNullableWithAggregatesFilter<"User"> | string | null
     bio?: StringNullableWithAggregatesFilter<"User"> | string | null
-    accessToken?: StringWithAggregatesFilter<"User"> | string
-    refreshToken?: StringWithAggregatesFilter<"User"> | string
+    refreshToken?: StringNullableWithAggregatesFilter<"User"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
   }
@@ -9914,15 +9895,14 @@ export namespace Prisma {
   export type UserCreateInput = {
     id?: string
     email: string
-    name: string
-    userName: string
+    name?: string | null
+    userName?: string | null
     isEmailVerified?: boolean
-    hashedpassword: string
+    hashedPassword?: string | null
     avatar?: string | null
     profileBanner?: string | null
     bio?: string | null
-    accessToken: string
-    refreshToken: string
+    refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     posts?: PostCreateNestedManyWithoutCreatorInput
@@ -9936,15 +9916,14 @@ export namespace Prisma {
   export type UserUncheckedCreateInput = {
     id?: string
     email: string
-    name: string
-    userName: string
+    name?: string | null
+    userName?: string | null
     isEmailVerified?: boolean
-    hashedpassword: string
+    hashedPassword?: string | null
     avatar?: string | null
     profileBanner?: string | null
     bio?: string | null
-    accessToken: string
-    refreshToken: string
+    refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     posts?: PostUncheckedCreateNestedManyWithoutCreatorInput
@@ -9958,15 +9937,14 @@ export namespace Prisma {
   export type UserUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    userName?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    userName?: NullableStringFieldUpdateOperationsInput | string | null
     isEmailVerified?: BoolFieldUpdateOperationsInput | boolean
-    hashedpassword?: StringFieldUpdateOperationsInput | string
+    hashedPassword?: NullableStringFieldUpdateOperationsInput | string | null
     avatar?: NullableStringFieldUpdateOperationsInput | string | null
     profileBanner?: NullableStringFieldUpdateOperationsInput | string | null
     bio?: NullableStringFieldUpdateOperationsInput | string | null
-    accessToken?: StringFieldUpdateOperationsInput | string
-    refreshToken?: StringFieldUpdateOperationsInput | string
+    refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     posts?: PostUpdateManyWithoutCreatorNestedInput
@@ -9980,15 +9958,14 @@ export namespace Prisma {
   export type UserUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    userName?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    userName?: NullableStringFieldUpdateOperationsInput | string | null
     isEmailVerified?: BoolFieldUpdateOperationsInput | boolean
-    hashedpassword?: StringFieldUpdateOperationsInput | string
+    hashedPassword?: NullableStringFieldUpdateOperationsInput | string | null
     avatar?: NullableStringFieldUpdateOperationsInput | string | null
     profileBanner?: NullableStringFieldUpdateOperationsInput | string | null
     bio?: NullableStringFieldUpdateOperationsInput | string | null
-    accessToken?: StringFieldUpdateOperationsInput | string
-    refreshToken?: StringFieldUpdateOperationsInput | string
+    refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     posts?: PostUncheckedUpdateManyWithoutCreatorNestedInput
@@ -10002,15 +9979,14 @@ export namespace Prisma {
   export type UserCreateManyInput = {
     id?: string
     email: string
-    name: string
-    userName: string
+    name?: string | null
+    userName?: string | null
     isEmailVerified?: boolean
-    hashedpassword: string
+    hashedPassword?: string | null
     avatar?: string | null
     profileBanner?: string | null
     bio?: string | null
-    accessToken: string
-    refreshToken: string
+    refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -10018,15 +9994,14 @@ export namespace Prisma {
   export type UserUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    userName?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    userName?: NullableStringFieldUpdateOperationsInput | string | null
     isEmailVerified?: BoolFieldUpdateOperationsInput | boolean
-    hashedpassword?: StringFieldUpdateOperationsInput | string
+    hashedPassword?: NullableStringFieldUpdateOperationsInput | string | null
     avatar?: NullableStringFieldUpdateOperationsInput | string | null
     profileBanner?: NullableStringFieldUpdateOperationsInput | string | null
     bio?: NullableStringFieldUpdateOperationsInput | string | null
-    accessToken?: StringFieldUpdateOperationsInput | string
-    refreshToken?: StringFieldUpdateOperationsInput | string
+    refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -10034,15 +10009,14 @@ export namespace Prisma {
   export type UserUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    userName?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    userName?: NullableStringFieldUpdateOperationsInput | string | null
     isEmailVerified?: BoolFieldUpdateOperationsInput | boolean
-    hashedpassword?: StringFieldUpdateOperationsInput | string
+    hashedPassword?: NullableStringFieldUpdateOperationsInput | string | null
     avatar?: NullableStringFieldUpdateOperationsInput | string | null
     profileBanner?: NullableStringFieldUpdateOperationsInput | string | null
     bio?: NullableStringFieldUpdateOperationsInput | string | null
-    accessToken?: StringFieldUpdateOperationsInput | string
-    refreshToken?: StringFieldUpdateOperationsInput | string
+    refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -10387,11 +10361,6 @@ export namespace Prisma {
     not?: NestedStringFilter<$PrismaModel> | string
   }
 
-  export type BoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
-  }
-
   export type StringNullableFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
     in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
@@ -10405,6 +10374,11 @@ export namespace Prisma {
     endsWith?: string | StringFieldRefInput<$PrismaModel>
     mode?: QueryMode
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type BoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
   export type DateTimeFilter<$PrismaModel = never> = {
@@ -10489,11 +10463,10 @@ export namespace Prisma {
     name?: SortOrder
     userName?: SortOrder
     isEmailVerified?: SortOrder
-    hashedpassword?: SortOrder
+    hashedPassword?: SortOrder
     avatar?: SortOrder
     profileBanner?: SortOrder
     bio?: SortOrder
-    accessToken?: SortOrder
     refreshToken?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -10505,11 +10478,10 @@ export namespace Prisma {
     name?: SortOrder
     userName?: SortOrder
     isEmailVerified?: SortOrder
-    hashedpassword?: SortOrder
+    hashedPassword?: SortOrder
     avatar?: SortOrder
     profileBanner?: SortOrder
     bio?: SortOrder
-    accessToken?: SortOrder
     refreshToken?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -10521,11 +10493,10 @@ export namespace Prisma {
     name?: SortOrder
     userName?: SortOrder
     isEmailVerified?: SortOrder
-    hashedpassword?: SortOrder
+    hashedPassword?: SortOrder
     avatar?: SortOrder
     profileBanner?: SortOrder
     bio?: SortOrder
-    accessToken?: SortOrder
     refreshToken?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -10549,14 +10520,6 @@ export namespace Prisma {
     _max?: NestedStringFilter<$PrismaModel>
   }
 
-  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedBoolFilter<$PrismaModel>
-    _max?: NestedBoolFilter<$PrismaModel>
-  }
-
   export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
     in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
@@ -10573,6 +10536,14 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedStringNullableFilter<$PrismaModel>
     _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
@@ -10825,12 +10796,12 @@ export namespace Prisma {
     set?: string
   }
 
-  export type BoolFieldUpdateOperationsInput = {
-    set?: boolean
-  }
-
   export type NullableStringFieldUpdateOperationsInput = {
     set?: string | null
+  }
+
+  export type BoolFieldUpdateOperationsInput = {
+    set?: boolean
   }
 
   export type DateTimeFieldUpdateOperationsInput = {
@@ -11271,11 +11242,6 @@ export namespace Prisma {
     not?: NestedStringFilter<$PrismaModel> | string
   }
 
-  export type NestedBoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
-  }
-
   export type NestedStringNullableFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
     in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
@@ -11288,6 +11254,11 @@ export namespace Prisma {
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
   export type NestedDateTimeFilter<$PrismaModel = never> = {
@@ -11329,14 +11300,6 @@ export namespace Prisma {
     not?: NestedIntFilter<$PrismaModel> | number
   }
 
-  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedBoolFilter<$PrismaModel>
-    _max?: NestedBoolFilter<$PrismaModel>
-  }
-
   export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
     in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
@@ -11363,6 +11326,14 @@ export namespace Prisma {
     gt?: number | IntFieldRefInput<$PrismaModel>
     gte?: number | IntFieldRefInput<$PrismaModel>
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
@@ -11688,15 +11659,14 @@ export namespace Prisma {
   export type UserCreateWithoutSocialHandlesInput = {
     id?: string
     email: string
-    name: string
-    userName: string
+    name?: string | null
+    userName?: string | null
     isEmailVerified?: boolean
-    hashedpassword: string
+    hashedPassword?: string | null
     avatar?: string | null
     profileBanner?: string | null
     bio?: string | null
-    accessToken: string
-    refreshToken: string
+    refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     posts?: PostCreateNestedManyWithoutCreatorInput
@@ -11709,15 +11679,14 @@ export namespace Prisma {
   export type UserUncheckedCreateWithoutSocialHandlesInput = {
     id?: string
     email: string
-    name: string
-    userName: string
+    name?: string | null
+    userName?: string | null
     isEmailVerified?: boolean
-    hashedpassword: string
+    hashedPassword?: string | null
     avatar?: string | null
     profileBanner?: string | null
     bio?: string | null
-    accessToken: string
-    refreshToken: string
+    refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     posts?: PostUncheckedCreateNestedManyWithoutCreatorInput
@@ -11746,15 +11715,14 @@ export namespace Prisma {
   export type UserUpdateWithoutSocialHandlesInput = {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    userName?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    userName?: NullableStringFieldUpdateOperationsInput | string | null
     isEmailVerified?: BoolFieldUpdateOperationsInput | boolean
-    hashedpassword?: StringFieldUpdateOperationsInput | string
+    hashedPassword?: NullableStringFieldUpdateOperationsInput | string | null
     avatar?: NullableStringFieldUpdateOperationsInput | string | null
     profileBanner?: NullableStringFieldUpdateOperationsInput | string | null
     bio?: NullableStringFieldUpdateOperationsInput | string | null
-    accessToken?: StringFieldUpdateOperationsInput | string
-    refreshToken?: StringFieldUpdateOperationsInput | string
+    refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     posts?: PostUpdateManyWithoutCreatorNestedInput
@@ -11767,15 +11735,14 @@ export namespace Prisma {
   export type UserUncheckedUpdateWithoutSocialHandlesInput = {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    userName?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    userName?: NullableStringFieldUpdateOperationsInput | string | null
     isEmailVerified?: BoolFieldUpdateOperationsInput | boolean
-    hashedpassword?: StringFieldUpdateOperationsInput | string
+    hashedPassword?: NullableStringFieldUpdateOperationsInput | string | null
     avatar?: NullableStringFieldUpdateOperationsInput | string | null
     profileBanner?: NullableStringFieldUpdateOperationsInput | string | null
     bio?: NullableStringFieldUpdateOperationsInput | string | null
-    accessToken?: StringFieldUpdateOperationsInput | string
-    refreshToken?: StringFieldUpdateOperationsInput | string
+    refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     posts?: PostUncheckedUpdateManyWithoutCreatorNestedInput
@@ -11788,15 +11755,14 @@ export namespace Prisma {
   export type UserCreateWithoutPostsInput = {
     id?: string
     email: string
-    name: string
-    userName: string
+    name?: string | null
+    userName?: string | null
     isEmailVerified?: boolean
-    hashedpassword: string
+    hashedPassword?: string | null
     avatar?: string | null
     profileBanner?: string | null
     bio?: string | null
-    accessToken: string
-    refreshToken: string
+    refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     savedPosts?: SavedPostCreateNestedManyWithoutUserInput
@@ -11809,15 +11775,14 @@ export namespace Prisma {
   export type UserUncheckedCreateWithoutPostsInput = {
     id?: string
     email: string
-    name: string
-    userName: string
+    name?: string | null
+    userName?: string | null
     isEmailVerified?: boolean
-    hashedpassword: string
+    hashedPassword?: string | null
     avatar?: string | null
     profileBanner?: string | null
     bio?: string | null
-    accessToken: string
-    refreshToken: string
+    refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     savedPosts?: SavedPostUncheckedCreateNestedManyWithoutUserInput
@@ -11912,15 +11877,14 @@ export namespace Prisma {
   export type UserUpdateWithoutPostsInput = {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    userName?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    userName?: NullableStringFieldUpdateOperationsInput | string | null
     isEmailVerified?: BoolFieldUpdateOperationsInput | boolean
-    hashedpassword?: StringFieldUpdateOperationsInput | string
+    hashedPassword?: NullableStringFieldUpdateOperationsInput | string | null
     avatar?: NullableStringFieldUpdateOperationsInput | string | null
     profileBanner?: NullableStringFieldUpdateOperationsInput | string | null
     bio?: NullableStringFieldUpdateOperationsInput | string | null
-    accessToken?: StringFieldUpdateOperationsInput | string
-    refreshToken?: StringFieldUpdateOperationsInput | string
+    refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     savedPosts?: SavedPostUpdateManyWithoutUserNestedInput
@@ -11933,15 +11897,14 @@ export namespace Prisma {
   export type UserUncheckedUpdateWithoutPostsInput = {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    userName?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    userName?: NullableStringFieldUpdateOperationsInput | string | null
     isEmailVerified?: BoolFieldUpdateOperationsInput | boolean
-    hashedpassword?: StringFieldUpdateOperationsInput | string
+    hashedPassword?: NullableStringFieldUpdateOperationsInput | string | null
     avatar?: NullableStringFieldUpdateOperationsInput | string | null
     profileBanner?: NullableStringFieldUpdateOperationsInput | string | null
     bio?: NullableStringFieldUpdateOperationsInput | string | null
-    accessToken?: StringFieldUpdateOperationsInput | string
-    refreshToken?: StringFieldUpdateOperationsInput | string
+    refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     savedPosts?: SavedPostUncheckedUpdateManyWithoutUserNestedInput
@@ -12033,15 +11996,14 @@ export namespace Prisma {
   export type UserCreateWithoutPostLikesInput = {
     id?: string
     email: string
-    name: string
-    userName: string
+    name?: string | null
+    userName?: string | null
     isEmailVerified?: boolean
-    hashedpassword: string
+    hashedPassword?: string | null
     avatar?: string | null
     profileBanner?: string | null
     bio?: string | null
-    accessToken: string
-    refreshToken: string
+    refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     posts?: PostCreateNestedManyWithoutCreatorInput
@@ -12054,15 +12016,14 @@ export namespace Prisma {
   export type UserUncheckedCreateWithoutPostLikesInput = {
     id?: string
     email: string
-    name: string
-    userName: string
+    name?: string | null
+    userName?: string | null
     isEmailVerified?: boolean
-    hashedpassword: string
+    hashedPassword?: string | null
     avatar?: string | null
     profileBanner?: string | null
     bio?: string | null
-    accessToken: string
-    refreshToken: string
+    refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     posts?: PostUncheckedCreateNestedManyWithoutCreatorInput
@@ -12128,15 +12089,14 @@ export namespace Prisma {
   export type UserUpdateWithoutPostLikesInput = {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    userName?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    userName?: NullableStringFieldUpdateOperationsInput | string | null
     isEmailVerified?: BoolFieldUpdateOperationsInput | boolean
-    hashedpassword?: StringFieldUpdateOperationsInput | string
+    hashedPassword?: NullableStringFieldUpdateOperationsInput | string | null
     avatar?: NullableStringFieldUpdateOperationsInput | string | null
     profileBanner?: NullableStringFieldUpdateOperationsInput | string | null
     bio?: NullableStringFieldUpdateOperationsInput | string | null
-    accessToken?: StringFieldUpdateOperationsInput | string
-    refreshToken?: StringFieldUpdateOperationsInput | string
+    refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     posts?: PostUpdateManyWithoutCreatorNestedInput
@@ -12149,15 +12109,14 @@ export namespace Prisma {
   export type UserUncheckedUpdateWithoutPostLikesInput = {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    userName?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    userName?: NullableStringFieldUpdateOperationsInput | string | null
     isEmailVerified?: BoolFieldUpdateOperationsInput | boolean
-    hashedpassword?: StringFieldUpdateOperationsInput | string
+    hashedPassword?: NullableStringFieldUpdateOperationsInput | string | null
     avatar?: NullableStringFieldUpdateOperationsInput | string | null
     profileBanner?: NullableStringFieldUpdateOperationsInput | string | null
     bio?: NullableStringFieldUpdateOperationsInput | string | null
-    accessToken?: StringFieldUpdateOperationsInput | string
-    refreshToken?: StringFieldUpdateOperationsInput | string
+    refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     posts?: PostUncheckedUpdateManyWithoutCreatorNestedInput
@@ -12201,15 +12160,14 @@ export namespace Prisma {
   export type UserCreateWithoutPostCommentsInput = {
     id?: string
     email: string
-    name: string
-    userName: string
+    name?: string | null
+    userName?: string | null
     isEmailVerified?: boolean
-    hashedpassword: string
+    hashedPassword?: string | null
     avatar?: string | null
     profileBanner?: string | null
     bio?: string | null
-    accessToken: string
-    refreshToken: string
+    refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     posts?: PostCreateNestedManyWithoutCreatorInput
@@ -12222,15 +12180,14 @@ export namespace Prisma {
   export type UserUncheckedCreateWithoutPostCommentsInput = {
     id?: string
     email: string
-    name: string
-    userName: string
+    name?: string | null
+    userName?: string | null
     isEmailVerified?: boolean
-    hashedpassword: string
+    hashedPassword?: string | null
     avatar?: string | null
     profileBanner?: string | null
     bio?: string | null
-    accessToken: string
-    refreshToken: string
+    refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     posts?: PostUncheckedCreateNestedManyWithoutCreatorInput
@@ -12296,15 +12253,14 @@ export namespace Prisma {
   export type UserUpdateWithoutPostCommentsInput = {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    userName?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    userName?: NullableStringFieldUpdateOperationsInput | string | null
     isEmailVerified?: BoolFieldUpdateOperationsInput | boolean
-    hashedpassword?: StringFieldUpdateOperationsInput | string
+    hashedPassword?: NullableStringFieldUpdateOperationsInput | string | null
     avatar?: NullableStringFieldUpdateOperationsInput | string | null
     profileBanner?: NullableStringFieldUpdateOperationsInput | string | null
     bio?: NullableStringFieldUpdateOperationsInput | string | null
-    accessToken?: StringFieldUpdateOperationsInput | string
-    refreshToken?: StringFieldUpdateOperationsInput | string
+    refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     posts?: PostUpdateManyWithoutCreatorNestedInput
@@ -12317,15 +12273,14 @@ export namespace Prisma {
   export type UserUncheckedUpdateWithoutPostCommentsInput = {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    userName?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    userName?: NullableStringFieldUpdateOperationsInput | string | null
     isEmailVerified?: BoolFieldUpdateOperationsInput | boolean
-    hashedpassword?: StringFieldUpdateOperationsInput | string
+    hashedPassword?: NullableStringFieldUpdateOperationsInput | string | null
     avatar?: NullableStringFieldUpdateOperationsInput | string | null
     profileBanner?: NullableStringFieldUpdateOperationsInput | string | null
     bio?: NullableStringFieldUpdateOperationsInput | string | null
-    accessToken?: StringFieldUpdateOperationsInput | string
-    refreshToken?: StringFieldUpdateOperationsInput | string
+    refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     posts?: PostUncheckedUpdateManyWithoutCreatorNestedInput
@@ -12369,15 +12324,14 @@ export namespace Prisma {
   export type UserCreateWithoutSavedPostsInput = {
     id?: string
     email: string
-    name: string
-    userName: string
+    name?: string | null
+    userName?: string | null
     isEmailVerified?: boolean
-    hashedpassword: string
+    hashedPassword?: string | null
     avatar?: string | null
     profileBanner?: string | null
     bio?: string | null
-    accessToken: string
-    refreshToken: string
+    refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     posts?: PostCreateNestedManyWithoutCreatorInput
@@ -12390,15 +12344,14 @@ export namespace Prisma {
   export type UserUncheckedCreateWithoutSavedPostsInput = {
     id?: string
     email: string
-    name: string
-    userName: string
+    name?: string | null
+    userName?: string | null
     isEmailVerified?: boolean
-    hashedpassword: string
+    hashedPassword?: string | null
     avatar?: string | null
     profileBanner?: string | null
     bio?: string | null
-    accessToken: string
-    refreshToken: string
+    refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     posts?: PostUncheckedCreateNestedManyWithoutCreatorInput
@@ -12464,15 +12417,14 @@ export namespace Prisma {
   export type UserUpdateWithoutSavedPostsInput = {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    userName?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    userName?: NullableStringFieldUpdateOperationsInput | string | null
     isEmailVerified?: BoolFieldUpdateOperationsInput | boolean
-    hashedpassword?: StringFieldUpdateOperationsInput | string
+    hashedPassword?: NullableStringFieldUpdateOperationsInput | string | null
     avatar?: NullableStringFieldUpdateOperationsInput | string | null
     profileBanner?: NullableStringFieldUpdateOperationsInput | string | null
     bio?: NullableStringFieldUpdateOperationsInput | string | null
-    accessToken?: StringFieldUpdateOperationsInput | string
-    refreshToken?: StringFieldUpdateOperationsInput | string
+    refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     posts?: PostUpdateManyWithoutCreatorNestedInput
@@ -12485,15 +12437,14 @@ export namespace Prisma {
   export type UserUncheckedUpdateWithoutSavedPostsInput = {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    userName?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    userName?: NullableStringFieldUpdateOperationsInput | string | null
     isEmailVerified?: BoolFieldUpdateOperationsInput | boolean
-    hashedpassword?: StringFieldUpdateOperationsInput | string
+    hashedPassword?: NullableStringFieldUpdateOperationsInput | string | null
     avatar?: NullableStringFieldUpdateOperationsInput | string | null
     profileBanner?: NullableStringFieldUpdateOperationsInput | string | null
     bio?: NullableStringFieldUpdateOperationsInput | string | null
-    accessToken?: StringFieldUpdateOperationsInput | string
-    refreshToken?: StringFieldUpdateOperationsInput | string
+    refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     posts?: PostUncheckedUpdateManyWithoutCreatorNestedInput
@@ -12506,15 +12457,14 @@ export namespace Prisma {
   export type UserCreateWithoutFollowingRelationsInput = {
     id?: string
     email: string
-    name: string
-    userName: string
+    name?: string | null
+    userName?: string | null
     isEmailVerified?: boolean
-    hashedpassword: string
+    hashedPassword?: string | null
     avatar?: string | null
     profileBanner?: string | null
     bio?: string | null
-    accessToken: string
-    refreshToken: string
+    refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     posts?: PostCreateNestedManyWithoutCreatorInput
@@ -12527,15 +12477,14 @@ export namespace Prisma {
   export type UserUncheckedCreateWithoutFollowingRelationsInput = {
     id?: string
     email: string
-    name: string
-    userName: string
+    name?: string | null
+    userName?: string | null
     isEmailVerified?: boolean
-    hashedpassword: string
+    hashedPassword?: string | null
     avatar?: string | null
     profileBanner?: string | null
     bio?: string | null
-    accessToken: string
-    refreshToken: string
+    refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     posts?: PostUncheckedCreateNestedManyWithoutCreatorInput
@@ -12564,15 +12513,14 @@ export namespace Prisma {
   export type UserUpdateWithoutFollowingRelationsInput = {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    userName?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    userName?: NullableStringFieldUpdateOperationsInput | string | null
     isEmailVerified?: BoolFieldUpdateOperationsInput | boolean
-    hashedpassword?: StringFieldUpdateOperationsInput | string
+    hashedPassword?: NullableStringFieldUpdateOperationsInput | string | null
     avatar?: NullableStringFieldUpdateOperationsInput | string | null
     profileBanner?: NullableStringFieldUpdateOperationsInput | string | null
     bio?: NullableStringFieldUpdateOperationsInput | string | null
-    accessToken?: StringFieldUpdateOperationsInput | string
-    refreshToken?: StringFieldUpdateOperationsInput | string
+    refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     posts?: PostUpdateManyWithoutCreatorNestedInput
@@ -12585,15 +12533,14 @@ export namespace Prisma {
   export type UserUncheckedUpdateWithoutFollowingRelationsInput = {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    userName?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    userName?: NullableStringFieldUpdateOperationsInput | string | null
     isEmailVerified?: BoolFieldUpdateOperationsInput | boolean
-    hashedpassword?: StringFieldUpdateOperationsInput | string
+    hashedPassword?: NullableStringFieldUpdateOperationsInput | string | null
     avatar?: NullableStringFieldUpdateOperationsInput | string | null
     profileBanner?: NullableStringFieldUpdateOperationsInput | string | null
     bio?: NullableStringFieldUpdateOperationsInput | string | null
-    accessToken?: StringFieldUpdateOperationsInput | string
-    refreshToken?: StringFieldUpdateOperationsInput | string
+    refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     posts?: PostUncheckedUpdateManyWithoutCreatorNestedInput
