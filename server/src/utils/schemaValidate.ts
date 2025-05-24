@@ -4,8 +4,7 @@ export const validateUserData = z.object({
   name: z
     .string()
     .min(6, 'name must be minimum of length upto 6 characters')
-    .max(16, 'name must be maximum of length upto 16 characters')
-    .optional(),
+    .max(16, 'name must be maximum of length upto 16 characters'),
   userName: z
     .string()
     .min(6, 'username must be minimum of length upto 6 characters')

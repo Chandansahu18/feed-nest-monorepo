@@ -29,8 +29,7 @@ export const handleUserEmailVerification = async (
         refreshToken,
       },
     });
-    res.cookie('access_token', accessToken);
-    res.cookie('refresh_token', refreshToken);
+    res.cookie('access_token', accessToken).cookie('refresh_token', refreshToken);
     res.status(200).json({
       success: true,
       message: 'Email verified successfully',

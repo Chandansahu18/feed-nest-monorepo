@@ -12,53 +12,49 @@ const auth = nodemailer.createTransport({
 });
 
 // Path to emails ejs templates
-const emailsPath = path.resolve(__dirname, '..', 'views', 'emails');
+const _dirname= path.resolve('../server/src', 'views', 'emails');
 
-const resetPasswordEmailTemplatePath = path.join(
-  emailsPath,
-  'resetPasswordEmail.ejs',
-);
-const signUpEmailTemplatePath = path.join(emailsPath, 'signupEmail.ejs');
-const signInEmailTemplatePath = path.join(emailsPath, 'signinEmail.ejs');
-const deleteAccountTemplatePath = path.join(
-  emailsPath,
-  'deleteAccountEmail.ejs',
-);
+const resetPasswordEmailTemplatePath = path.join(_dirname,'resetPasswordEmail.ejs');
+const signUpEmailTemplatePath = path.join(_dirname, 'signupEmail.ejs');
+const signInEmailTemplatePath = path.join(_dirname, 'signinEmail.ejs');
+
+
 
 interface IEmailParams {
-  redirectToEmailVerificationPageLink: string;
+  redirectToEmailVerificationPageLink?: string;
+  redirectToResetPasswordPageLink?: string;
 }
 
-type EmailType = 'reset password' | 'sign up' | 'sign in' | 'delete account';
+type EmailType = 'reset password' | 'sign up' | 'sign in';
 
 const sendMail = async (
-  email: string, 
-  type: EmailType, 
-  subject: string, 
-  params: IEmailParams
+  email: string,
+  type: EmailType,
+  subject: string,
+  params: IEmailParams,
 ): Promise<void> => {
   try {
     // Render the EJS template
     let html: string;
-    
+
     switch (type) {
       case 'reset password':
         html = await ejs.renderFile(resetPasswordEmailTemplatePath, {
-          redirectToEmailVerificationPageLink: params.redirectToEmailVerificationPageLink,
+          redirectToResetPasswordPageLink:
+            params.redirectToResetPasswordPageLink,
         });
         break;
       case 'sign up':
         html = await ejs.renderFile(signUpEmailTemplatePath, {
-          redirectToEmailVerificationPageLink: params.redirectToEmailVerificationPageLink,
+          redirectToEmailVerificationPageLink:
+            params.redirectToEmailVerificationPageLink,
         });
         break;
       case 'sign in':
         html = await ejs.renderFile(signInEmailTemplatePath, {
-          redirectToEmailVerificationPageLink: params.redirectToEmailVerificationPageLink,
+          redirectToEmailVerificationPageLink:
+            params.redirectToEmailVerificationPageLink,
         });
-        break;
-      case 'delete account':
-        html = await ejs.renderFile(deleteAccountTemplatePath);
         break;
       default:
         throw new Error(`Invalid email type: ${type}`);
@@ -70,16 +66,12 @@ const sendMail = async (
       subject,
       html,
     };
- await auth.sendMail(mailOptions);
-    
-  } catch (error:unknown) {
-     const errorMessage =
-      error instanceof Error
-        ? error.message
-        : 'Error sending mail';
-     throw new Error(errorMessage);
+    await auth.sendMail(mailOptions);
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : 'Error sending mail';
+    throw new Error(errorMessage);
   }
 };
 
 export default sendMail;
-
