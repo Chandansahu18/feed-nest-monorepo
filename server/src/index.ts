@@ -1,11 +1,13 @@
-import express from 'express';
+import cors from 'cors';
+import path from 'path';
 import dotenv from 'dotenv';
+import express from 'express';
+import cookieParser from 'cookie-parser';
 import userRouter from './routes/user.Routes';
 import postRouter from './routes/post.Routes';
 import authRouter from './routes/auth.Routes';
-import cookieParser from 'cookie-parser';
-import cors from 'cors';
-import path from 'path';
+import { restrictToAuthorisedUser } from './middlewares/restrictToAuthorisedUser.middleware';
+
 dotenv.config();
 const app = express();
 const port = process.env.PORT;
@@ -22,8 +24,8 @@ app.set("views", path.resolve("./src/views"));
 app.use(express.json());
 
 app.use('/', authRouter);
-app.use('/user', userRouter);
-app.use('/post', postRouter);
+app.use('/',restrictToAuthorisedUser, userRouter);
+app.use('/',restrictToAuthorisedUser, postRouter);
 
 app.listen(port, async () => {
   console.log('Server started at port:', port);
