@@ -10,6 +10,9 @@ const baseURL = process.env.BASE_URL as string;
 const accessTokenExpiryTime = parseInt(
   process.env.ACCESS_TOKEN_EXPIRY as string,
 );
+const refreshTokenExpiryTime = parseInt(
+  process.env.REFRESH_TOKEN_EXPIRY as string,
+);
 
 const handleUserAuth = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -55,6 +58,8 @@ const handleUserAuth = async (req: Request, res: Response): Promise<void> => {
         password as string,
         doUserExist?.hashedPassword as string,
       );
+      const accessToken = generateToken(email, accessTokenExpiryTime);
+      const refreshToken = generateToken(email, refreshTokenExpiryTime);
 
       if (!isPasswordValid) {
         res.status(400).json({
@@ -62,6 +67,9 @@ const handleUserAuth = async (req: Request, res: Response): Promise<void> => {
           message: 'Incorrect password',
         });
       }
+      res
+        .cookie('access_token', accessToken)
+        .cookie('refresh_token', refreshToken);
       res.status(200).json({
         success: true,
         message: 'User signed in successfully',

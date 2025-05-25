@@ -26,6 +26,7 @@ export const restrictToAuthorisedUser = async (
         res.cookie('access_token', newAccessToken);
         return next();
       }
+      next();
     }
   } catch (error) {
     const errorMessage =
