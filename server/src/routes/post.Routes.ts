@@ -10,7 +10,7 @@ import handleDeleteComment from "../controllers/post/handleDeleteComment.control
 
 const router = express.Router();
 
-router.route("/v1/all-posts").get(handleGetAllPosts);
+router.route("/v1/posts").get(handleGetAllPosts);
 router.route("/v1/post").get(handleGetPost).post(handleCreateNewPost).patch(handlePostDetailsUpdate).delete(handleDeletePost);
 router.route("/v1/comment").post(handleComment).patch(handleCommentUpdate).delete(handleDeleteComment);
 
