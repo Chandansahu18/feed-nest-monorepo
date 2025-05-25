@@ -2,6 +2,7 @@ import { PrismaClient } from '../../../generated/prisma';
 import { Request, Response } from 'express';
 import { verifyToken } from '../../utils/authTokens';
 import { JwtPayload } from 'jsonwebtoken';
+import { IRequest } from '../../utils/types';
 
 const prisma = new PrismaClient();
 const handleUserAccountDelete = async (
@@ -9,8 +10,8 @@ const handleUserAccountDelete = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const { access_token } = req.cookies;
-    const { data: email } = verifyToken(access_token) as JwtPayload;
+    const { email } = req as IRequest;
+
     await prisma.user.delete({
       where: {
         email,

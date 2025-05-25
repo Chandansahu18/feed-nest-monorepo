@@ -2,29 +2,31 @@ import { PrismaClient } from '../../../generated/prisma';
 import { Request, Response } from 'express';
 import { verifyToken } from '../../utils/authTokens';
 import { JwtPayload } from 'jsonwebtoken';
+import { IRequest } from '../../utils/types';
 
 const prisma = new PrismaClient();
-
 const handleGetUser = async (req: Request, res: Response) => {
   try {
-    const { access_token } = req.cookies;
-    const { data: email } = verifyToken(access_token) as JwtPayload;
-    const user = await prisma.user.findUnique({
+    const { id } = req.query;
+    if (!id) {
+      throw new Error('Id not found');
+    }
+
+    const user = await prisma.user.findFirst({
       where: {
-        email,
+        id: id as string,
         isEmailVerified: true,
       },
-      omit:{
-        hashedPassword:true,
-        refreshToken:true
-      }
+      omit: {
+        hashedPassword: true,
+        refreshToken: true,
+      },
     });
 
     if (!user) {
       res.status(404).json({
         success: false,
-        message: 'User not found',
-        data: user,
+        message: 'User not found'
       });
     }
 
@@ -38,7 +40,7 @@ const handleGetUser = async (req: Request, res: Response) => {
       error instanceof Error
         ? error.message
         : 'Internal server error, please try again later';
-
+    console.log(errorMessage);
     res.status(500).json({
       success: false,
       message: errorMessage,

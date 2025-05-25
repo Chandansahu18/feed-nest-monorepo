@@ -1,11 +1,13 @@
 import { PrismaClient } from '../../../generated/prisma';
 import { Request, Response } from 'express';
 import { validateUserData } from '../../utils/schemaValidate';
+import { IRequest } from '../../utils/types';
 
 const prisma = new PrismaClient();
 
 const handleUserDetailsUpdate = async (req: Request, res: Response):Promise<void> => {
   try {
+    const {email} = req as IRequest;
     const validUserData = validateUserData.safeParse(req.body);
     if (!validUserData.data) {
       const errors = validUserData.error?.issues;
@@ -13,7 +15,7 @@ const handleUserDetailsUpdate = async (req: Request, res: Response):Promise<void
         errors.length === 1 ? errors[0].message : 'missing required fields';
       throw new Error(errorMessage);
     }
-    const { email, name, userName, bio, avatar, profileBanner } =
+    const { name, userName, bio, avatar, profileBanner } =
       validUserData.data;
     await prisma.user.update({
       where: {
