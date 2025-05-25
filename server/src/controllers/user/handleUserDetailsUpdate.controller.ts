@@ -4,7 +4,7 @@ import { validateUserData } from '../../utils/schemaValidate';
 
 const prisma = new PrismaClient();
 
-const handleUserDetailsUpdate = async (req: Request, res: Response) => {
+const handleUserDetailsUpdate = async (req: Request, res: Response):Promise<void> => {
   try {
     const validUserData = validateUserData.safeParse(req.body);
     if (!validUserData.data) {
