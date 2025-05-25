@@ -11,7 +11,7 @@ const handleUserAccountDelete = async (
   try {
     const { access_token } = req.cookies;
     const { data: email } = verifyToken(access_token) as JwtPayload;
-    const user = await prisma.user.delete({
+    await prisma.user.delete({
       where: {
         email,
         isEmailVerified: true,
