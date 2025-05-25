@@ -18,7 +18,7 @@ export const validateUserData = z.object({
       'password must be at least of 8 character and at most of 16 characters & must contain 1 uppercase, 1 lowercase, 1 number & 1 special character',
     )
     .optional(),
-  avatar: z.string().url().includes('https://').optional(),
-  profileBanner: z.string().url().includes('https://').optional(),
+  avatar: z.string().startsWith('https://').optional(),
+  profileBanner: z.string().startsWith('https://').optional(),
   bio: z.string().min(1).max(250).optional(),
 });
