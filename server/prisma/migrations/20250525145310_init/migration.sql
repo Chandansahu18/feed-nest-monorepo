@@ -2,7 +2,7 @@
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
     "email" TEXT NOT NULL,
-    "name" TEXT,
+    "name" TEXT NOT NULL,
     "userName" TEXT,
     "isEmailVerified" BOOLEAN NOT NULL DEFAULT false,
     "hashedPassword" TEXT,
@@ -32,7 +32,7 @@ CREATE TABLE "Post" (
     "id" TEXT NOT NULL,
     "postBannerImage" TEXT,
     "postTitle" TEXT NOT NULL,
-    "postDescription" TEXT NOT NULL,
+    "postDescription" TEXT,
     "published" BOOLEAN NOT NULL DEFAULT false,
     "creatorId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
