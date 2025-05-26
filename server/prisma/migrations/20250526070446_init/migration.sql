@@ -34,6 +34,7 @@ CREATE TABLE "Post" (
     "postTitle" TEXT NOT NULL,
     "postDescription" TEXT,
     "published" BOOLEAN NOT NULL DEFAULT false,
+    "postTags" TEXT,
     "creatorId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
