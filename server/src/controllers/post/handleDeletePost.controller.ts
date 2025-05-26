@@ -31,12 +31,13 @@ const handleDeletePost = async (req: Request, res: Response): Promise<void> => {
         id: {
           in: JSON.parse(ids),
         },
+        creatorId,
       },
     });
 
     res.status(200).json({
       success: true,
-      message: 'Posts deleted successfully',
+      message: `${ids.length > 1 ? 'Posts' : 'Post'} deleted successfully`,
     });
   } catch (error) {
     const errorMessage =

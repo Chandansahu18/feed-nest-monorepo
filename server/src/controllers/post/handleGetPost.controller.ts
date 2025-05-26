@@ -13,6 +13,12 @@ const handleGetPost = async (req: Request, res: Response): Promise<void> => {
                 id: postId as string
             }
         })
+        if (!post) {
+            res.status(404).json({
+                success:true,
+                message:"Post not found"
+            })
+        }
         res.status(200).json({
             success:true,
             data: post

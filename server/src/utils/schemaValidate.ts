@@ -40,7 +40,7 @@ export const validatePostData = z.object({
     .string()
     .min(5, 'post title must be minimum of length upto 5 characters')
     .max(250, 'post title must be maximum of length upto 250 characters'),
-  postDescription: z.string().optional(),
+  postDescription: z.string().min(100).max(5000).optional(),
   postBannerImage: z
     .string()
     .startsWith(
