@@ -48,8 +48,9 @@ model Post {
   id              String        @id @default(uuid())
   postBannerImage String?
   postTitle       String
-  postDescription String
+  postDescription String?
   published       Boolean       @default(false)
+  postTags        String[]      @default([])
   creator         User          @relation(fields: [creatorId], references: [id], onDelete: Cascade)
   creatorId       String
   createdAt       DateTime      @default(now())
@@ -81,7 +82,7 @@ model PostComment {
 model SavedPost {
   id     String @id @default(uuid())
   post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
-  postId String
+  postId String 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String
 }

@@ -6,12 +6,20 @@ import { IRequest } from '../utils/types';
 const accessTokenExpiryTime = parseInt(
   process.env.ACCESS_TOKEN_EXPIRY as string,
 );
+
 export const restrictToAuthorisedUser = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<void> => {
   try {
+    let bypassEndpoints: string[] = ['/v1/posts', '/v1/post'];
+    const isURLNeedToBypass = bypassEndpoints.some(
+      (endpoint) => req.url.includes(endpoint) && req.method === 'GET',
+    );
+    if (isURLNeedToBypass) {
+      return next();
+    }
     const { access_token, refresh_token } = req.cookies;
     if (!refresh_token) {
       res.clearCookie('access_token').clearCookie('refresh_token');
@@ -27,7 +35,7 @@ export const restrictToAuthorisedUser = async (
       res.cookie('access_token', newAccessToken);
       (req as IRequest).email = email;
       return next();
-    }    
+    }
     const isRefreshTokenValid = verifyToken(refresh_token as string);
     const { data: email } = isRefreshTokenValid as JwtPayload;
     (req as IRequest).email = email;

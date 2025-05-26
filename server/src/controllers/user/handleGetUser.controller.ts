@@ -1,8 +1,5 @@
 import { PrismaClient } from '../../../generated/prisma';
 import { Request, Response } from 'express';
-import { verifyToken } from '../../utils/authTokens';
-import { JwtPayload } from 'jsonwebtoken';
-import { IRequest } from '../../utils/types';
 
 const prisma = new PrismaClient();
 const handleGetUser = async (req: Request, res: Response) => {
