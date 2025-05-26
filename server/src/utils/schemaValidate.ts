@@ -18,14 +18,36 @@ export const validateUserData = z.object({
       'password must be at least of 8 character and at most of 16 characters & must contain 1 uppercase, 1 lowercase, 1 number & 1 special character',
     )
     .optional(),
-  avatar: z.string().startsWith('https://','incorrect avatar image url, must starts with https://').optional(),
-  profileBanner: z.string().startsWith('https://','incorrect profile banner image url, must starts with https://').optional(),
+  avatar: z
+    .string()
+    .startsWith(
+      'https://',
+      'incorrect avatar image url, must starts with https://',
+    )
+    .optional(),
+  profileBanner: z
+    .string()
+    .startsWith(
+      'https://',
+      'incorrect profile banner image url, must starts with https://',
+    )
+    .optional(),
   bio: z.string().min(1).max(250).optional(),
 });
 
 export const validatePostData = z.object({
-  postTitle: z.string().min(5,'post title must be minimum of length upto 5 characters').max(250,'post title must be maximum of length upto 250 characters'),
+  postTitle: z
+    .string()
+    .min(5, 'post title must be minimum of length upto 5 characters')
+    .max(250, 'post title must be maximum of length upto 250 characters'),
   postDescription: z.string().optional(),
-  postBannerImage: z.string().startsWith('https://','incorrect post banner image url, must starts with https://').optional(),
-  published: z.boolean().default(false),
+  postBannerImage: z
+    .string()
+    .startsWith(
+      'https://',
+      'incorrect post banner image url, must starts with https://',
+    )
+    .optional(),
+  postTags: z.array(z.string()).optional(),
+  published: z.boolean().optional(),
 });
