@@ -48,6 +48,6 @@ export const validatePostData = z.object({
       'incorrect post banner image url, must starts with https://',
     )
     .optional(),
-  postTags: z.array(z.string()).optional(),
-  published: z.boolean().optional(),
+  postTags: z.array(z.string()).default([]),
+  published: z.boolean().default(false),
 });

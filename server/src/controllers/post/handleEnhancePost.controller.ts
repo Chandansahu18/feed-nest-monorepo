@@ -1,21 +1,28 @@
-import { PrismaClient } from '../../../generated/prisma';
 import { Request, Response } from 'express';
 import { IRequest } from '../../utils/types';
-import { validatePostData } from '../../utils/schemaValidate';
 import { enhanceData } from '../../utils/enhance';
-
-const prisma = new PrismaClient();
 
 export const handleEnhancePost = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
   try {
-    const {data} = req.body;
-    if (!data) {
+    const {email} = req as IRequest;
+
+    if (!email) {
+        throw new Error("unauthorized access");
+    }
+    const content = req.body;
+    if (!content) {
         throw new Error("required data is missing");
     }
-  const enhancedData = await enhanceData(data);
+  const enhancedData = await enhanceData(content);
+  res.status(200).json({
+    success:true,
+    message:"Data enhanced successfdully",
+    data:enhancedData
+  })
+  
 
   } catch (error) {
     const errorMessage =

@@ -4,13 +4,13 @@ const prisma = new PrismaClient();
 
 const handleGetPost = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { id } = req.query;
-        if (!id) {
+        const { postId } = req.query;
+        if (!postId) {
             throw new Error("required id is missing")
         }
         const post = await prisma.post.findUnique({
             where:{
-                id: id as string
+                id: postId as string
             }
         })
         res.status(200).json({
