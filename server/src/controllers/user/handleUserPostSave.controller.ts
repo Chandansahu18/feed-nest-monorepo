@@ -3,41 +3,47 @@ import { Request, Response } from 'express';
 
 const prisma = new PrismaClient();
 
-const handleGetUserSavedPosts = async (
+const handleUserPostSave = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
   try {
     const { postId, userId } = req.query;
-  
-    if (!userId) {
+
+    if (!userId || !postId) {
       throw new Error('required query parameters are missing');
     }
+    const isPostSaved = await prisma.savedPost.findFirst({
+      where: {
+        userId: userId as string,
+        postId: postId as string,
+      },
+    });
 
-    if (!postId) {
-      const savedPosts = await prisma.savedPost.findMany({
-        where: {
+    if (isPostSaved) {
+        await prisma.savedPost.deleteMany({
+          where: {
+            postId: isPostSaved.postId,
+            userId: isPostSaved.userId,
+          },
+        });
+  
+        res.status(200).json({
+          success: true,
+          message: 'Post unsaved successfully',
+        });
+    } else {
+      await prisma.savedPost.create({
+        data: {
+          postId: postId as string,
           userId: userId as string,
         },
       });
 
       res.status(200).json({
         success: true,
-        message: 'Data retreived successfully',
-        data: savedPosts,
+        message: 'Post saved successfully',
       });
-    } else {
-      const savedPost = await prisma.savedPost.findFirst({
-        where: {
-          postId: postId as string,
-          userId: userId as string
-        },
-      });
-      res.status(200).json({
-        success:true,
-        message:"Data retreived successfully",
-        data:savedPost
-      })
     }
   } catch (error) {
     const errorMessage =
@@ -52,4 +58,4 @@ const handleGetUserSavedPosts = async (
   }
 };
 
-export default handleGetUserSavedPosts;
+export default handleUserPostSave;
