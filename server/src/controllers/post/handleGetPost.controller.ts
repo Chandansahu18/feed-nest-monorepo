@@ -11,6 +11,14 @@ const handleGetPost = async (req: Request, res: Response): Promise<void> => {
         const post = await prisma.post.findUnique({
             where:{
                 id: postId as string
+            },
+            include:{
+                postComments:{
+                    include:{
+                        commentReply:true
+                    }
+                },
+                postLikes:true
             }
         })
         if (!post) {

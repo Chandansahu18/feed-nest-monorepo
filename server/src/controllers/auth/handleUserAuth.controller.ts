@@ -72,8 +72,7 @@ const handleUserAuth = async (req: Request, res: Response): Promise<void> => {
         .cookie('refresh_token', refreshToken);
       res.status(200).json({
         success: true,
-        message: 'User signed in successfully',
-        data: doUserExist,
+        message: 'User signed in successfully'
       });
     }
   } catch (error: unknown) {

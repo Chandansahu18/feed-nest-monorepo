@@ -33,6 +33,7 @@ model User {
   socialHandles      SocialHandle[]
   postLikes          PostLike[]
   postComments       PostComment[]
+  commentReply       CommentReply[]
 }
 
 model SocialHandle {
@@ -69,20 +70,32 @@ model PostLike {
 }
 
 model PostComment {
-  id        String   @id @default(uuid())
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  postId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String
-  comment   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String         @id @default(uuid())
+  post         Post           @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId       String
+  commentor    User           @relation(fields: [commentorId], references: [id], onDelete: Cascade)
+  commentorId  String
+  comment      String
+  commentReply CommentReply[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+}
+
+model CommentReply {
+  id            String      @id @default(uuid())
+  postComment   PostComment @relation(fields: [postCommentId], references: [id], onDelete: Cascade)
+  postCommentId String
+  replier       User        @relation(fields: [replierId], references: [id], onDelete: Cascade)
+  replierId     String
+  reply         String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 }
 
 model SavedPost {
   id     String @id @default(uuid())
   post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
-  postId String 
+  postId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String
 }
