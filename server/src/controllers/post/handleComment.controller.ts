@@ -9,10 +9,13 @@ const handleComment = async (req: Request, res: Response): Promise<void> => {
     const { email } = req as IRequest;
     const { postId, content, postCommentId } = req.body;
 
+    if (!postId && !postCommentId) {
+      throw new Error('post not found');
+    }
+
     if (!content) {
       throw new Error('Missing required content');
     }
-
     const user = await prisma.user.findFirst({
       where: {
         email,
@@ -23,9 +26,7 @@ const handleComment = async (req: Request, res: Response): Promise<void> => {
       throw new Error('User not found');
     }
 
-    if (!postId && !postCommentId) {
-      throw new Error('post not found');
-    } else if (!postId && postCommentId) {
+    if (!postId && postCommentId) {
       const commentReply = await prisma.commentReply.create({
         data: {
           replierId: user?.id as string,
