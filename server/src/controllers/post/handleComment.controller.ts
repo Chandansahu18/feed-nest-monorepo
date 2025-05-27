@@ -12,13 +12,20 @@ const handleComment = async (req: Request, res: Response): Promise<void> => {
     if (!content) {
       throw new Error('Missing required content');
     }
+
     const user = await prisma.user.findFirst({
       where: {
         email,
       },
     });
 
-    if (!postId) {
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    if (!postId && !postCommentId) {
+      throw new Error('post not found');
+    } else if (!postId && postCommentId) {
       const commentReply = await prisma.commentReply.create({
         data: {
           replierId: user?.id as string,
@@ -26,6 +33,7 @@ const handleComment = async (req: Request, res: Response): Promise<void> => {
           reply: content,
         },
       });
+
       res.status(201).json({
         success: true,
         message: 'Reply submitted successfully',
@@ -39,6 +47,7 @@ const handleComment = async (req: Request, res: Response): Promise<void> => {
           comment: content,
         },
       });
+
       res.status(201).json({
         success: true,
         message: 'Comment submitted successfully',
@@ -57,4 +66,5 @@ const handleComment = async (req: Request, res: Response): Promise<void> => {
     });
   }
 };
+
 export default handleComment;
