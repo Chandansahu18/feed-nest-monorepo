@@ -11,9 +11,9 @@ const handlePostDetailsUpdate = async (
 ): Promise<void> => {
   try {
     const { email } = req as IRequest;
-    const { id } = req.query;
+    const { postId } = req.query;
 
-    if (!id) {
+    if (!postId) {
       throw new Error('missing rewquired query parameters');
     }
 
@@ -38,7 +38,7 @@ const handlePostDetailsUpdate = async (
     const creatorId = user?.id as string;
     const isPostCreatedByUser = await prisma.post.findFirst({
       where: {
-        id: id as string,
+        id: postId as string,
         creatorId,
       },
     });
@@ -50,7 +50,7 @@ const handlePostDetailsUpdate = async (
     } else {
       await prisma.post.update({
         where: {
-          id: id as string,
+          id: postId as string,
           creatorId,
         },
         data: {

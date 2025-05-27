@@ -1,21 +1,24 @@
 import { PrismaClient } from '../../../generated/prisma';
 import { Request, Response } from 'express';
 import { IRequest } from '../../utils/types';
+import { validatePostCommentOrCommentReply } from '../../utils/schemaValidate';
 
 const prisma = new PrismaClient();
 
 const handleComment = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email } = req as IRequest;
-    const { postId, content, postCommentId } = req.body;
-
+    const { postId, postCommentId } = req.query;
     if (!postId && !postCommentId) {
       throw new Error('post not found');
     }
 
-    if (!content) {
-      throw new Error('Missing required content');
+    const validContent = validatePostCommentOrCommentReply.safeParse(req.body);
+    if (!validContent.data) {
+      throw new Error('Comment data must be required');
     }
+    const { content } = validContent.data;
+
     const user = await prisma.user.findFirst({
       where: {
         email,
@@ -30,7 +33,7 @@ const handleComment = async (req: Request, res: Response): Promise<void> => {
       const commentReply = await prisma.commentReply.create({
         data: {
           replierId: user?.id as string,
-          postCommentId,
+          postCommentId: postCommentId as string,
           reply: content,
         },
       });
@@ -40,11 +43,11 @@ const handleComment = async (req: Request, res: Response): Promise<void> => {
         message: 'Reply submitted successfully',
         data: commentReply,
       });
-    } else {
+    } else if (postId && !postCommentId) {
       const postComment = await prisma.postComment.create({
         data: {
           commentorId: user?.id as string,
-          postId,
+          postId: postId as string,
           comment: content,
         },
       });
@@ -54,16 +57,16 @@ const handleComment = async (req: Request, res: Response): Promise<void> => {
         message: 'Comment submitted successfully',
         data: postComment,
       });
+    } else {
+      throw new Error("Comment can't be submitted");
     }
   } catch (error) {
-    const errorMessage =
-      error instanceof Error
-        ? error.message
-        : 'Internal server error, please try again later';
-
     res.status(500).json({
       success: false,
-      message: errorMessage,
+      message:
+        error instanceof Error
+          ? error.message
+          : 'Internal server error, please try again later',
     });
   }
 };
