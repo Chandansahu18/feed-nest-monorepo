@@ -11,16 +11,18 @@ const handleCommentUpdate = async (
 ): Promise<void> => {
   try {
     const { email } = req as IRequest;
-    const { postCommentId, commentReplyId } = req.query;
-    if (!postCommentId && !commentReplyId) {
+    const { comment, id } = req.body;
+    if (!id) {
       throw new Error('required query parameters not found');
     }
 
-    const validContent = validatePostCommentOrCommentReply.safeParse(req.body);
+    const validContent = validatePostCommentOrCommentReply.safeParse({
+      comment,
+    });
     if (!validContent.data) {
       throw new Error('Comment data must be required');
     }
-    const { content } = validContent.data;
+    const { comment: commentData } = validContent.data;
 
     const user = await prisma.user.findFirst({
       where: {
@@ -32,41 +34,21 @@ const handleCommentUpdate = async (
       throw new Error('User not found');
     }
 
-    if (!postCommentId && commentReplyId) {
-      const commentReplyUpdate = await prisma.commentReply.update({
-        where:{
-         id: commentReplyId as string,
-         replierId: user.id as string
-        },
-        data: {
-          reply: content,
-        },
-      });
+    const commentUpdate = await prisma.postComment.update({
+      where: {
+        id: id as string,
+        userId: user.id,
+      },
+      data: {
+        comment: commentData,
+      },
+    });
 
-      res.status(201).json({
-        success: true,
-        message: 'Reply updated successfully',
-        data: commentReplyUpdate,
-      });
-    } else if (!commentReplyId && postCommentId) {
-      const postComment = await prisma.postComment.update({
-        where:{
-           id:postCommentId as string,
-           commentorId:user.id as string
-        },
-        data: {
-          comment: content,
-        },
-      });
-
-      res.status(201).json({
-        success: true,
-        message: 'Comment updated successfully',
-        data: postComment,
-      });
-    } else {
-      throw new Error("data can't be updated");
-    }
+    res.status(201).json({
+      success: true,
+      message: 'Comment updated successfully',
+      data: commentUpdate,
+    });
   } catch (error) {
     res.status(500).json({
       success: false,

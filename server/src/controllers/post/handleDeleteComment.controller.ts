@@ -10,47 +10,58 @@ const handleDeleteComment = async (
 ): Promise<void> => {
   try {
     const { email } = req as IRequest;
-    const { postCommentId, commentReplyId } = req.query;
-    if (!postCommentId && !commentReplyId) {
-      throw new Error('required query parameters not found');
+    const { replyId, commentId } = req.query;
+
+    if (!replyId && !commentId) {
+      throw new Error('Either replyId or commentId is required');
     }
+
     const user = await prisma.user.findFirst({
-      where: {
-        email,
-      },
+      where: { email },
     });
 
     if (!user) {
       throw new Error('User not found');
     }
 
-    if (!postCommentId && commentReplyId) {
-   await prisma.commentReply.delete({
-        where: {
-          id: commentReplyId as string,
-          replierId: user.id as string,
-        },
-      });
+    const targetId = (replyId || commentId) as string;
+    const isReply = !!replyId;
 
-      res.status(200).json({
-        success: true,
-        message: 'Reply deleted successfully'
-      });
-    } else if (!commentReplyId && postCommentId) {
-   await prisma.postComment.delete({
-        where: {
-          id: postCommentId as string,
-          commentorId: user.id as string,
-        },
-      });
+    const target = await prisma.postComment.findUnique({
+      where: { id: targetId },
+      include: { post: true },
+    });
 
-      res.status(200).json({
-        success: true,
-        message: 'Comment deleted successfully'
+    if (!target) {
+      throw new Error(`${isReply ? 'Reply' : 'Comment'} not found`);
+    }
+
+    const canDelete =
+      user.id === target.post?.creatorId || user.id === target.userId;
+
+    if (!canDelete) {
+      throw new Error(
+        `You do not have permission to delete this ${isReply ? 'reply' : 'comment'}`,
+      );
+    }
+
+    if (isReply) {
+      await prisma.postComment.delete({
+        where: { id: targetId },
       });
     } else {
-      throw new Error('unable to delete');
+      await prisma.postComment.deleteMany({
+        where: { commentId: targetId },
+      });
+      await prisma.postComment.delete({
+        where: { id: targetId },
+      });
     }
+
+    res.status(200).json({
+      success: true,
+      message: `${isReply ? 'Reply' : 'Comment'} ${isReply ? '' : 'and its replies '}deleted successfully`,
+    });
   } catch (error) {
     res.status(500).json({
       success: false,

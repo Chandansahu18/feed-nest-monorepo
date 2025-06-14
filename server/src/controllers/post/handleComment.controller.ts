@@ -8,16 +8,16 @@ const prisma = new PrismaClient();
 const handleComment = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email } = req as IRequest;
-    const { postId, postCommentId } = req.query;
-    if (!postId && !postCommentId) {
+    const { postId, commentId, comment } = req.body;
+    if (!postId && !commentId) {
       throw new Error('post not found');
     }
-
-    const validContent = validatePostCommentOrCommentReply.safeParse(req.body);
+   
+    const validContent = validatePostCommentOrCommentReply.safeParse({comment});
     if (!validContent.data) {
       throw new Error('Comment data must be required');
     }
-    const { content } = validContent.data;
+    const { comment:commentData } = validContent.data;
 
     const user = await prisma.user.findFirst({
       where: {
@@ -29,12 +29,13 @@ const handleComment = async (req: Request, res: Response): Promise<void> => {
       throw new Error('User not found');
     }
 
-    if (!postId && postCommentId) {
-      const commentReply = await prisma.commentReply.create({
+    // when postId is not available & commentId is present then user is posting a reply under a particular comment
+    if (!postId && commentId) {
+      const commentReply = await prisma.postComment.create({
         data: {
-          replierId: user?.id as string,
-          postCommentId: postCommentId as string,
-          reply: content,
+          userId: user?.id || "",
+          commentId: commentId || "",
+          comment:commentData,
         },
       });
 
@@ -43,12 +44,14 @@ const handleComment = async (req: Request, res: Response): Promise<void> => {
         message: 'Reply submitted successfully',
         data: commentReply,
       });
-    } else if (postId && !postCommentId) {
+    } 
+    // when postId is available & commentId is not present then user is posting comment under a particular post
+    else if (postId && !commentId) {
       const postComment = await prisma.postComment.create({
         data: {
-          commentorId: user?.id as string,
-          postId: postId as string,
-          comment: content,
+          userId: user?.id || "",
+          postId: postId || "",
+          comment: commentData,
         },
       });
 
@@ -57,8 +60,6 @@ const handleComment = async (req: Request, res: Response): Promise<void> => {
         message: 'Comment submitted successfully',
         data: postComment,
       });
-    } else {
-      throw new Error("Comment can't be submitted");
     }
   } catch (error) {
     res.status(500).json({

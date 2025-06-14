@@ -53,7 +53,7 @@ export const validatePostData = z.object({
 });
 
 export const validatePostCommentOrCommentReply = z.object({
-  content: z
+  comment: z
     .string()
     .min(5, 'comment must be minimum of length upto 5 characters')
     .max(500, 'comment must be maximum of length upto 500 characters'),
