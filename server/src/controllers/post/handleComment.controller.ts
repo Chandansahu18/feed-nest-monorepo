@@ -15,7 +15,7 @@ const handleComment = async (req: Request, res: Response): Promise<void> => {
    
     const validContent = validatePostCommentOrCommentReply.safeParse({comment});
     if (!validContent.data) {
-      throw new Error('Comment data must be required');
+      throw new Error('Invalid Comment format');
     }
     const { comment:commentData } = validContent.data;
 

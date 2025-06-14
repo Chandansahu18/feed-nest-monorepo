@@ -15,12 +15,6 @@ const handleGetAllComments = async (req: Request, res: Response): Promise<void> 
                     commentId: commentId as string
                 }
             })
-            if (!commentReplies) {
-                res.status(404).json({
-                    success:false,
-                    message:"Comment not found"
-                })
-            }
             res.status(200).json({
                 success:true,
             data: commentReplies
@@ -34,12 +28,6 @@ const handleGetAllComments = async (req: Request, res: Response): Promise<void> 
                 post:true,
             }
         })
-        if (!postComments) {
-            res.status(404).json({
-                success:false,
-                message:"Post not found"
-            })
-        }
         res.status(200).json({
             success:true,
         data: postComments
