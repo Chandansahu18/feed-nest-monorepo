@@ -12,7 +12,7 @@ const auth = nodemailer.createTransport({
 });
 
 // Path to emails ejs templates
-const _dirname= path.resolve('../src', 'views', 'emails');
+const _dirname= path.resolve('../server/src', 'views', 'emails');
 
 const resetPasswordEmailTemplatePath = path.join(_dirname,'resetPasswordEmail.ejs');
 const signUpEmailTemplatePath = path.join(_dirname, 'signupEmail.ejs');
