@@ -11,14 +11,12 @@ const auth = nodemailer.createTransport({
   },
 });
 
-// Path to emails ejs templates
-const _dirname= path.resolve('../server/src', 'views', 'emails');
+// Paths to ejs files
+const emailTemplatesDir = path.join(__dirname, '../views/emails');
 
-const resetPasswordEmailTemplatePath = path.join(_dirname,'resetPasswordEmail.ejs');
-const signUpEmailTemplatePath = path.join(_dirname, 'signupEmail.ejs');
-const signInEmailTemplatePath = path.join(_dirname, 'signinEmail.ejs');
-
-
+const resetPasswordEmailTemplatePath = path.join(emailTemplatesDir, 'resetPasswordEmail.ejs');
+const signUpEmailTemplatePath = path.join(emailTemplatesDir, 'signupEmail.ejs');
+const signInEmailTemplatePath = path.join(emailTemplatesDir, 'signinEmail.ejs');
 
 interface IEmailParams {
   redirectToEmailVerificationPageLink?: string;
@@ -34,26 +32,22 @@ const sendMail = async (
   params: IEmailParams,
 ): Promise<void> => {
   try {
-    // Render the EJS template
     let html: string;
 
     switch (type) {
       case 'reset password':
         html = await ejs.renderFile(resetPasswordEmailTemplatePath, {
-          redirectToResetPasswordPageLink:
-            params.redirectToResetPasswordPageLink,
+          redirectToResetPasswordPageLink: params.redirectToResetPasswordPageLink,
         });
         break;
       case 'sign up':
         html = await ejs.renderFile(signUpEmailTemplatePath, {
-          redirectToEmailVerificationPageLink:
-            params.redirectToEmailVerificationPageLink,
+          redirectToEmailVerificationPageLink: params.redirectToEmailVerificationPageLink,
         });
         break;
       case 'sign in':
         html = await ejs.renderFile(signInEmailTemplatePath, {
-          redirectToEmailVerificationPageLink:
-            params.redirectToEmailVerificationPageLink,
+          redirectToEmailVerificationPageLink: params.redirectToEmailVerificationPageLink,
         });
         break;
       default:
@@ -66,10 +60,10 @@ const sendMail = async (
       subject,
       html,
     };
+
     await auth.sendMail(mailOptions);
   } catch (error: unknown) {
-    const errorMessage =
-      error instanceof Error ? error.message : 'Error sending mail';
+    const errorMessage = error instanceof Error ? error.message : 'Error sending mail';
     throw new Error(errorMessage);
   }
 };
