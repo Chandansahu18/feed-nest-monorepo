@@ -2,8 +2,7 @@ import nodemailer from 'nodemailer';
 import ejs from 'ejs';
 import path from 'path';
 
-// Paths to ejs files
-const emailTemplatesDir = path.join(__dirname, '../views/emails');
+const emailTemplatesDir = path.join(process.cwd(), 'dist/views/emails');
 const resetPasswordEmailTemplatePath = path.join(
   emailTemplatesDir,
   'resetPasswordEmail.ejs',
