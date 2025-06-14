@@ -21,7 +21,7 @@ app.use(cors({
 app.use(express.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
 app.set("views", path.resolve("./src/views"));
-app.use(express.json());
+app.use(express.json({limit:'10mb'}));
 
 app.use('/', authRouter);
 app.use('/',restrictToAuthorisedUser, userRouter);

@@ -34,7 +34,7 @@ CREATE TABLE "Post" (
     "postTitle" TEXT NOT NULL,
     "postDescription" TEXT,
     "published" BOOLEAN NOT NULL DEFAULT false,
-    "postTags" TEXT,
+    "postTags" TEXT[] DEFAULT ARRAY[]::TEXT[],
     "creatorId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -54,8 +54,9 @@ CREATE TABLE "PostLike" (
 -- CreateTable
 CREATE TABLE "PostComment" (
     "id" TEXT NOT NULL,
-    "postId" TEXT NOT NULL,
+    "postId" TEXT,
     "userId" TEXT NOT NULL,
+    "commentId" TEXT,
     "comment" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
