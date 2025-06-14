@@ -4,13 +4,13 @@ import { PrismaClient } from '../../../generated/prisma';
 import { JwtPayload } from 'jsonwebtoken';
 
 const prisma = new PrismaClient();
-const accessTokenExpiryTime = parseInt(process.env.ACCESS_TOKEN_EXPIRY as string) ;
-const refreshTokenExpiryTime = parseInt(process.env.REFRESH_TOKEN_EXPIRY as string) ;
 
 export const handleUserEmailVerification = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
+  const accessTokenExpiryTime = parseInt(process.env.ACCESS_TOKEN_EXPIRY as string) ;
+  const refreshTokenExpiryTime = parseInt(process.env.REFRESH_TOKEN_EXPIRY as string) ;
   try {
     const token = req.params.token;    
     if (!token) {
@@ -36,6 +36,8 @@ export const handleUserEmailVerification = async (
       message: 'Email verified successfully',
     });
   } catch (error: unknown) {
+    console.log(error);
+    
     const errorMessage =
       error instanceof Error
         ? error.message

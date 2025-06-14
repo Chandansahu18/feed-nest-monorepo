@@ -6,15 +6,15 @@ import { validateUserData } from '../../utils/schemaValidate';
 import sendMail from '../../utils/email';
 
 const prisma = new PrismaClient();
-const baseURL = process.env.BASE_URL as string;
-const accessTokenExpiryTime = parseInt(
-  process.env.ACCESS_TOKEN_EXPIRY as string,
-);
-const refreshTokenExpiryTime = parseInt(
-  process.env.REFRESH_TOKEN_EXPIRY as string,
-);
 
 const handleUserAuth = async (req: Request, res: Response): Promise<void> => {
+  const baseURL = process.env.BASE_URL as string;
+  const accessTokenExpiryTime = parseInt(
+    process.env.ACCESS_TOKEN_EXPIRY as string,
+  );
+  const refreshTokenExpiryTime = parseInt(
+    process.env.REFRESH_TOKEN_EXPIRY as string,
+  );
   try {
     const validUserData = validateUserData.safeParse(req.body);
     if (!validUserData.data) {
@@ -33,6 +33,8 @@ const handleUserAuth = async (req: Request, res: Response): Promise<void> => {
     });
 
     if (!doUserExist || !doUserExist.isEmailVerified) {
+      console.log();
+
       const accessToken = generateToken(email, accessTokenExpiryTime);
       const hashedPassword = await generateHash(password as string);
       if (!doUserExist) {
@@ -72,7 +74,7 @@ const handleUserAuth = async (req: Request, res: Response): Promise<void> => {
         .cookie('refresh_token', refreshToken);
       res.status(200).json({
         success: true,
-        message: 'User signed in successfully'
+        message: 'User signed in successfully',
       });
     }
   } catch (error: unknown) {

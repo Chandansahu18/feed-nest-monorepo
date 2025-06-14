@@ -2,19 +2,12 @@ import nodemailer from 'nodemailer';
 import ejs from 'ejs';
 import path from 'path';
 
-// Nodemailer setup
-const auth = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.SENDER_EMAIL,
-    pass: process.env.SENDER_EMAIL_PASSWORD,
-  },
-});
-
 // Paths to ejs files
 const emailTemplatesDir = path.join(__dirname, '../views/emails');
-
-const resetPasswordEmailTemplatePath = path.join(emailTemplatesDir, 'resetPasswordEmail.ejs');
+const resetPasswordEmailTemplatePath = path.join(
+  emailTemplatesDir,
+  'resetPasswordEmail.ejs',
+);
 const signUpEmailTemplatePath = path.join(emailTemplatesDir, 'signupEmail.ejs');
 const signInEmailTemplatePath = path.join(emailTemplatesDir, 'signinEmail.ejs');
 
@@ -31,23 +24,35 @@ const sendMail = async (
   subject: string,
   params: IEmailParams,
 ): Promise<void> => {
+  // Nodemailer setup
+  const auth = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.SENDER_EMAIL,
+      pass: process.env.SENDER_EMAIL_PASSWORD,
+    },
+  });
+
   try {
     let html: string;
 
     switch (type) {
       case 'reset password':
         html = await ejs.renderFile(resetPasswordEmailTemplatePath, {
-          redirectToResetPasswordPageLink: params.redirectToResetPasswordPageLink,
+          redirectToResetPasswordPageLink:
+            params.redirectToResetPasswordPageLink,
         });
         break;
       case 'sign up':
         html = await ejs.renderFile(signUpEmailTemplatePath, {
-          redirectToEmailVerificationPageLink: params.redirectToEmailVerificationPageLink,
+          redirectToEmailVerificationPageLink:
+            params.redirectToEmailVerificationPageLink,
         });
         break;
       case 'sign in':
         html = await ejs.renderFile(signInEmailTemplatePath, {
-          redirectToEmailVerificationPageLink: params.redirectToEmailVerificationPageLink,
+          redirectToEmailVerificationPageLink:
+            params.redirectToEmailVerificationPageLink,
         });
         break;
       default:
@@ -63,7 +68,8 @@ const sendMail = async (
 
     await auth.sendMail(mailOptions);
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Error sending mail';
+    const errorMessage =
+      error instanceof Error ? error.message : 'Error sending mail';
     throw new Error(errorMessage);
   }
 };
