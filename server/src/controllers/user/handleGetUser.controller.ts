@@ -38,7 +38,6 @@ const handleGetUser = async (req: Request, res: Response) => {
       error instanceof Error
         ? error.message
         : 'Internal server error, please try again later';
-    console.log(errorMessage);
     res.status(500).json({
       success: false,
       message: errorMessage,
