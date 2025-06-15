@@ -98,7 +98,10 @@ export const handleNewPassword = async (req:Request, res:Response):Promise<void>
         }
     })
 
-    res.redirect(frontendURL)
+    res.status(204).json({
+      success:true,
+      message:"Password updated successfully"
+    })
   } catch (error) {
     res.status(500).json({
       success: false,
