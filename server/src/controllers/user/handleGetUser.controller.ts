@@ -1,17 +1,18 @@
 import { PrismaClient } from '../../../generated/prisma';
 import { Request, Response } from 'express';
+import { IRequest } from '../../utils/types';
 
 const prisma = new PrismaClient();
 const handleGetUser = async (req: Request, res: Response) => {
   try {
-    const { id } = req.query;
-    if (!id) {
-      throw new Error('Id not found');
+    const { email } = req as IRequest;
+    if (!email) {
+      throw new Error('Unauthorized access - please login again');
     }
 
     const user = await prisma.user.findFirst({
       where: {
-        id: id as string,
+        email,
         isEmailVerified: true,
       },
       omit: {

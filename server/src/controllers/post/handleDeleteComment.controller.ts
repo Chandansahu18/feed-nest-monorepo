@@ -60,7 +60,7 @@ const handleDeleteComment = async (
 
     res.status(200).json({
       success: true,
-      message: `${isReply ? 'Reply' : 'Comment'} ${isReply ? '' : 'and its replies '}deleted successfully`,
+      message: `${isReply ? 'Reply' : 'Comment and its replies'} deleted successfully`,
     });
   } catch (error) {
     res.status(500).json({
