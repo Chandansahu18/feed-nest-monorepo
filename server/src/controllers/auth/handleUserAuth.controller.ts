@@ -33,8 +33,6 @@ const handleUserAuth = async (req: Request, res: Response): Promise<void> => {
     });
 
     if (!doUserExist || !doUserExist.isEmailVerified) {
-      console.log();
-
       const accessToken = generateToken(email, accessTokenExpiryTime);
       const hashedPassword = await generateHash(password as string);
       if (!doUserExist) {
