@@ -2,6 +2,21 @@ import nodemailer from 'nodemailer';
 import ejs from 'ejs';
 import path from 'path';
 
+// Nodemailer setup
+const auth = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.SENDER_EMAIL,
+    pass: process.env.SENDER_EMAIL_PASSWORD,
+  },
+});
+const emailTemplatesDir = path.join(process.cwd(), 'dist/views/emails');
+const resetPasswordEmailTemplatePath = path.join(
+  emailTemplatesDir,
+  'resetPasswordEmail.ejs',
+);
+const signUpEmailTemplatePath = path.join(emailTemplatesDir, 'signUpEmail.ejs');
+const signInEmailTemplatePath = path.join(emailTemplatesDir, 'signinEmail.ejs');
 interface IEmailParams {
   redirectToEmailVerificationPageLink?: string;
   redirectToResetPasswordPageLink?: string;
@@ -15,21 +30,6 @@ const sendMail = async (
   subject: string,
   params: IEmailParams,
 ): Promise<void> => {
-  // Nodemailer setup
-  const auth = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.SENDER_EMAIL,
-      pass: process.env.SENDER_EMAIL_PASSWORD,
-    },
-  });
-  const emailTemplatesDir = path.join(process.cwd(), 'dist/views/emails');
-  const resetPasswordEmailTemplatePath = path.join(
-    emailTemplatesDir,
-    'resetPasswordEmail.ejs',
-  );
-  const signUpEmailTemplatePath = path.join(emailTemplatesDir, 'signUpEmail.ejs');
-  const signInEmailTemplatePath = path.join(emailTemplatesDir, 'signinEmail.ejs');
 
   try {
     let html: string;

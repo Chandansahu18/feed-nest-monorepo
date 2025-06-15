@@ -6,15 +6,15 @@ import { validateUserData } from '../../utils/schemaValidate';
 import sendMail from '../../utils/email';
 
 const prisma = new PrismaClient();
+const baseURL = process.env.BASE_URL as string;
+const accessTokenExpiryTime = parseInt(
+  process.env.ACCESS_TOKEN_EXPIRY as string,
+);
+const refreshTokenExpiryTime = parseInt(
+  process.env.REFRESH_TOKEN_EXPIRY as string,
+);
 
 const handleUserAuth = async (req: Request, res: Response): Promise<void> => {
-  const baseURL = process.env.BASE_URL as string;
-  const accessTokenExpiryTime = parseInt(
-    process.env.ACCESS_TOKEN_EXPIRY as string,
-  );
-  const refreshTokenExpiryTime = parseInt(
-    process.env.REFRESH_TOKEN_EXPIRY as string,
-  );
   try {
     const validUserData = validateUserData.safeParse(req.body);
     if (!validUserData.data) {
