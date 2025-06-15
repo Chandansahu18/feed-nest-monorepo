@@ -2,14 +2,6 @@ import nodemailer from 'nodemailer';
 import ejs from 'ejs';
 import path from 'path';
 
-const emailTemplatesDir = path.join(process.cwd(), 'dist/views/emails');
-const resetPasswordEmailTemplatePath = path.join(
-  emailTemplatesDir,
-  'resetPasswordEmail.ejs',
-);
-const signUpEmailTemplatePath = path.join(emailTemplatesDir, 'signupEmail.ejs');
-const signInEmailTemplatePath = path.join(emailTemplatesDir, 'signinEmail.ejs');
-
 interface IEmailParams {
   redirectToEmailVerificationPageLink?: string;
   redirectToResetPasswordPageLink?: string;
@@ -31,6 +23,13 @@ const sendMail = async (
       pass: process.env.SENDER_EMAIL_PASSWORD,
     },
   });
+  const emailTemplatesDir = path.join(process.cwd(), 'dist/views/emails');
+  const resetPasswordEmailTemplatePath = path.join(
+    emailTemplatesDir,
+    'resetPasswordEmail.ejs',
+  );
+  const signUpEmailTemplatePath = path.join(emailTemplatesDir, 'signupEmail.ejs');
+  const signInEmailTemplatePath = path.join(emailTemplatesDir, 'signinEmail.ejs');
 
   try {
     let html: string;
