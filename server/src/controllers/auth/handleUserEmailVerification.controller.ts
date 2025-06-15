@@ -46,8 +46,6 @@ export const handleUserEmailVerification = async (
       message: 'Email verified successfully',
     });
   } catch (error: unknown) {
-    console.log(error);
-    
     const errorMessage =
       error instanceof Error
         ? error.message

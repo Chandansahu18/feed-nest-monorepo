@@ -70,7 +70,7 @@ const handleUserAuth = async (req: Request, res: Response): Promise<void> => {
       res
         .cookie('access_token', accessToken)
         .cookie('refresh_token', refreshToken);
-      res.status(200).json({
+      res.status(204).json({
         success: true,
         message: 'User signed in successfully',
       });

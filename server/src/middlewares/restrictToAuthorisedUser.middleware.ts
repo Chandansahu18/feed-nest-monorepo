@@ -13,7 +13,7 @@ export const restrictToAuthorisedUser = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    let bypassEndpoints: string[] = ['/v1/posts', '/v1/post'];
+    let bypassEndpoints: string[] = ['/v1/posts', '/v1/post', '/v1/user'];
     const isURLNeedToBypass = bypassEndpoints.some(
       (endpoint) => req.url.includes(endpoint) && req.method === 'GET',
     );

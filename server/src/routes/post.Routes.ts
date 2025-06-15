@@ -10,12 +10,14 @@ import handleDeleteComment from "../controllers/post/handleDeleteComment.control
 import { handleEnhancePost } from "../controllers/post/handleEnhancePost.controller";
 import { handlePostPrivacy } from "../controllers/post/handlePostPrivacy.controller";
 import handleGetAllComments from "../controllers/post/handleGetAllComments.controller";
+import { handlePostLikes } from "../controllers/post/handlePostLikes.controller";
 
 const router = express.Router();
 
 router.route("/v1/posts").get(handleGetAllPosts);
-router.route("/v1/post/publish").get(handlePostPrivacy);
 router.route("/v1/post").get(handleGetPost).post(handleCreateNewPost).patch(handlePostDetailsUpdate).delete(handleDeletePost);
+router.route("/v1/post/like").post(handlePostLikes);
+router.route("/v1/post/publish").get(handlePostPrivacy);
 router.route("/v1/enhance").patch(handleEnhancePost);
 router.route("/v1/comment").get(handleGetAllComments).post(handleComment).patch(handleCommentUpdate).delete(handleDeleteComment);
 
