@@ -17,7 +17,7 @@ export const handleUserEmailVerification = async (
       throw new Error('verification token missing.');
     }
     const verifiedToken = verifyToken(token) as JwtPayload;
-    const { data: email } = verifiedToken;
+    const { data: email } = verifiedToken;    
     const accessToken = generateToken(email, accessTokenExpiryTime);
     const refreshToken = generateToken(email, refreshTokenExpiryTime);
     await prisma.user.update({
