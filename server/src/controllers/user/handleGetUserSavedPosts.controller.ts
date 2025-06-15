@@ -19,8 +19,11 @@ const handleGetUserSavedPosts = async (
         where: {
           userId: userId as string,
         },
+        include:{
+          post:true
+        }
       });
-
+      
       res.status(200).json({
         success: true,
         message: 'Data retreived successfully',
@@ -32,6 +35,9 @@ const handleGetUserSavedPosts = async (
           postId: postId as string,
           userId: userId as string
         },
+        include:{
+          post:true
+        }
       });
       res.status(200).json({
         success:true,
