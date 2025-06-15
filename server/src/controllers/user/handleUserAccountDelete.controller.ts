@@ -12,6 +12,10 @@ const handleUserAccountDelete = async (
   try {
     const { email } = req as IRequest;
 
+    if (!email) {
+      throw new Error('Unauthorized access - please login again');
+    }
+
     await prisma.user.delete({
       where: {
         email,

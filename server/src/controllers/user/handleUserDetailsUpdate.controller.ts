@@ -11,6 +11,11 @@ const handleUserDetailsUpdate = async (
 ): Promise<void> => {
   try {
     const { email } = req as IRequest;
+
+    if (!email) {
+      throw new Error('Unauthorized access - please login again');
+    }
+
     const validUserData = validateUserData.safeParse(req.body);
     if (!validUserData.data) {
       const errors = validUserData.error?.issues;
