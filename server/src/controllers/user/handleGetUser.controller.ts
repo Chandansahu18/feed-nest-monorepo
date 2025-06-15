@@ -8,8 +8,7 @@ const handleGetUser = async (req: Request, res: Response): Promise<void> => {
     const { email } = req as IRequest;
     const { id } = req.query;
     if (!email && id) {
-      console.log(id);
-      
+
       const user = await prisma.user.findFirst({
         where: {
           id: id as string,
