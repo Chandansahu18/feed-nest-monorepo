@@ -9,7 +9,7 @@ export const handlePostLikes = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const { email } = req as IRequest;
+    const { email } = req as IRequest; 
     const { postId } = req.query;
 
     if (!postId) {
@@ -17,7 +17,7 @@ export const handlePostLikes = async (
     }
 
     if (!email) {
-      throw new Error('unauthorized access');
+      throw new Error('Unauthorized access - please login again');
     }
     const user = await prisma.user.findFirst({
       where: {

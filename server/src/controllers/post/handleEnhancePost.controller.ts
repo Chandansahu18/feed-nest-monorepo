@@ -10,7 +10,7 @@ export const handleEnhancePost = async (
     const {email} = req as IRequest;
 
     if (!email) {
-        throw new Error("unauthorized access");
+        throw new Error("Unauthorized access - please login again");
     }
     const content = req.body;
     if (!content) {
