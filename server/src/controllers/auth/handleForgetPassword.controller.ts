@@ -42,7 +42,7 @@ export const handleForgetPassword = async (
     );
 
 
-    const redirectToResetPasswordPageLink = `${baseURL}/reset-password/${resetPasswordToken}`;
+    const redirectToResetPasswordPageLink = `${baseURL}/v1/reset-password/${resetPasswordToken}`;
     const params = {
       redirectToResetPasswordPageLink,
     };

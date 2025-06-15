@@ -47,7 +47,7 @@ const handleUserAuth = async (req: Request, res: Response): Promise<void> => {
       }
 
       await sendMail(email, 'sign up', 'Email verification link for signup', {
-        redirectToEmailVerificationPageLink: `${baseURL}/verify/${accessToken}`,
+        redirectToEmailVerificationPageLink: `${baseURL}/v1/verify/${accessToken}`,
       });
       res.status(200).json({
         success: true,
@@ -70,9 +70,9 @@ const handleUserAuth = async (req: Request, res: Response): Promise<void> => {
       res
         .cookie('access_token', accessToken)
         .cookie('refresh_token', refreshToken);
-      res.status(200).json({
+      res.status(204).json({
         success: true,
-        message: 'User signed in successfully'
+        message: 'User signed in successfully',
       });
     }
   } catch (error: unknown) {

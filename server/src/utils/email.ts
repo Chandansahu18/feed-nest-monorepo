@@ -10,16 +10,13 @@ const auth = nodemailer.createTransport({
     pass: process.env.SENDER_EMAIL_PASSWORD,
   },
 });
-
-// Path to emails ejs templates
-const _dirname= path.resolve('../server/src', 'views', 'emails');
-
-const resetPasswordEmailTemplatePath = path.join(_dirname,'resetPasswordEmail.ejs');
-const signUpEmailTemplatePath = path.join(_dirname, 'signupEmail.ejs');
-const signInEmailTemplatePath = path.join(_dirname, 'signinEmail.ejs');
-
-
-
+const emailTemplatesDir = path.join(process.cwd(), 'dist/views/emails');
+const resetPasswordEmailTemplatePath = path.join(
+  emailTemplatesDir,
+  'resetPasswordEmail.ejs',
+);
+const signUpEmailTemplatePath = path.join(emailTemplatesDir, 'signUpEmail.ejs');
+const signInEmailTemplatePath = path.join(emailTemplatesDir, 'signinEmail.ejs');
 interface IEmailParams {
   redirectToEmailVerificationPageLink?: string;
   redirectToResetPasswordPageLink?: string;
@@ -33,8 +30,8 @@ const sendMail = async (
   subject: string,
   params: IEmailParams,
 ): Promise<void> => {
+
   try {
-    // Render the EJS template
     let html: string;
 
     switch (type) {
@@ -66,6 +63,7 @@ const sendMail = async (
       subject,
       html,
     };
+
     await auth.sendMail(mailOptions);
   } catch (error: unknown) {
     const errorMessage =

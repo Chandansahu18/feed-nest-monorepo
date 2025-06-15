@@ -13,6 +13,7 @@ const handleGetPost = async (req: Request, res: Response): Promise<void> => {
                 id: postId as string
             },
             include:{
+                creator:true,
                 postComments:true,
                 postLikes:true
             }

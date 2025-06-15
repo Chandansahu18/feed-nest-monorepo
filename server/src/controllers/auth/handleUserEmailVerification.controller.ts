@@ -6,7 +6,7 @@ import { JwtPayload } from 'jsonwebtoken';
 const prisma = new PrismaClient();
 const accessTokenExpiryTime = parseInt(process.env.ACCESS_TOKEN_EXPIRY as string) ;
 const refreshTokenExpiryTime = parseInt(process.env.REFRESH_TOKEN_EXPIRY as string) ;
-
+const nodeEnv = process.env.NODE_ENV as string
 export const handleUserEmailVerification = async (
   req: Request,
   res: Response,
@@ -17,7 +17,7 @@ export const handleUserEmailVerification = async (
       throw new Error('verification token missing.');
     }
     const verifiedToken = verifyToken(token) as JwtPayload;
-    const { data: email } = verifiedToken;
+    const { data: email } = verifiedToken;    
     const accessToken = generateToken(email, accessTokenExpiryTime);
     const refreshToken = generateToken(email, refreshTokenExpiryTime);
     await prisma.user.update({
@@ -30,7 +30,17 @@ export const handleUserEmailVerification = async (
       },
     });
     
-    res.cookie('access_token', accessToken).cookie('refresh_token', refreshToken);
+    res.cookie('access_token', accessToken,{
+      httpOnly: true,
+      secure: nodeEnv === 'production' ? true : false, 
+      sameSite: nodeEnv === 'production' ? 'none' : 'lax', 
+      maxAge: accessTokenExpiryTime, 
+    }).cookie('refresh_token', refreshToken,{
+      httpOnly: true,
+     secure: nodeEnv === 'production' ? true : false, 
+      sameSite: nodeEnv === 'production' ? 'none' : 'lax', 
+      maxAge: accessTokenExpiryTime, 
+    });
     res.status(200).json({
       success: true,
       message: 'Email verified successfully',
