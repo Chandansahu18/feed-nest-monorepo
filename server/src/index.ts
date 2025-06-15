@@ -6,7 +6,6 @@ import cookieParser from 'cookie-parser';
 import userRouter from './routes/user.Routes';
 import postRouter from './routes/post.Routes';
 import authRouter from './routes/auth.Routes';
-import uploadRouter from './routes/upload.Routes';
 import { restrictToAuthorisedUser } from './middlewares/restrictToAuthorisedUser.middleware';
 
 dotenv.config();
@@ -27,7 +26,6 @@ app.use(express.json({limit:'10mb'}));
 app.use('/', authRouter);
 app.use('/',restrictToAuthorisedUser, userRouter);
 app.use('/',restrictToAuthorisedUser, postRouter);
-app.use('/',restrictToAuthorisedUser, uploadRouter);
 
 app.listen(port, async () => {
   console.log('Server started at port:', port);
