@@ -47,7 +47,7 @@ const handleUserAuth = async (req: Request, res: Response): Promise<void> => {
       }
 
       await sendMail(email, 'sign up', 'Email verification link for signup', {
-        redirectToEmailVerificationPageLink: `${baseURL}/verify/${accessToken}`,
+        redirectToEmailVerificationPageLink: `${baseURL}/v1/verify/${accessToken}`,
       });
       res.status(200).json({
         success: true,
