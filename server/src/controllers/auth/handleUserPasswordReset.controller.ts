@@ -98,9 +98,9 @@ export const handleNewPassword = async (req:Request, res:Response):Promise<void>
         }
     })
 
-    res.status(204).json({
+    res.status(200).json({
       success:true,
-      message:"Password updated successfully"
+      message:"New password created successfully"
     })
   } catch (error) {
     res.status(500).json({
