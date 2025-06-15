@@ -28,7 +28,7 @@ const sendMail = async (
     emailTemplatesDir,
     'resetPasswordEmail.ejs',
   );
-  const signUpEmailTemplatePath = path.join(emailTemplatesDir, 'signupEmail.ejs');
+  const signUpEmailTemplatePath = path.join(emailTemplatesDir, 'signUpEmail.ejs');
   const signInEmailTemplatePath = path.join(emailTemplatesDir, 'signinEmail.ejs');
 
   try {
