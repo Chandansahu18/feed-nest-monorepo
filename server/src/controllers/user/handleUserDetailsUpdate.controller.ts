@@ -2,7 +2,6 @@ import { PrismaClient } from '../../../generated/prisma';
 import { Request, Response } from 'express';
 import { validateUserData } from '../../utils/schemaValidate';
 import { IRequest } from '../../utils/types';
-import { error } from 'console';
 
 const prisma = new PrismaClient();
 
