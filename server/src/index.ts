@@ -7,6 +7,7 @@ import userRouter from './routes/user.Routes';
 import postRouter from './routes/post.Routes';
 import authRouter from './routes/auth.Routes';
 import { restrictToAuthorisedUser } from './middlewares/restrictToAuthorisedUser.middleware';
+import { authLimiter, postDataAccessLimiter, userDataAccessLimiter } from './middlewares/limiter.middleware';
 
 dotenv.config();
 const app = express();
@@ -23,9 +24,9 @@ app.set("view engine", "ejs");
 app.set("views", path.resolve("./dist/views"));
 app.use(express.json({limit:'10mb'}));
 
-app.use('/', authRouter);
-app.use('/',restrictToAuthorisedUser, userRouter);
-app.use('/',restrictToAuthorisedUser, postRouter);
+app.use('/', authLimiter, authRouter);
+app.use('/', userDataAccessLimiter, restrictToAuthorisedUser, userRouter);
+app.use('/', postDataAccessLimiter, restrictToAuthorisedUser, postRouter);
 
 app.listen(port, async () => {
   console.log('Server started at port:', port);

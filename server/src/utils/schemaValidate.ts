@@ -33,6 +33,9 @@ export const validateUserData = z.object({
     )
     .optional(),
   bio: z.string().min(1).max(250).optional(),
+  linkedInHandle: z.string().startsWith('https://www.linkedin.com/in/','incorrect linkedIn profile url').optional(),
+  twitterHandle: z.string().startsWith('https://x.com/','incorrect X profile url').optional(),
+  githubHandle: z.string().startsWith('https://github.com/','incorrect github profile url').optional(),
 });
 
 export const validatePostData = z.object({

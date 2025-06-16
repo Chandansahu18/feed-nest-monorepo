@@ -7,7 +7,16 @@ const handleGetAllPosts = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const allPosts = await prisma.post.findMany();
+    const allPosts = await prisma.post.findMany({
+      include: {
+        creator: {
+          omit: {
+            hashedPassword: true,
+            refreshToken: true,
+          },
+        },
+      },
+    });
     res.status(200).json({
       success: true,
       data: allPosts,

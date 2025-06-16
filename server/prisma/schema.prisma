@@ -24,24 +24,17 @@ model User {
   avatar             String?
   profileBanner      String?
   bio                String?
+  linkedInHandle     String?
+  twitterHandle      String?
+  githubHandle       String?
   refreshToken       String?
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
   posts              Post[]
   savedPosts         SavedPost[]
   followingRelations FollowingRelations[]
-  socialHandles      SocialHandle[]
   postLikes          PostLike[]
   postComments       PostComment[]
-}
-
-model SocialHandle {
-  id             String  @id @default(uuid())
-  user           User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId         String
-  linkedInHandle String?
-  twitterHandle  String?
-  githubHandle   String?
 }
 
 model Post {
