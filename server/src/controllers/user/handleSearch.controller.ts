@@ -6,6 +6,11 @@ const handleSearch = async (req: Request, res: Response): Promise<void> => {
   try {
     const { searchedTerm } = req.query;
     const trimmedSearchedTerm = searchedTerm?.toString().trim();
+
+    if (trimmedSearchedTerm && trimmedSearchedTerm?.length < 3) {
+      throw new Error('Searched term must contain atleast of 3 characters');
+    }
+
     if (!trimmedSearchedTerm) {
       throw new Error('Required query parameters are not available');
     }
@@ -34,6 +39,12 @@ const handleSearch = async (req: Request, res: Response): Promise<void> => {
                   },
                 },
               ],
+            },
+          },
+          {
+            postDescription: {
+              contains: trimmedSearchedTerm as string,
+              mode: 'insensitive',
             },
           },
         ],

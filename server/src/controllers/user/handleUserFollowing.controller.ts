@@ -9,20 +9,39 @@ const handleUserFollowing = async (
 ): Promise<void> => {
   try {
     const { email } = req as IRequest;
-    const { followingUserId, userId } = req.query;
+    const { followingUserId } = req.query;
     if (!email) {
       throw new Error('Unauthorized access - please login again');
+    }
+    const user = await prisma.user.findFirst({
+      where:{
+        email
+      }
+    }) 
+    if (!user) {
+      res.status(404).json({
+        success: true,
+        message: 'User not found',
+      });
+    }
+    
+    if (user?.id === followingUserId) {
+      res.status(400).json({
+        success: true,
+        message: 'User can not be followed',
+      });  
     }
 
     const isUserFollowedAlready = await prisma.followingRelations.findFirst({
       where: {
-        userId: userId as string,
+        userId: user?.id as string,
       },
     });
+
     if (!isUserFollowedAlready) {
       await prisma.followingRelations.create({
         data: {
-          userId: userId as string,
+          userId: user?.id as string,
           followingUserId: followingUserId as string,
         },
       });
@@ -34,7 +53,7 @@ const handleUserFollowing = async (
     await prisma.followingRelations.delete({
       where: {
         id: isUserFollowedAlready?.id,
-        userId: userId as string,
+        userId: user?.id as string,
         followingUserId: followingUserId as string,
       },
     });
