@@ -1,11 +1,9 @@
-import GoogleAuthButton from './components/GoogleAuthButton';
+import { ModeToggle } from './components/mode-toggle';
 
 function App() {
   return (
     <>
-    <div className="bg-sky-300 h-screen w-screen">
-      <GoogleAuthButton />
-    </div>
+<ModeToggle />
     </>
   )
 }
