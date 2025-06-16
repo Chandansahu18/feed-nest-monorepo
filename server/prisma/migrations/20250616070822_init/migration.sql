@@ -9,22 +9,14 @@ CREATE TABLE "User" (
     "avatar" TEXT,
     "profileBanner" TEXT,
     "bio" TEXT,
+    "linkedInHandle" TEXT,
+    "twitterHandle" TEXT,
+    "githubHandle" TEXT,
     "refreshToken" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "SocialHandle" (
-    "id" TEXT NOT NULL,
-    "userId" TEXT NOT NULL,
-    "linkedInHandle" TEXT,
-    "twitterHandle" TEXT,
-    "githubHandle" TEXT,
-
-    CONSTRAINT "SocialHandle_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -84,9 +76,6 @@ CREATE TABLE "FollowingRelations" (
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
-
--- AddForeignKey
-ALTER TABLE "SocialHandle" ADD CONSTRAINT "SocialHandle_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Post" ADD CONSTRAINT "Post_creatorId_fkey" FOREIGN KEY ("creatorId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

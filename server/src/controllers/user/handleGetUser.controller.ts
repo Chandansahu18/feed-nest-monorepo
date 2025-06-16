@@ -22,6 +22,10 @@ const handleGetUser = async (req: Request, res: Response): Promise<void> => {
 
     const user = await prisma.user.findFirst({
       where: queryCondition,
+      include:{
+        followingRelations:true,
+        posts:true
+      },
       omit: {
         hashedPassword: true,
         refreshToken: true,
