@@ -1,64 +1,49 @@
 import { PrismaClient } from '../../../generated/prisma';
 import { Request, Response } from 'express';
-import { IRequest } from '../../utils/types';
+import { verifyToken } from '../../utils/authTokens';
+import { JwtPayload } from 'jsonwebtoken';
 
 const prisma = new PrismaClient();
+
 const handleGetUser = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { email } = req as IRequest;
+    const { access_token } = req.cookies;
+    const isAccessTokenValid = verifyToken(access_token);
+    const { data: email } = isAccessTokenValid as JwtPayload;
     const { id } = req.query;
-    if (!email && id) {
 
-      const user = await prisma.user.findFirst({
-        where: {
-          id: id as string,
-          isEmailVerified: true,
-        },
-        omit: {
-          hashedPassword: true,
-          refreshToken: true,
-        },
-      });
-  
-      if (!user) {
-        res.status(404).json({
-          success: false,
-          message: 'User not found'
-        });
-      }
-  
-      res.status(200).json({
-        success: true,
-        message: 'User data retrieved successfully',
-        data: user,
-      });      
-    }else if (!id && email) {
-      const user = await prisma.user.findFirst({
-        where: {
-          email,
-          isEmailVerified: true,
-        },
-        omit: {
-          hashedPassword: true,
-          refreshToken: true,
-        },
-      });
-  
-      if (!user) {
-        res.status(404).json({
-          success: false,
-          message: 'User not found'
-        });
-      }
-  
-      res.status(200).json({
-        success: true,
-        message: 'User data retrieved successfully',
-        data: user,
-      });
-    }else{
-     throw new Error("Required parameters not found")
+    if (!email && !id) {
+      throw new Error('Required parameters not found');
     }
+
+    const queryCondition = email && !id 
+      ? { email, isEmailVerified: true }
+      : { id: id as string, isEmailVerified: true };
+
+    const user = await prisma.user.findFirst({
+      where: queryCondition,
+      include:{
+        followingRelations:true,
+        posts:true
+      },
+      omit: {
+        hashedPassword: true,
+        refreshToken: true,
+      },
+    });
+
+    if (!user) {
+      res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'User data retrieved successfully',
+      data: user,
+    });
   } catch (error) {
     const errorMessage =
       error instanceof Error

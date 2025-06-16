@@ -20,7 +20,7 @@ const handleUserAuth = async (req: Request, res: Response): Promise<void> => {
     if (!validUserData.data) {
       const errors = validUserData.error?.issues;
       const errorMessage =
-        errors.length === 1 ? errors[0].message : 'missing required fields';
+        errors.length === 1 ? errors[0].message : errors.map(err => err.message).join(' & ');
       throw new Error(errorMessage);
     }
 

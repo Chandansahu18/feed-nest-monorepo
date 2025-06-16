@@ -20,10 +20,10 @@ const handleUserDetailsUpdate = async (
     if (!validUserData.data) {
       const errors = validUserData.error?.issues;
       const errorMessage =
-        errors.length === 1 ? errors[0].message : 'missing required fields';
+        errors.length === 1 ? errors[0].message : errors.map(err => err.message).join(' & ');
       throw new Error(errorMessage);
     }
-    const { name, userName, bio, avatar, profileBanner } = validUserData.data;
+    const { name, userName, bio, avatar, profileBanner, linkedInHandle, githubHandle, twitterHandle } = validUserData.data;
     await prisma.user.update({
       where: {
         email,
@@ -35,6 +35,9 @@ const handleUserDetailsUpdate = async (
         bio,
         profileBanner,
         avatar,
+        linkedInHandle,
+        twitterHandle,
+        githubHandle
       },
     });
     res.status(204).json({
