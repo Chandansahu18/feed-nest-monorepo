@@ -1,11 +1,12 @@
 import { PrismaClient } from '../../../generated/prisma';
 import { Request, Response } from 'express';
+import { IGenericMessageResponse } from '@shared/types';
 import { IRequest } from '../../utils/types';
 
 const prisma = new PrismaClient();
 const handleUserFollowing = async (
   req: Request,
-  res: Response,
+  res: Response<IGenericMessageResponse>,
 ): Promise<void> => {
   try {
     const { email } = req as IRequest;
@@ -35,6 +36,7 @@ const handleUserFollowing = async (
     const isUserFollowedAlready = await prisma.followingRelations.findFirst({
       where: {
         userId: user?.id as string,
+        followingUserId:followingUserId as string
       },
     });
 

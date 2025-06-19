@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { generateToken, verifyToken } from '../../utils/authTokens';
 import { PrismaClient } from '../../../generated/prisma';
 import { JwtPayload } from 'jsonwebtoken';
+import { IGenericMessageResponse } from '@shared/types';
 
 const prisma = new PrismaClient();
 const accessTokenExpiryTime = parseInt(process.env.ACCESS_TOKEN_EXPIRY as string) ;
@@ -9,7 +10,7 @@ const refreshTokenExpiryTime = parseInt(process.env.REFRESH_TOKEN_EXPIRY as stri
 const nodeEnv = process.env.NODE_ENV as string
 export const handleUserEmailVerification = async (
   req: Request,
-  res: Response,
+  res: Response<IGenericMessageResponse>,
 ): Promise<void> => {
   try {
     const token = req.params.token;    
@@ -39,7 +40,7 @@ export const handleUserEmailVerification = async (
       httpOnly: true,
      secure: nodeEnv === 'production' ? true : false, 
       sameSite: nodeEnv === 'production' ? 'none' : 'lax', 
-      maxAge: accessTokenExpiryTime, 
+      maxAge: refreshTokenExpiryTime, 
     });
     res.status(200).json({
       success: true,
@@ -53,7 +54,7 @@ export const handleUserEmailVerification = async (
 
     res.status(400).json({
       success: false,
-      message: error,
+      message: errorMessage,
     });
   }
 };

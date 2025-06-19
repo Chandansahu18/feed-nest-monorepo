@@ -1,10 +1,11 @@
 import { Request, Response } from 'express';
-import { IRequest } from '../../utils/types';
+import { IEnhancedPostDataResponse } from '@shared/types';
 import { enhanceData } from '../../utils/enhance';
+import { IRequest } from '../../utils/types';
 
 export const handleEnhancePost = async (
   req: Request,
-  res: Response,
+  res: Response<IEnhancedPostDataResponse>,
 ): Promise<void> => {
   try {
     const {email} = req as IRequest;

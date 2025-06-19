@@ -1,23 +1,29 @@
 import { PrismaClient } from '../../../generated/prisma';
 import { Request, Response } from 'express';
-import { IRequest } from '../../utils/types';
+import { IPostCommentOrReplyDataResponse } from '@shared/types';
 import { validatePostCommentOrCommentReply } from '../../utils/schemaValidate';
+import { IRequest } from '../../utils/types';
 
 const prisma = new PrismaClient();
 
-const handleComment = async (req: Request, res: Response): Promise<void> => {
+const handleComment = async (
+  req: Request,
+  res: Response<IPostCommentOrReplyDataResponse>,
+): Promise<void> => {
   try {
     const { email } = req as IRequest;
     const { postId, commentId, comment } = req.body;
     if (!postId && !commentId) {
       throw new Error('post not found');
     }
-   
-    const validContent = validatePostCommentOrCommentReply.safeParse({comment});
+
+    const validContent = validatePostCommentOrCommentReply.safeParse({
+      comment,
+    });
     if (!validContent.data) {
       throw new Error('Invalid Comment format');
     }
-    const { comment:commentData } = validContent.data;
+    const { comment: commentData } = validContent.data;
 
     const user = await prisma.user.findFirst({
       where: {
@@ -28,14 +34,13 @@ const handleComment = async (req: Request, res: Response): Promise<void> => {
     if (!user) {
       throw new Error('User not found');
     }
-
     // when postId is not available & commentId is present then user is posting a reply under a particular comment
     if (!postId && commentId) {
       const commentReply = await prisma.postComment.create({
         data: {
-          userId: user?.id || "",
-          commentId: commentId || "",
-          comment:commentData,
+          userId: user?.id || '',
+          commentId: commentId || '',
+          comment: commentData,
         },
       });
 
@@ -44,13 +49,13 @@ const handleComment = async (req: Request, res: Response): Promise<void> => {
         message: 'Reply submitted successfully',
         data: commentReply,
       });
-    } 
+    }
     // when postId is available & commentId is not present then user is posting comment under a particular post
     else if (postId && !commentId) {
       const postComment = await prisma.postComment.create({
         data: {
-          userId: user?.id || "",
-          postId: postId || "",
+          userId: user?.id || '',
+          postId: postId || '',
           comment: commentData,
         },
       });
@@ -62,12 +67,13 @@ const handleComment = async (req: Request, res: Response): Promise<void> => {
       });
     }
   } catch (error) {
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : 'Internal server error, please try again later';
     res.status(500).json({
       success: false,
-      message:
-        error instanceof Error
-          ? error.message
-          : 'Internal server error, please try again later',
+      message: errorMessage,
     });
   }
 };
