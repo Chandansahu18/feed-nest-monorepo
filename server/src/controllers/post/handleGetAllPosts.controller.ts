@@ -1,26 +1,64 @@
 import { PrismaClient } from '../../../generated/prisma';
 import { Request, Response } from 'express';
+import { IPostsDataResponse } from '@shared/types';
 const prisma = new PrismaClient();
 
 const handleGetAllPosts = async (
   req: Request,
-  res: Response,
+  res: Response<IPostsDataResponse>,
 ): Promise<void> => {
   try {
-    const allPosts = await prisma.post.findMany({
-      include: {
-        creator: {
-          omit: {
-            hashedPassword: true,
-            refreshToken: true,
+    const { cursor } = req.query;
+
+    // Fetch for the first time when cursor id is not provided
+    if (!cursor) {
+      const allPosts = await prisma.post.findMany({
+        take: 5,
+        where: {
+          published: true,
+        },
+        include: {
+          creator: {
+            omit: {
+              hashedPassword: true,
+              refreshToken: true,
+              isEmailVerified:true
+            },
           },
         },
-      },
-    });
-    res.status(200).json({
-      success: true,
-      data: allPosts,
-    });
+      });
+      res.status(200).json({
+        success: true,
+        message:'Data retrieved successfully',
+        data: allPosts,
+      });
+    }
+    //  Fetch next posts data when cursor id is provided
+    else {
+      const allPosts = await prisma.post.findMany({
+        take: 5,
+        skip: 1,
+        cursor: {
+          id: cursor as string,
+        },
+        where: {
+          published: true,
+        },
+        include: {
+          creator: {
+            omit: {
+              hashedPassword: true,
+              refreshToken: true,
+            },
+          },
+        },
+      });
+      res.status(200).json({
+        success: true,
+        message:'Data retrieved successfully',
+        data: allPosts,
+      });
+    }
   } catch (error) {
     const errorMessage =
       error instanceof Error
@@ -33,4 +71,5 @@ const handleGetAllPosts = async (
     });
   }
 };
+
 export default handleGetAllPosts;

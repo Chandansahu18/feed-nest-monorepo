@@ -1,12 +1,13 @@
 import { PrismaClient } from '../../../generated/prisma';
 import { Request, Response } from 'express';
+import { IGenericMessageResponse } from '@shared/types';
 import { IRequest } from '../../utils/types';
 
 const prisma = new PrismaClient();
 
 export const handlePostLikes = async (
   req: Request,
-  res: Response,
+  res: Response<IGenericMessageResponse>,
 ): Promise<void> => {
   try {
     const { email } = req as IRequest; 
@@ -43,7 +44,7 @@ export const handlePostLikes = async (
           userId: user.id,
         },
       });
-      res.status(200).json({
+      res.status(204).json({
         success: true,
         message: 'Post liked successfully',
       });

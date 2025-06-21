@@ -1,13 +1,14 @@
 import { PrismaClient } from '../../../generated/prisma';
 import { Request, Response } from 'express';
 import { validateUserData } from '../../utils/schemaValidate';
+import { IGenericMessageResponse } from '@shared/types';
 import { IRequest } from '../../utils/types';
 
 const prisma = new PrismaClient();
 
 const handleUserDetailsUpdate = async (
   req: Request,
-  res: Response,
+  res: Response<IGenericMessageResponse>,
 ): Promise<void> => {
   try {
     const { email } = req as IRequest;
@@ -23,7 +24,7 @@ const handleUserDetailsUpdate = async (
         errors.length === 1 ? errors[0].message : errors.map(err => err.message).join(' & ');
       throw new Error(errorMessage);
     }
-    const { name, userName, bio, avatar, profileBanner, linkedInHandle, githubHandle, twitterHandle } = validUserData.data;
+    const { name, userName, bio, location, avatar, profileBanner, linkedInHandle, githubHandle, twitterHandle } = validUserData.data;
     await prisma.user.update({
       where: {
         email,
@@ -33,6 +34,7 @@ const handleUserDetailsUpdate = async (
         name,
         userName,
         bio,
+        location,
         profileBanner,
         avatar,
         linkedInHandle,

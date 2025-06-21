@@ -33,6 +33,7 @@
     "typescript": "^5.8.3"
   },
   "dependencies": {
+    "@shared/types": "1.0.0",
     "@ai-sdk/google": "^1.2.18",
     "@google/genai": "^1.0.1",
     "@prisma/client": "^6.8.1",

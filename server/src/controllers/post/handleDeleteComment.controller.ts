@@ -1,12 +1,13 @@
 import { PrismaClient } from '../../../generated/prisma';
 import { Request, Response } from 'express';
+import { IGenericMessageResponse } from '@shared/types';
 import { IRequest } from '../../utils/types';
 
 const prisma = new PrismaClient();
 
 const handleDeleteComment = async (
   req: Request,
-  res: Response,
+  res: Response<IGenericMessageResponse>,
 ): Promise<void> => {
   try {
     const { email } = req as IRequest;

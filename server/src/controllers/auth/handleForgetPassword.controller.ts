@@ -3,6 +3,7 @@ import { PrismaClient } from '../../../generated/prisma/index';
 import { generateToken } from '../../utils/authTokens';
 import sendMail from '../../utils/email';
 import { z } from 'zod';
+import { IGenericMessageResponse } from '@shared/types';
 
 const resetPasswordLinkExpiryTime = parseInt(
   process.env.RESET_PASSWORD_LINK_EXPIRY as string,
@@ -14,7 +15,7 @@ const prisma = new PrismaClient();
 
 export const handleForgetPassword = async (
   req: Request,
-  res: Response,
+  res: Response<IGenericMessageResponse>,
 ): Promise<void> => {
   try {
     const validateUserEmail = isUserEmailValid.safeParse(req.query.email);

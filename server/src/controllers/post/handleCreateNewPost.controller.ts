@@ -1,13 +1,14 @@
 import { PrismaClient } from '../../../generated/prisma';
 import { Request, Response } from 'express';
-import { IRequest } from '../../utils/types';
+import { IPostCreatedDataResponse } from '@shared/types';
 import { validatePostData } from '../../utils/schemaValidate';
+import { IRequest } from '../../utils/types';
 
 const prisma = new PrismaClient();
 
 const handleCreateNewPost = async (
   req: Request,
-  res: Response,
+  res: Response<IPostCreatedDataResponse>,
 ): Promise<void> => {
   try {
     const { email } = req as IRequest;
@@ -30,7 +31,7 @@ const handleCreateNewPost = async (
       });
     }
     const creatorId = user?.id as string;
-    const createPost = await prisma.post.create({
+    const Post = await prisma.post.create({
       data: {
         postTitle,
         postDescription,
@@ -43,7 +44,7 @@ const handleCreateNewPost = async (
     res.status(201).json({
       success: true,
       message: 'Post created successfully',
-      data: createPost,
+      data: Post,
     });
   } catch (error) {
     const errorMessage =

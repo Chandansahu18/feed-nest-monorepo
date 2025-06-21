@@ -1,8 +1,9 @@
 import { PrismaClient } from '../../../generated/prisma';
 import { Request, Response } from 'express';
+import { ISearchDataResponse } from '@shared/types';
 
 const prisma = new PrismaClient();
-const handleSearch = async (req: Request, res: Response): Promise<void> => {
+const handleSearch = async (req: Request, res: Response<ISearchDataResponse>): Promise<void> => {
   try {
     const { searchedTerm } = req.query;
     const trimmedSearchedTerm = searchedTerm?.toString().trim();
@@ -53,6 +54,7 @@ const handleSearch = async (req: Request, res: Response): Promise<void> => {
         creator: {
           omit: {
             hashedPassword: true,
+            isEmailVerified:true,
             refreshToken: true,
           },
         },
@@ -64,7 +66,6 @@ const handleSearch = async (req: Request, res: Response): Promise<void> => {
       res.status(404).json({
         success: false,
         message: 'Data not found',
-        data: searchedData,
       });
     }
     res.status(200).json({

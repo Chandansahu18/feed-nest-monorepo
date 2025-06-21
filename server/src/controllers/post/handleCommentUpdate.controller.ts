@@ -1,13 +1,14 @@
 import { PrismaClient } from '../../../generated/prisma';
 import { Request, Response } from 'express';
-import { IRequest } from '../../utils/types';
+import { IPostCommentOrReplyDataResponse } from '@shared/types';
 import { validatePostCommentOrCommentReply } from '../../utils/schemaValidate';
+import { IRequest } from '../../utils/types';
 
 const prisma = new PrismaClient();
 
 const handleCommentUpdate = async (
   req: Request,
-  res: Response,
+  res: Response<IPostCommentOrReplyDataResponse>,
 ): Promise<void> => {
   try {
     const { email } = req as IRequest;
@@ -50,12 +51,13 @@ const handleCommentUpdate = async (
       data: commentUpdate,
     });
   } catch (error) {
+    const errorMessage =  error instanceof Error
+          ? error.message
+          : 'Internal server error, please try again later'
     res.status(500).json({
       success: false,
-      message:
-        error instanceof Error
-          ? error.message
-          : 'Internal server error, please try again later',
+      message:errorMessage
+       
     });
   }
 };
