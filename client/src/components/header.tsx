@@ -23,7 +23,7 @@ const Header = () => {
   };
 
   return (
-    <div className="h-16 px-4">
+    <div className="h-16 px-4 border-b">
       {/* main header content */}
       <div className="h-full flex justify-between items-center">
         {/* left content */}
@@ -40,7 +40,7 @@ const Header = () => {
               </Button>
             </DropdownMenuTrigger>
             {/* Dropdown content */}
-            <DropdownMenuContent className="ml-3">
+            <DropdownMenuContent className="ml-3 rounded-xl">
               <DropdownMenuItem onClick={handleFeed}>Feeds</DropdownMenuItem>
               <DropdownMenuItem onClick={handleAbout}>About</DropdownMenuItem>
             </DropdownMenuContent>
@@ -90,7 +90,7 @@ const Header = () => {
           {/* sign in */}
           <Button
             variant={"outline"}
-            className="h-full w-20"
+            className="h-full w-20 rounded-xl"
             onClick={handleSignIn}
           >
             Sign in
