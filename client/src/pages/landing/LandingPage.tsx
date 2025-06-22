@@ -1,33 +1,16 @@
-import TechStack from "../../components/landing-page-sections/tech-stack-section";
-import CTASection from "../../components/landing-page-sections/cta-section";
-import BlogsSection from "../../components/landing-page-sections/blogs-section";
-import BookmarkSection from "../../components/landing-page-sections/bookmark-section";
-import AISection from "../../components/landing-page-sections/ai-section";
-import HeroSection from "../../components/landing-page-sections/hero-section";
+import BlogsSection from "../../components/landing-page-sections/blogsSection";
+import AISection from "../../components/landing-page-sections/aiSection";
+import HeroSection from "../../components/landing-page-sections/heroSection";
 import FeatureSection from "../../components/landing-page-sections/feature-section";
+import Testimonials from "../../components/landing-page-sections/testimonialsSection";
 const LandingPage = () => {
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero Section */}
       <HeroSection />
-
-      {/* Tech Stack */}
-      <TechStack />
-
-      {/* Blogs Section */}
       <BlogsSection />
-
-      {/* Bookmarks Section */}
-      <BookmarkSection />
-
-      {/* AI Section */}
       <AISection />
-
-      {/* Features Section */}
+      <Testimonials />
       <FeatureSection />
-
-      {/* CTA Section */}
-      <CTASection />
     </div>
   );
 };

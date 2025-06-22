@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { useTheme } from "../theme-provider";
 
-const CTASection = () => {
+const MissionSection = () => {
   const { theme } = useTheme();
   return (
     <section className="py-20 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-slate-900 dark:to-slate-800">
@@ -44,4 +44,4 @@ const CTASection = () => {
   );
 };
 
-export default CTASection;
+export default MissionSection;

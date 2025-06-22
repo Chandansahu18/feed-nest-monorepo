@@ -1,7 +1,5 @@
 import axios from "axios";
 
-const apiCLient = axios.create({
-    baseURL:import.meta.env.VITE_BACKEND_BASE_URL
+export const CLOUDINARY_API = axios.create({
+    baseURL:import.meta.env.VITE_CLOUDINARY_BASE_URL
 })
-
-export const userAuth = apiCLient.post('/v1/auth');

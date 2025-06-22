@@ -24,11 +24,8 @@ const Header = () => {
 
   return (
     <div className="h-16 px-4 border-b">
-      {/* main header content */}
       <div className="h-full flex justify-between items-center">
-        {/* left content */}
-        <div className="h-10 w-44 flex justify-start items-center">
-          {/* Dropdown button*/}
+        <div className="h-10 w-44 flex justify-start items-center cursor-pointer">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -39,10 +36,17 @@ const Header = () => {
                 <Menu className="size-7" />
               </Button>
             </DropdownMenuTrigger>
-            {/* Dropdown content */}
+
             <DropdownMenuContent className="ml-3 rounded-xl">
-              <DropdownMenuItem onClick={handleFeed}>Feeds</DropdownMenuItem>
-              <DropdownMenuItem onClick={handleContact}>Contact</DropdownMenuItem>
+              <DropdownMenuItem onClick={handleFeed} className="cursor-pointer">
+                Feeds
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={handleContact}
+                className="cursor-pointer"
+              >
+                Contact
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           {theme === "dark" ? (
@@ -73,24 +77,32 @@ const Header = () => {
             </>
           )}
         </div>
-        {/* right content */}
+
         <div className="h-10 lg:w-72 flex">
           <div className="h-full w-40 hidden lg:flex lg:justify-center">
-           <Button variant={"ghost"} onClick={handleFeed}>
-             Feeds
-           </Button>
-           <Button variant={"ghost"} onClick={handleContact}>
-             Contact
-           </Button>
+            <Button
+              variant={"ghost"}
+              onClick={handleFeed}
+              className="cursor-pointer"
+            >
+              Feeds
+            </Button>
+            <Button
+              variant={"ghost"}
+              onClick={handleContact}
+              className="cursor-pointer"
+            >
+              Contact
+            </Button>
           </div>
-          {/* theme */}
+
           <div className="h-full w-10">
             <ModeToggle />
           </div>
-          {/* sign in */}
+
           <Button
             variant={"outline"}
-            className="h-full w-20 rounded-xl"
+            className="h-full w-20 rounded-xl cursor-pointer"
             onClick={handleSignIn}
           >
             Sign in
