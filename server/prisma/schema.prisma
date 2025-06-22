@@ -24,6 +24,7 @@ model User {
   avatar             String?
   profileBanner      String?
   bio                String?
+  location           String?
   linkedInHandle     String?
   twitterHandle      String?
   githubHandle       String?

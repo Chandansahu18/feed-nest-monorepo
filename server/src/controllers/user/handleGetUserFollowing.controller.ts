@@ -1,11 +1,12 @@
 import { PrismaClient } from '../../../generated/prisma';
 import { Request, Response } from 'express';
+import { IFollowingRelationsDataResponse } from '@shared/types';
 import { IRequest } from '../../utils/types';
 
 const prisma = new PrismaClient();
 const handleGetFollowingUser = async (
   req: Request,
-  res: Response,
+  res: Response<IFollowingRelationsDataResponse>,
 ): Promise<void> => {
   try {
     const { email } = req as IRequest;    

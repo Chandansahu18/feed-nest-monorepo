@@ -2,10 +2,11 @@ import { PrismaClient } from '../../../generated/prisma';
 import { Request, Response } from 'express';
 import { verifyToken } from '../../utils/authTokens';
 import { JwtPayload } from 'jsonwebtoken';
+import { IUserDataResponse } from '@shared/types';
 
 const prisma = new PrismaClient();
 
-const handleGetUser = async (req: Request, res: Response): Promise<void> => {
+const handleGetUser = async (req: Request, res: Response<IUserDataResponse>): Promise<void> => {
   try {
     const { access_token } = req.cookies;
     const isAccessTokenValid = verifyToken(access_token);
@@ -24,7 +25,9 @@ const handleGetUser = async (req: Request, res: Response): Promise<void> => {
       where: queryCondition,
       include:{
         followingRelations:true,
-        posts:true
+        posts:true,
+        postLikes:true,
+        postComments:true
       },
       omit: {
         hashedPassword: true,

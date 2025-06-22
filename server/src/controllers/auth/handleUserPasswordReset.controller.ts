@@ -3,6 +3,7 @@ import { PrismaClient } from '../../../generated/prisma/index';
 import { compareHash, generateHash } from '../../utils/hash';
 import { verifyToken } from '../../utils/authTokens';
 import { JwtPayload } from 'jsonwebtoken';
+import { IGenericMessageResponse } from '@shared/types';
 
 const prisma = new PrismaClient();
 
@@ -10,7 +11,7 @@ const frontendURL = process.env.FRONTEND_BASE_URL as string
 
 export const handleUserPasswordReset = async (
   req: Request,
-  res: Response,
+  res: Response<IGenericMessageResponse>,
 ): Promise<void> => {
   try {
     const { token } = req.params;
@@ -47,7 +48,7 @@ export const handleUserPasswordReset = async (
 };
 
 
-export const handleNewPassword = async (req:Request, res:Response):Promise<void> => {
+export const handleNewPassword = async (req:Request, res:Response<IGenericMessageResponse>):Promise<void> => {
   try {
     // Get passwords from request body
     const { email, newPassword, confirmPassword } = req.body;

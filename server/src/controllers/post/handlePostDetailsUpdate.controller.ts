@@ -1,13 +1,13 @@
 import { PrismaClient } from '../../../generated/prisma';
 import { Request, Response } from 'express';
-import { IRequest } from '../../utils/types';
+import { IGenericMessageResponse } from '@shared/types';
 import { validatePostData } from '../../utils/schemaValidate';
-import { enhanceData } from '../../utils/enhance';
+import { IRequest } from '../../utils/types';
 
 const prisma = new PrismaClient();
 const handlePostDetailsUpdate = async (
   req: Request,
-  res: Response,
+  res: Response<IGenericMessageResponse>,
 ): Promise<void> => {
   try {
     const { email } = req as IRequest;
