@@ -18,8 +18,8 @@ const Header = () => {
   const handleFeed = () => {
     navigate("/feeds");
   };
-  const handleAbout = () => {
-    navigate("/about");
+  const handleContact = () => {
+    navigate("/contact");
   };
 
   return (
@@ -42,7 +42,7 @@ const Header = () => {
             {/* Dropdown content */}
             <DropdownMenuContent className="ml-3 rounded-xl">
               <DropdownMenuItem onClick={handleFeed}>Feeds</DropdownMenuItem>
-              <DropdownMenuItem onClick={handleAbout}>About</DropdownMenuItem>
+              <DropdownMenuItem onClick={handleContact}>Contact</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           {theme === "dark" ? (
@@ -61,7 +61,7 @@ const Header = () => {
           ) : (
             <>
               <img
-                src="https://res.cloudinary.com/dgquchqc2/image/upload/v1750359425/favicon_spilef.svg"
+                src="https://res.cloudinary.com/dgquchqc2/image/upload/v1750522650/favicon_nbl5mf.svg"
                 alt="icon"
                 className="size-5 object-contain min-[375px]:hidden"
               />
@@ -79,8 +79,8 @@ const Header = () => {
            <Button variant={"ghost"} onClick={handleFeed}>
              Feeds
            </Button>
-           <Button variant={"ghost"} onClick={handleAbout}>
-             About
+           <Button variant={"ghost"} onClick={handleContact}>
+             Contact
            </Button>
           </div>
           {/* theme */}
