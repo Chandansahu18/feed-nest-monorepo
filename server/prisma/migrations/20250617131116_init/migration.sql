@@ -9,6 +9,7 @@ CREATE TABLE "User" (
     "avatar" TEXT,
     "profileBanner" TEXT,
     "bio" TEXT,
+    "location" TEXT,
     "linkedInHandle" TEXT,
     "twitterHandle" TEXT,
     "githubHandle" TEXT,

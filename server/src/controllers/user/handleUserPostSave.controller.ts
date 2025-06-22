@@ -1,11 +1,12 @@
 import { PrismaClient } from '../../../generated/prisma';
 import { Request, Response } from 'express';
+import { IGenericMessageResponse } from '@shared/types';
 
 const prisma = new PrismaClient();
 
 const handleUserPostSave = async (
   req: Request,
-  res: Response,
+  res: Response<IGenericMessageResponse>,
 ): Promise<void> => {
   try {
     const { postId, userId } = req.query;
