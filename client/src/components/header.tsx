@@ -12,8 +12,9 @@ import { Menu } from "lucide-react";
 const Header = () => {
   const { theme } = useTheme();
   const navigate = useNavigate();
+
   const handleSignIn = () => {
-    navigate("/auth");
+    navigate("/auth", { state: { type: "signin" } });
   };
   const handleFeed = () => {
     navigate("/feeds");

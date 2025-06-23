@@ -29,7 +29,7 @@ const HeroSection = () => {
   }, []);
 
   const handleSignup = () => {
-    navigate("/auth");
+    navigate("/auth", { state: { type: "signup" } });
   };
   if (!heroContent) {
     return null;
@@ -47,7 +47,7 @@ const HeroSection = () => {
             {heroContent.headline.parts.map((part, index) => (
               <span key={index}>
                 {part.isBold ? (
-                  <span className="font-bold">{" "}{part.text}{" "}</span>
+                  <span className="font-bold"> {part.text} </span>
                 ) : (
                   part.text
                 )}
@@ -62,7 +62,7 @@ const HeroSection = () => {
 
           <motion.div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Button
-              className="px-8 py-6 rounded-xl w-3/4 min-[425px]:w-72 cursor-pointer"
+              className="px-8 py-6 rounded-xl w-3/4 min-[425px]:w-72 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white text-base font-medium"
               onClick={handleSignup}
             >
               {heroContent && heroContent.ctaButton.text}

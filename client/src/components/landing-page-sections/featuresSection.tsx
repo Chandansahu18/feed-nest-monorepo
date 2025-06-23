@@ -3,7 +3,7 @@ import { Card, CardContent } from "../ui/card";
 import type { TFeaturesSection } from "@/utils/schema/landingPage";
 import { useEffect, useState } from "react";
 import { CLOUDINARY_API } from "@/utils/apiClient";
-import MissionSection from "./mission-section";
+import MissionSection from "./missionSection";
 
 const FeatureSection = () => {
   const [featureContent, setFeatureContent] = useState<null | TFeaturesSection>(

@@ -1,7 +1,7 @@
 import BlogsSection from "../../components/landing-page-sections/blogsSection";
 import AISection from "../../components/landing-page-sections/aiSection";
 import HeroSection from "../../components/landing-page-sections/heroSection";
-import FeatureSection from "../../components/landing-page-sections/feature-section";
+import FeatureSection from "../../components/landing-page-sections/featuresSection";
 import Testimonials from "../../components/landing-page-sections/testimonialsSection";
 const LandingPage = () => {
   return (

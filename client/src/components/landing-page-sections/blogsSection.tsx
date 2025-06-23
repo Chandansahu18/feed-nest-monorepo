@@ -55,7 +55,7 @@ const BlogsSection = () => {
               {blogContent.subtitle}
             </p>
 
-            <Button className="px-8 py-6 rounded-xl w-2/5 cursor-pointer">
+            <Button className="px-8 py-6 rounded-xl w-3/4 min-[425px]:w-72 cursor-pointer  bg-blue-600 hover:bg-blue-700 text-white text-base font-medium">
               {blogContent.ctaButton.text}
             </Button>
           </motion.div>
