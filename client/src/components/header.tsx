@@ -2,53 +2,22 @@ import { useNavigate } from "react-router-dom";
 import { useTheme } from "./theme-provider";
 import { Button } from "./ui/button";
 import { ModeToggle } from "./mode-toggle";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "./ui/dropdown-menu";
-import { Menu } from "lucide-react";
+
 const Header = () => {
   const { theme } = useTheme();
   const navigate = useNavigate();
+
   const handleSignIn = () => {
-    navigate("/auth");
+    navigate("/auth", { state: { type: "signin" } });
   };
   const handleFeed = () => {
-    navigate("/feeds");
-  };
-  const handleContact = () => {
-    navigate("/contact");
+    navigate("/home", { state: { athenticated: false } });
   };
 
   return (
     <div className="h-16 px-4 border-b">
       <div className="h-full flex justify-between items-center">
-        <div className="h-10 w-44 flex justify-start items-center cursor-pointer">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant={"ghost"}
-                size={"icon"}
-                className="min-[1024px]:hidden flex items-center justify-start"
-              >
-                <Menu className="size-7" />
-              </Button>
-            </DropdownMenuTrigger>
-
-            <DropdownMenuContent className="ml-3 rounded-xl">
-              <DropdownMenuItem onClick={handleFeed} className="cursor-pointer">
-                Feeds
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={handleContact}
-                className="cursor-pointer"
-              >
-                Contact
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+        <div className="h-10 w-40 flex justify-start items-center cursor-pointer">
           {theme === "dark" ? (
             <>
               <img
@@ -78,21 +47,14 @@ const Header = () => {
           )}
         </div>
 
-        <div className="h-10 lg:w-72 flex">
-          <div className="h-full w-40 hidden lg:flex lg:justify-center">
+        <div className="h-10 lg:w-72 flex justify-end">
+          <div className="h-full w-20 hidden lg:items-center lg:flex lg:justify-center">
             <Button
               variant={"ghost"}
               onClick={handleFeed}
               className="cursor-pointer"
             >
               Feeds
-            </Button>
-            <Button
-              variant={"ghost"}
-              onClick={handleContact}
-              className="cursor-pointer"
-            >
-              Contact
             </Button>
           </div>
 

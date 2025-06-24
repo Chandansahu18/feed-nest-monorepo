@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "build": "tsc && cp -r src/views dist",
+    "generate":"prisma generate",
+    "build": "npx prisma generate && tsc && cp -r src/views dist",
     "start": "nodemon --watch src --exec ts-node src/index.ts",
     "prisma:migrate": "npx prisma migrate dev --name init",
     "prisma:migrate-reset": "prisma migrate reset",
