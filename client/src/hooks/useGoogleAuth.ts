@@ -1,8 +1,8 @@
 import { FEEDNEST_BACKEND_API } from "@/utils/apiClient";
-import type { TUserAuth } from "@/utils/schema/userAuth";
+import type { TGoogleAuth } from "@/utils/schema/userAuth";
 import { useMutation } from "@tanstack/react-query";
 
-const handleGoogleAuth = async (userData: TUserAuth): Promise<number> => {
+const handleGoogleAuth = async (userData: TGoogleAuth): Promise<number> => {
   try {
     const response = await FEEDNEST_BACKEND_API.post("/v1/auth", userData, {
       params: {

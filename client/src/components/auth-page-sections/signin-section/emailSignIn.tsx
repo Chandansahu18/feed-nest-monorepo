@@ -4,15 +4,12 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEmailAuth } from "@/hooks/useEmailAuth";
-import { SUCCESS_STATUS } from "@/utils/constants";
 import PendingLoader from "../../pendingLoader";
 import { Label } from "@radix-ui/react-label";
 import { Input } from "@/components/ui/input";
+import type { TSetEmailAuthProp } from "@/utils/schema/userAuth";
 
-type TProp = {
-  setIsEmailAuth: React.Dispatch<React.SetStateAction<boolean>>;
-};
-const EmailSignIn: React.FC<TProp> = ({ setIsEmailAuth }) => {
+const EmailSignIn = ({ setIsEmailAuth }:TSetEmailAuthProp) => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const {
@@ -26,7 +23,7 @@ const EmailSignIn: React.FC<TProp> = ({ setIsEmailAuth }) => {
     password: "",
   });
   useEffect(() => {
-    if (emailAuthData === SUCCESS_STATUS) {
+    if (emailAuthData === 204) {
       navigate("/home");
     }
   }, [emailAuthData]);

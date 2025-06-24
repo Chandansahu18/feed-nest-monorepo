@@ -1,8 +1,8 @@
 import { FEEDNEST_BACKEND_API } from "@/utils/apiClient";
-import type { TUserAuth } from "@/utils/schema/userAuth";
+import type { TEmailAuth } from "@/utils/schema/userAuth";
 import { useMutation } from "@tanstack/react-query";
 
-const handleUserAuth = async (userData: TUserAuth): Promise<number> => {
+const handleUserAuth = async (userData: TEmailAuth): Promise<number> => {
   try {
     const response = await FEEDNEST_BACKEND_API.post("/v1/auth", userData, {
       withCredentials: true,
@@ -18,7 +18,7 @@ const handleUserAuth = async (userData: TUserAuth): Promise<number> => {
 
 export const useEmailAuth = () => {
   const { data, isError, isPending, mutate } = useMutation({
-    mutationKey: ["user-auth"],
+    mutationKey: ["email-auth"],
     mutationFn: handleUserAuth,
   });
 
