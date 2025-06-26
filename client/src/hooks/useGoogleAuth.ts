@@ -15,18 +15,20 @@ const handleGoogleAuth = async (userData: TGoogleAuth): Promise<number> => {
     });
     return response.status;
   } catch (error) {
-    throw new Error("Something went wrong");
+   const errorMessage = error instanceof Error ? error.message : 'Something went wrong'
+    throw new Error(errorMessage);
   }
 };
 
 export const useGoogleAuth = () => {
-  const { data, isError, isPending, mutate } = useMutation({
+  const { data, isError, error, isPending, mutate } = useMutation({
     mutationKey: ["google-auth"],
     mutationFn: handleGoogleAuth,
   });
 
   return {
     data,
+    error,
     isError,
     isPending,
     mutate,

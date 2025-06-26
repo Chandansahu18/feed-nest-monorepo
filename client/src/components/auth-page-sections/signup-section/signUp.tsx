@@ -20,6 +20,7 @@ const SignUp = () => {
   const {
     mutate: googleAuthMutate,
     data: googleAuthData,
+    error,
     isPending: isGoogleAuthPending,
   } = useGoogleAuth();
 
@@ -46,6 +47,9 @@ const SignUp = () => {
     return <PendingLoader />;
   }
 
+  if (error?.message.includes('429')) {
+    return <div>{error.message}</div>
+  }
   return (
     <div className="min-h-screen flex relative overflow-hidden">
       <div className="flex-1 bg-background flex items-center justify-center p-4 relative">

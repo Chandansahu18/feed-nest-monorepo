@@ -19,6 +19,7 @@ const SignIn = () => {
   const {
     mutate: googleAuthMutate,
     data: googleAuthData,
+    error,
     isPending: isGoogleAuthPending,
   } = useGoogleAuth();
   const [isEmailAuth, setIsEmailAuth] = useState(false);
@@ -43,6 +44,9 @@ const SignIn = () => {
 
   if (isGoogleAuthPending) {
     return <PendingLoader />;
+  }
+  if (error?.message.includes('429')) {
+    return <div>{error.message}</div>
   }
 
   return (
