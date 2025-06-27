@@ -20,9 +20,10 @@ const setCookiesAndResponse = (
   res: Response<IUserCreatedDataResponse>,
   email: string,
   message: string,
+  refreshToken?:string
 ) => {
   const accessToken = generateToken(email, accessTokenExpiryTime);
-  const refreshToken = generateToken(email, refreshTokenExpiryTime);
+  const refreshTokenToUse = refreshToken || generateToken(email, refreshTokenExpiryTime);
   res
     .cookie('access_token', accessToken, {
       httpOnly: true,
@@ -30,7 +31,7 @@ const setCookiesAndResponse = (
       sameSite: nodeEnv === 'production' ? 'none' : 'lax',
       maxAge: accessTokenExpiryTime,
     })
-    .cookie('refresh_token', refreshToken, {
+    .cookie('refresh_token', refreshTokenToUse, {
       httpOnly: true,
       secure: nodeEnv === 'production' ? true : false,
       sameSite: nodeEnv === 'production' ? 'none' : 'lax',
@@ -53,6 +54,7 @@ const sendVerificationEmail = async (email: string): Promise<void> => {
 const createUser = async (userData: {
   name: string;
   email: string;
+  refreshToken?: string;
   userName?: string;
   hashedPassword?: string;
   isEmailVerified?: boolean;
@@ -84,7 +86,8 @@ const handleUserAuth = async (
 
     // User Auth with Google first time
     if (!doUserExist && isAuthWithGoogle === 'true') {
-      await createUser({ name, email, isEmailVerified: true });
+      const refreshToken = generateToken(email, refreshTokenExpiryTime);
+      await createUser({ name, email, isEmailVerified: true, refreshToken });
       setCookiesAndResponse(res, email, 'user signed in successfully');
     } else if (!doUserExist || !doUserExist.isEmailVerified) {
       const hashedPassword = await generateHash(password as string);
@@ -111,7 +114,12 @@ const handleUserAuth = async (
         setCookiesAndResponse(res, email, 'User signed in successfully');
       } else {
         if (isAuthWithGoogle === 'true') {
-          setCookiesAndResponse(res, email, 'User signed in successfully');
+          const refreshToken = generateToken(email, refreshTokenExpiryTime);
+          await prisma.user.update({
+            where: { email },
+            data: { refreshToken },
+          });
+          setCookiesAndResponse(res, email, 'User signed in successfully', refreshToken);
         } else {
           const isPasswordValid = await compareHash(
             password as string,

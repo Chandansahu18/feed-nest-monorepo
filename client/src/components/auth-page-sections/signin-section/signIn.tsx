@@ -91,14 +91,14 @@ const SignIn = () => {
                       <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
                         feednest
                       </h1>
-                      <p className="text-muted-foreground text-base font-medium dark:text-white mt-2">
+                      <p className="text-muted-foreground text-sm font-medium dark:text-white mt-2">
                         sign in
                       </p>
                     </div>
                   </div>
                   <div className="space-y-4">
                     <Button
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white py-6 text-base font-medium cursor-pointer rounded-xl"
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white py-6 text-sm font-medium cursor-pointer rounded-xl"
                       onClick={handleGoogleAuth}
                     >
                                            <img src="https://res.cloudinary.com/dgquchqc2/image/upload/v1750786711/google-logo_uoj06a.svg" alt="google-logo" className="size-4 mr-2"/>
@@ -107,7 +107,7 @@ const SignIn = () => {
 
                     <div className="flex items-center space-x-4 my-6">
                       <Separator className="flex-1" />
-                      <span className="text-base text-muted-foreground dark:text-white">
+                      <span className="text-sm text-muted-foreground dark:text-white">
                         or
                       </span>
                       <Separator className="flex-1" />
@@ -115,7 +115,7 @@ const SignIn = () => {
 
                     <Button
                       variant="link"
-                      className="w-full text-blue-600 hover:text-blue-700 dark:text-white font-medium cursor-pointer text-base"
+                      className="w-full text-blue-600 hover:text-blue-700 dark:text-white font-medium cursor-pointer text-sm"
                       onClick={() => setIsEmailAuth(true)}
                     >
                       <Mail className="w-4 h-4 mr-2" />
@@ -128,7 +128,7 @@ const SignIn = () => {
                       </span>
                       <Button
                         variant="link"
-                        className="text-blue-600 hover:text-blue-700 dark:text-white font-medium p-0 h-auto cursor-pointer text-base"
+                        className="text-blue-600 hover:text-blue-700 dark:text-white font-medium p-0 h-auto cursor-pointer text-sm"
                         onClick={handleSignUp}
                       >
                         Sign up

@@ -6,16 +6,16 @@ import { IRequest } from '../utils/types';
 const accessTokenExpiryTime = parseInt(
   process.env.ACCESS_TOKEN_EXPIRY as string,
 );
-const nodeEnv = process.env.NODE_ENV as string
+const nodeEnv = process.env.NODE_ENV as string;
 export const restrictToAuthorisedUser = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<void> => {
   try {
-    let bypassEndpoints: string[] = ['/v1/posts', '/v1/post', '/v1/user'];
+    let bypassEndpoints: string[] = ['/v1/posts', '/v1/post', '/v1/user', '/v1/search'];
     const isURLNeedToBypass =
-      bypassEndpoints.includes(req.url) && req.method === 'GET';
+      bypassEndpoints.includes(req.path) && req.method === 'GET';
 
     if (isURLNeedToBypass) {
       return next();
@@ -32,12 +32,12 @@ export const restrictToAuthorisedUser = async (
       const isRefreshTokenValid = verifyToken(refresh_token as string);
       const { data: email } = isRefreshTokenValid as JwtPayload;
       const newAccessToken = generateToken(email, accessTokenExpiryTime);
-      res.cookie('access_token', newAccessToken,{
-      httpOnly: true,
-      secure: nodeEnv === 'production' ? true : false, 
-      sameSite: nodeEnv === 'production' ? 'none' : 'lax', 
-      maxAge: accessTokenExpiryTime, 
-    });
+      res.cookie('access_token', newAccessToken, {
+        httpOnly: true,
+        secure: nodeEnv === 'production' ? true : false,
+        sameSite: nodeEnv === 'production' ? 'none' : 'lax',
+        maxAge: accessTokenExpiryTime,
+      });
       (req as IRequest).email = email;
       return next();
     }

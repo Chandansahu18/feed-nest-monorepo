@@ -4,6 +4,8 @@ import { Button } from "./ui/button";
 import { ModeToggle } from "./mode-toggle";
 import { useUserData } from "@/hooks/useUserData";
 import { PenLine, Search } from "lucide-react";
+import { Avatar, AvatarFallback } from "@radix-ui/react-avatar";
+import { AvatarImage } from "@/components/ui/avatar";
 
 const Header = () => {
   const { theme } = useTheme();
@@ -63,11 +65,11 @@ const Header = () => {
             {!isLandingPage ? (
               <div className="hidden sm:flex sm:w-12 lg:w-56 h-full items-center justify-center">
                 <div
-                  className="h-10 w-52 flex items-center justify-center rounded-full lg:outline-1 outline-gray-300 hover:outline-2 hover:outline-gray-200 dark:outline-gray-700"
+                  className="h-10 w-52 flex items-center justify-center rounded-xl lg:outline-1 outline-gray-300 hover:outline-2 hover:outline-gray-200 dark:outline-gray-700"
                   onClick={handleSearch}
                 >
                   <div className="hidden lg:flex justify-end items-center h-10 w-40 cursor-pointer">
-                    <h1 className="text-base font-medium text-gray-500">
+                    <h1 className="text-sm font-medium text-gray-500">
                       Search
                     </h1>
                   </div>
@@ -85,7 +87,7 @@ const Header = () => {
               <div className="h-full w-16 hidden items-center sm:flex justify-center">
                 <Button
                   onClick={handleCreateBlogPost}
-                  className="cursor-pointer h-10 w-10 bg-blue-600 hover:bg-blue-500 rounded-full flex items-center justify-center"
+                  className="cursor-pointer h-10 w-10 bg-blue-600 hover:bg-blue-500 rounded-xl flex items-center justify-center"
                 >
                   <PenLine className="size-5" color="white" />
                 </Button>
@@ -107,13 +109,15 @@ const Header = () => {
             </div>
             {data ? (
               <div className="h-full w-10 flex justify-center items-center">
-                <Button
-                  variant={"outline"}
-                  className="h-10 w-10 rounded-full cursor-pointer"
+                <Avatar
+                  className="h-10 w-full rounded-full border flex items-center justify-center cursor-pointer"
                   onClick={handleSettingsModal}
                 >
-                  CS
-                </Button>
+                  <AvatarImage />
+                  <AvatarFallback className="text-sm font-bold">
+                    CS
+                  </AvatarFallback>
+                </Avatar>
               </div>
             ) : (
               <div className="h-full w-20 flex justify-center items-center">

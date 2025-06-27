@@ -17,6 +17,7 @@ const handleGetAllPosts = async (
         where: {
           published: true,
         },
+        orderBy:{createdAt:'desc'},
         include: {
           creator: {
             omit: {
@@ -25,6 +26,8 @@ const handleGetAllPosts = async (
               isEmailVerified:true
             },
           },
+          postLikes:true,
+          postComments:true
         },
       });
       res.status(200).json({
@@ -41,6 +44,7 @@ const handleGetAllPosts = async (
         cursor: {
           id: cursor as string,
         },
+        orderBy:{createdAt:'desc'},
         where: {
           published: true,
         },
@@ -51,6 +55,8 @@ const handleGetAllPosts = async (
               refreshToken: true,
             },
           },
+          postLikes:true,
+          postComments:true
         },
       });
       res.status(200).json({
