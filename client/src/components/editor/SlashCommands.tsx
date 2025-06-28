@@ -89,7 +89,12 @@ interface CommandListProps {
   command: (item: CommandItem) => void;
 }
 
-const CommandList = forwardRef<any, CommandListProps>(({ items, command }, ref) => {
+// Define the ref handle interface
+interface CommandListRef {
+  onKeyDown: ({ event }: { event: KeyboardEvent }) => boolean;
+}
+
+const CommandList = forwardRef<CommandListRef, CommandListProps>(({ items, command }, ref) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
 
   const selectItem = (index: number) => {
@@ -186,8 +191,8 @@ const SlashCommands = Extension.create({
           );
         },
         render: () => {
-          let component: ReactRenderer;
-          let popup: any;
+          let component: ReactRenderer<CommandListRef>;
+          let popup: HTMLElement;
 
           return {
             onStart: (props: any) => {
