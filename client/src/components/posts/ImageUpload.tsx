@@ -1,8 +1,9 @@
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Upload, X, Link, Image as ImageIcon, Move, RotateCcw, ZoomIn, ZoomOut } from "lucide-react";
+import { Upload, X, Link, Image as ImageIcon, Crop } from "lucide-react";
+import ImageCropper from "./ImageCropper";
 
 interface ImageUploadProps {
   value: string;
@@ -13,18 +14,9 @@ const ImageUpload = ({ value, onChange }: ImageUploadProps) => {
   const [imageUrl, setImageUrl] = useState(value);
   const [isUrlMode, setIsUrlMode] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [imageTransform, setImageTransform] = useState({
-    x: 0,
-    y: 0,
-    scale: 1,
-    rotation: 0
-  });
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [showCropper, setShowCropper] = useState(false);
+  const [originalImage, setOriginalImage] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const imageRef = useRef<HTMLImageElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
 
   const handleUrlSubmit = () => {
     onChange(imageUrl);
@@ -34,8 +26,7 @@ const ImageUpload = ({ value, onChange }: ImageUploadProps) => {
   const handleRemove = () => {
     setImageUrl("");
     onChange("");
-    setImageTransform({ x: 0, y: 0, scale: 1, rotation: 0 });
-    setIsEditing(false);
+    setOriginalImage("");
   };
 
   const handleFileSelect = useCallback((file: File) => {
@@ -43,12 +34,12 @@ const ImageUpload = ({ value, onChange }: ImageUploadProps) => {
       const reader = new FileReader();
       reader.onload = (e) => {
         const result = e.target?.result as string;
-        onChange(result);
-        setImageTransform({ x: 0, y: 0, scale: 1, rotation: 0 });
+        setOriginalImage(result);
+        setShowCropper(true);
       };
       reader.readAsDataURL(file);
     }
-  }, [onChange]);
+  }, []);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -81,143 +72,45 @@ const ImageUpload = ({ value, onChange }: ImageUploadProps) => {
     fileInputRef.current?.click();
   };
 
-  // Image repositioning handlers
-  const handleImageMouseDown = (e: React.MouseEvent) => {
-    if (!isEditing) return;
-    
-    e.preventDefault();
-    e.stopPropagation();
-    
-    const rect = containerRef.current?.getBoundingClientRect();
-    if (!rect) return;
-
-    setIsDragging(true);
-    setDragStart({
-      x: e.clientX - imageTransform.x,
-      y: e.clientY - imageTransform.y
-    });
+  const handleCropComplete = (croppedImageUrl: string) => {
+    onChange(croppedImageUrl);
+    setShowCropper(false);
+    setOriginalImage("");
   };
 
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (!isDragging || !isEditing || !containerRef.current) return;
-    
-    e.preventDefault();
-    
-    const rect = containerRef.current.getBoundingClientRect();
-    const newX = e.clientX - dragStart.x;
-    const newY = e.clientY - dragStart.y;
-    
-    // Constrain movement within container bounds
-    const maxX = rect.width * 0.3;
-    const maxY = rect.height * 0.3;
-    
-    setImageTransform(prev => ({
-      ...prev,
-      x: Math.max(-maxX, Math.min(maxX, newX)),
-      y: Math.max(-maxY, Math.min(maxY, newY))
-    }));
-  }, [isDragging, isEditing, dragStart]);
-
-  const handleMouseUp = useCallback(() => {
-    setIsDragging(false);
-  }, []);
-
-  // Add and remove event listeners for mouse events
-  useEffect(() => {
-    if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-      
-      return () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
-      };
-    }
-  }, [isDragging, handleMouseMove, handleMouseUp]);
-
-  const handleZoomIn = () => {
-    setImageTransform(prev => ({
-      ...prev,
-      scale: Math.min(prev.scale + 0.1, 3)
-    }));
+  const handleCropCancel = () => {
+    setShowCropper(false);
+    setOriginalImage("");
   };
 
-  const handleZoomOut = () => {
-    setImageTransform(prev => ({
-      ...prev,
-      scale: Math.max(prev.scale - 0.1, 0.5)
-    }));
-  };
-
-  const handleRotate = () => {
-    setImageTransform(prev => ({
-      ...prev,
-      rotation: (prev.rotation + 90) % 360
-    }));
-  };
-
-  const handleReset = () => {
-    setImageTransform({ x: 0, y: 0, scale: 1, rotation: 0 });
-  };
-
-  const toggleEditMode = () => {
-    setIsEditing(!isEditing);
-    if (isEditing) {
-      setImageTransform({ x: 0, y: 0, scale: 1, rotation: 0 });
+  const handleEditCrop = () => {
+    if (value) {
+      setOriginalImage(value);
+      setShowCropper(true);
     }
   };
 
   if (value) {
     return (
-      <div className="relative group">
-        <div 
-          ref={containerRef}
-          className="relative overflow-hidden rounded-lg bg-muted"
-          style={{ height: '12rem' }} // Fixed height for consistent container
-        >
-          <img
-            ref={imageRef}
-            src={value}
-            alt="Banner"
-            className={`w-full h-full object-cover transition-transform duration-200 select-none ${
-              isEditing ? 'cursor-move' : 'cursor-default'
-            }`}
-            style={{
-              transform: `translate(${imageTransform.x}px, ${imageTransform.y}px) scale(${imageTransform.scale}) rotate(${imageTransform.rotation}deg)`,
-              transformOrigin: 'center center'
-            }}
-            onMouseDown={handleImageMouseDown}
-            draggable={false}
-          />
-          
-          {/* Editing overlay */}
-          {isEditing && (
-            <>
-              <div className="absolute inset-0 bg-black/20 border-2 border-dashed border-primary rounded-lg pointer-events-none" />
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="bg-black/70 text-white px-3 py-2 rounded-lg text-sm font-medium">
-                  <div className="flex items-center gap-2">
-                    <Move className="w-4 h-4" />
-                    Drag to reposition
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
-        </div>
-
-        {/* Control buttons */}
-        <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          {!isEditing ? (
-            <>
+      <>
+        <div className="relative group">
+          <div className="relative overflow-hidden rounded-lg bg-muted h-48 sm:h-56 md:h-64">
+            <img
+              src={value}
+              alt="Banner"
+              className="w-full h-full object-cover"
+            />
+            
+            {/* Control buttons */}
+            <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
               <Button
                 variant="secondary"
                 size="sm"
-                onClick={toggleEditMode}
+                onClick={handleEditCrop}
                 className="h-8 w-8 p-0 shadow-lg"
-                title="Reposition image"
+                title="Crop image"
               >
-                <Move className="w-4 h-4" />
+                <Crop className="w-4 h-4" />
               </Button>
               <Button
                 variant="destructive"
@@ -228,83 +121,28 @@ const ImageUpload = ({ value, onChange }: ImageUploadProps) => {
               >
                 <X className="w-4 h-4" />
               </Button>
-            </>
-          ) : (
-            <div className="flex gap-1 bg-background/95 backdrop-blur-sm rounded-lg p-1 shadow-lg">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleZoomOut}
-                className="h-8 w-8 p-0"
-                title="Zoom out"
-                disabled={imageTransform.scale <= 0.5}
-              >
-                <ZoomOut className="w-3 h-3" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleZoomIn}
-                className="h-8 w-8 p-0"
-                title="Zoom in"
-                disabled={imageTransform.scale >= 3}
-              >
-                <ZoomIn className="w-3 h-3" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleRotate}
-                className="h-8 w-8 p-0"
-                title="Rotate 90°"
-              >
-                <RotateCcw className="w-3 h-3" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleReset}
-                className="h-8 w-8 p-0"
-                title="Reset position"
-              >
-                <Move className="w-3 h-3" />
-              </Button>
             </div>
-          )}
+
+            {/* Crop hint */}
+            <div className="absolute bottom-2 left-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="bg-black/70 text-white px-3 py-2 rounded-lg text-sm font-medium text-center">
+                <div className="flex items-center justify-center gap-2">
+                  <Crop className="w-4 h-4" />
+                  Click crop to adjust image area
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Done/Cancel buttons for edit mode */}
-        {isEditing && (
-          <div className="absolute bottom-2 left-2 right-2 flex gap-2">
-            <Button
-              variant="default"
-              size="sm"
-              onClick={toggleEditMode}
-              className="flex-1 shadow-lg"
-            >
-              Done
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                handleReset();
-                setIsEditing(false);
-              }}
-              className="flex-1 shadow-lg"
-            >
-              Cancel
-            </Button>
-          </div>
+        {showCropper && (
+          <ImageCropper
+            imageSrc={originalImage}
+            onCropComplete={handleCropComplete}
+            onCancel={handleCropCancel}
+          />
         )}
-
-        {/* Transform info */}
-        {isEditing && (
-          <div className="absolute top-2 left-2 bg-black/70 text-white px-2 py-1 rounded text-xs font-medium">
-            Scale: {imageTransform.scale.toFixed(1)}x | Rotation: {imageTransform.rotation}°
-          </div>
-        )}
-      </div>
+      </>
     );
   }
 
@@ -342,75 +180,85 @@ const ImageUpload = ({ value, onChange }: ImageUploadProps) => {
   }
 
   return (
-    <div className="space-y-4">
-      {/* Drag & Drop Area */}
-      <div
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-        className={`
-          border-2 border-dashed rounded-lg p-6 sm:p-8 text-center transition-all cursor-pointer
-          ${isDragOver 
-            ? 'border-primary bg-primary/5 scale-[1.02]' 
-            : 'border-muted-foreground/25 hover:border-muted-foreground/50'
-          }
-        `}
-        onClick={handleBrowseClick}
-      >
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          onChange={handleFileInputChange}
-          className="hidden"
-        />
-        
-        <div className="flex flex-col items-center space-y-4">
-          <div className={`
-            p-3 rounded-full transition-colors
-            ${isDragOver ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}
-          `}>
-            {isDragOver ? (
-              <ImageIcon className="w-8 h-8" />
-            ) : (
-              <Upload className="w-8 h-8" />
-            )}
-          </div>
+    <>
+      <div className="space-y-4">
+        {/* Drag & Drop Area */}
+        <div
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          className={`
+            border-2 border-dashed rounded-lg p-6 sm:p-8 text-center transition-all cursor-pointer
+            ${isDragOver 
+              ? 'border-primary bg-primary/5 scale-[1.02]' 
+              : 'border-muted-foreground/25 hover:border-muted-foreground/50'
+            }
+          `}
+          onClick={handleBrowseClick}
+        >
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleFileInputChange}
+            className="hidden"
+          />
           
-          <div className="space-y-2">
-            <p className="text-sm sm:text-base font-medium">
-              {isDragOver ? 'Drop your image here' : 'Drag & drop an image here'}
-            </p>
-            <p className="text-xs sm:text-sm text-muted-foreground">
-              or click to browse files
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Supports: JPG, PNG, GIF, WebP
-            </p>
+          <div className="flex flex-col items-center space-y-4">
+            <div className={`
+              p-3 rounded-full transition-colors
+              ${isDragOver ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}
+            `}>
+              {isDragOver ? (
+                <ImageIcon className="w-8 h-8" />
+              ) : (
+                <Upload className="w-8 h-8" />
+              )}
+            </div>
+            
+            <div className="space-y-2">
+              <p className="text-sm sm:text-base font-medium">
+                {isDragOver ? 'Drop your image here' : 'Drag & drop an image here'}
+              </p>
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                or click to browse files
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Supports: JPG, PNG, GIF, WebP • You can crop after upload
+              </p>
+            </div>
           </div>
+        </div>
+
+        {/* Alternative Options */}
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Button 
+            variant="outline" 
+            onClick={() => setIsUrlMode(true)}
+            className="flex items-center gap-2 flex-1"
+          >
+            <Link className="w-4 h-4" />
+            Add from URL
+          </Button>
+          <Button 
+            variant="outline" 
+            onClick={handleBrowseClick}
+            className="flex items-center gap-2 flex-1"
+          >
+            <Upload className="w-4 h-4" />
+            Browse Files
+          </Button>
         </div>
       </div>
 
-      {/* Alternative Options */}
-      <div className="flex flex-col sm:flex-row gap-2">
-        <Button 
-          variant="outline" 
-          onClick={() => setIsUrlMode(true)}
-          className="flex items-center gap-2 flex-1"
-        >
-          <Link className="w-4 h-4" />
-          Add from URL
-        </Button>
-        <Button 
-          variant="outline" 
-          onClick={handleBrowseClick}
-          className="flex items-center gap-2 flex-1"
-        >
-          <Upload className="w-4 h-4" />
-          Browse Files
-        </Button>
-      </div>
-    </div>
+      {showCropper && (
+        <ImageCropper
+          imageSrc={originalImage}
+          onCropComplete={handleCropComplete}
+          onCancel={handleCropCancel}
+        />
+      )}
+    </>
   );
 };
 
