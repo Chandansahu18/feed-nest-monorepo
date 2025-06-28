@@ -8,13 +8,15 @@ import Highlight from '@tiptap/extension-highlight';
 import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
-import { lowlight } from 'lowlight';
 import { Color } from '@tiptap/extension-color';
 import TextStyle from '@tiptap/extension-text-style';
 import CharacterCount from '@tiptap/extension-character-count';
 import EditorToolbar from './EditorToolbar';
 import SlashCommands from './SlashCommands';
 import './editor.css';
+import {common, createLowlight} from 'lowlight'
+
+const lowlight = createLowlight(common)
 
 interface TiptapEditorProps {
   content: string;
