@@ -75,17 +75,29 @@ const ImageUpload = ({
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const result = e.target?.result as string;
-      setOriginalImage(result);
-      setShowCropper(true);
-    };
-    reader.onerror = () => {
-      setUploadError("Failed to read file");
-    };
-    reader.readAsDataURL(file);
-  }, []);
+    // Auto-upload to Cloudinary on drag/drop or file selection
+    uploadToCloudinary(
+      { 
+        file, 
+        options: { 
+          userId, 
+          imageType,
+          fileName: fileName || `${imageType}-${Date.now()}`
+        } 
+      },
+      {
+        onSuccess: (response) => {
+          console.log('✅ Upload successful:', response.secure_url);
+          onChange(response.secure_url);
+          clearError();
+        },
+        onError: (error) => {
+          console.error('❌ Upload failed:', error);
+          setUploadError(error.message || 'Failed to upload image. Please try again.');
+        }
+      }
+    );
+  }, [uploadToCloudinary, userId, imageType, fileName, onChange]);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -119,6 +131,14 @@ const ImageUpload = ({
     fileInputRef.current?.click();
   };
 
+  const handleEditCrop = () => {
+    if (value) {
+      setOriginalImage(value);
+      setShowCropper(true);
+      clearError();
+    }
+  };
+
   const handleCropComplete = (croppedImageUrl: string) => {
     clearError();
     
@@ -126,7 +146,7 @@ const ImageUpload = ({
     fetch(croppedImageUrl)
       .then(res => res.blob())
       .then(blob => {
-        const file = new File([blob], `${imageType}-image.jpg`, { type: 'image/jpeg' });
+        const file = new File([blob], `${imageType}-cropped.jpg`, { type: 'image/jpeg' });
         
         uploadToCloudinary(
           { 
@@ -134,20 +154,20 @@ const ImageUpload = ({
             options: { 
               userId, 
               imageType,
-              fileName: fileName || `${imageType}-${Date.now()}`
+              fileName: fileName || `${imageType}-cropped-${Date.now()}`
             } 
           },
           {
             onSuccess: (response) => {
-              console.log('✅ Upload successful:', response.secure_url);
+              console.log('✅ Cropped upload successful:', response.secure_url);
               onChange(response.secure_url);
               setShowCropper(false);
               setOriginalImage("");
               clearError();
             },
             onError: (error) => {
-              console.error('❌ Upload failed:', error);
-              setUploadError(error.message || 'Failed to upload image. Please try again.');
+              console.error('❌ Cropped upload failed:', error);
+              setUploadError(error.message || 'Failed to upload cropped image. Please try again.');
               setShowCropper(false);
               setOriginalImage("");
             }
@@ -166,40 +186,6 @@ const ImageUpload = ({
     setShowCropper(false);
     setOriginalImage("");
     clearError();
-  };
-
-  const handleEditCrop = () => {
-    if (value) {
-      setOriginalImage(value);
-      setShowCropper(true);
-      clearError();
-    }
-  };
-
-  const handleDirectUpload = (file: File) => {
-    clearError();
-    
-    uploadToCloudinary(
-      { 
-        file, 
-        options: { 
-          userId, 
-          imageType,
-          fileName: fileName || `${imageType}-${Date.now()}`
-        } 
-      },
-      {
-        onSuccess: (response) => {
-          console.log('✅ Direct upload successful:', response.secure_url);
-          onChange(response.secure_url);
-          clearError();
-        },
-        onError: (error) => {
-          console.error('❌ Direct upload failed:', error);
-          setUploadError(error.message || 'Failed to upload image. Please try again.');
-        }
-      }
-    );
   };
 
   // Error display component
@@ -405,7 +391,7 @@ const ImageUpload = ({
               {!isUploading && (
                 <>
                   <p className="text-xs sm:text-sm text-muted-foreground">
-                    or click to browse files
+                    or click to browse files • Auto-uploads to Cloudinary
                   </p>
                   <p className="text-xs text-muted-foreground">
                     Supports: JPG, PNG, GIF, WebP • Max 10MB
@@ -430,44 +416,6 @@ const ImageUpload = ({
             >
               <Link className="w-4 h-4" />
               Add from URL
-            </Button>
-            <Button 
-              variant="outline" 
-              onClick={handleBrowseClick}
-              className="flex items-center gap-2 flex-1"
-            >
-              <Cloud className="w-4 h-4" />
-              Upload to Cloudinary
-            </Button>
-          </div>
-        )}
-
-        {/* Quick upload option */}
-        {!isUploading && (
-          <div className="text-center">
-            <p className="text-xs text-muted-foreground mb-2">
-              Quick upload (no cropping):
-            </p>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  handleDirectUpload(file);
-                }
-              }}
-              className="hidden"
-              id="quick-upload"
-            />
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => document.getElementById('quick-upload')?.click()}
-              className="text-xs"
-            >
-              <Upload className="w-3 h-3 mr-1" />
-              Direct Upload
             </Button>
           </div>
         )}
