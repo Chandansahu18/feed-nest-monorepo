@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,6 +24,7 @@ const ImageUpload = ({ value, onChange }: ImageUploadProps) => {
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const handleUrlSubmit = () => {
     onChange(imageUrl);
@@ -85,6 +86,11 @@ const ImageUpload = ({ value, onChange }: ImageUploadProps) => {
     if (!isEditing) return;
     
     e.preventDefault();
+    e.stopPropagation();
+    
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+
     setIsDragging(true);
     setDragStart({
       x: e.clientX - imageTransform.x,
@@ -92,32 +98,42 @@ const ImageUpload = ({ value, onChange }: ImageUploadProps) => {
     });
   };
 
-  const handleImageMouseMove = useCallback((e: MouseEvent) => {
-    if (!isDragging || !isEditing) return;
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    if (!isDragging || !isEditing || !containerRef.current) return;
     
     e.preventDefault();
+    
+    const rect = containerRef.current.getBoundingClientRect();
+    const newX = e.clientX - dragStart.x;
+    const newY = e.clientY - dragStart.y;
+    
+    // Constrain movement within container bounds
+    const maxX = rect.width * 0.3;
+    const maxY = rect.height * 0.3;
+    
     setImageTransform(prev => ({
       ...prev,
-      x: e.clientX - dragStart.x,
-      y: e.clientY - dragStart.y
+      x: Math.max(-maxX, Math.min(maxX, newX)),
+      y: Math.max(-maxY, Math.min(maxY, newY))
     }));
   }, [isDragging, isEditing, dragStart]);
 
-  const handleImageMouseUp = useCallback(() => {
+  const handleMouseUp = useCallback(() => {
     setIsDragging(false);
   }, []);
 
-  // Add event listeners for mouse move and up
-  useState(() => {
+  // Add and remove event listeners for mouse events
+  useEffect(() => {
     if (isDragging) {
-      document.addEventListener('mousemove', handleImageMouseMove);
-      document.addEventListener('mouseup', handleImageMouseUp);
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      
       return () => {
-        document.removeEventListener('mousemove', handleImageMouseMove);
-        document.removeEventListener('mouseup', handleImageMouseUp);
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
       };
     }
-  });
+  }, [isDragging, handleMouseMove, handleMouseUp]);
 
   const handleZoomIn = () => {
     setImageTransform(prev => ({
@@ -154,12 +170,16 @@ const ImageUpload = ({ value, onChange }: ImageUploadProps) => {
   if (value) {
     return (
       <div className="relative group">
-        <div className="relative overflow-hidden rounded-lg bg-muted">
+        <div 
+          ref={containerRef}
+          className="relative overflow-hidden rounded-lg bg-muted"
+          style={{ height: '12rem' }} // Fixed height for consistent container
+        >
           <img
             ref={imageRef}
             src={value}
             alt="Banner"
-            className={`w-full h-48 sm:h-56 md:h-64 object-cover transition-transform duration-200 ${
+            className={`w-full h-full object-cover transition-transform duration-200 select-none ${
               isEditing ? 'cursor-move' : 'cursor-default'
             }`}
             style={{
@@ -172,11 +192,17 @@ const ImageUpload = ({ value, onChange }: ImageUploadProps) => {
           
           {/* Editing overlay */}
           {isEditing && (
-            <div className="absolute inset-0 bg-black/20 border-2 border-dashed border-primary rounded-lg flex items-center justify-center">
-              <div className="bg-black/60 text-white px-3 py-1 rounded text-sm">
-                Drag to reposition
+            <>
+              <div className="absolute inset-0 bg-black/20 border-2 border-dashed border-primary rounded-lg pointer-events-none" />
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="bg-black/70 text-white px-3 py-2 rounded-lg text-sm font-medium">
+                  <div className="flex items-center gap-2">
+                    <Move className="w-4 h-4" />
+                    Drag to reposition
+                  </div>
+                </div>
               </div>
-            </div>
+            </>
           )}
         </div>
 
@@ -188,7 +214,7 @@ const ImageUpload = ({ value, onChange }: ImageUploadProps) => {
                 variant="secondary"
                 size="sm"
                 onClick={toggleEditMode}
-                className="h-8 w-8 p-0"
+                className="h-8 w-8 p-0 shadow-lg"
                 title="Reposition image"
               >
                 <Move className="w-4 h-4" />
@@ -197,20 +223,21 @@ const ImageUpload = ({ value, onChange }: ImageUploadProps) => {
                 variant="destructive"
                 size="sm"
                 onClick={handleRemove}
-                className="h-8 w-8 p-0"
+                className="h-8 w-8 p-0 shadow-lg"
                 title="Remove image"
               >
                 <X className="w-4 h-4" />
               </Button>
             </>
           ) : (
-            <div className="flex gap-1 bg-background/90 backdrop-blur-sm rounded-lg p-1">
+            <div className="flex gap-1 bg-background/95 backdrop-blur-sm rounded-lg p-1 shadow-lg">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={handleZoomOut}
                 className="h-8 w-8 p-0"
                 title="Zoom out"
+                disabled={imageTransform.scale <= 0.5}
               >
                 <ZoomOut className="w-3 h-3" />
               </Button>
@@ -220,6 +247,7 @@ const ImageUpload = ({ value, onChange }: ImageUploadProps) => {
                 onClick={handleZoomIn}
                 className="h-8 w-8 p-0"
                 title="Zoom in"
+                disabled={imageTransform.scale >= 3}
               >
                 <ZoomIn className="w-3 h-3" />
               </Button>
@@ -228,7 +256,7 @@ const ImageUpload = ({ value, onChange }: ImageUploadProps) => {
                 size="sm"
                 onClick={handleRotate}
                 className="h-8 w-8 p-0"
-                title="Rotate"
+                title="Rotate 90°"
               >
                 <RotateCcw className="w-3 h-3" />
               </Button>
@@ -239,7 +267,7 @@ const ImageUpload = ({ value, onChange }: ImageUploadProps) => {
                 className="h-8 w-8 p-0"
                 title="Reset position"
               >
-                <RotateCcw className="w-3 h-3" />
+                <Move className="w-3 h-3" />
               </Button>
             </div>
           )}
@@ -252,7 +280,7 @@ const ImageUpload = ({ value, onChange }: ImageUploadProps) => {
               variant="default"
               size="sm"
               onClick={toggleEditMode}
-              className="flex-1"
+              className="flex-1 shadow-lg"
             >
               Done
             </Button>
@@ -263,7 +291,7 @@ const ImageUpload = ({ value, onChange }: ImageUploadProps) => {
                 handleReset();
                 setIsEditing(false);
               }}
-              className="flex-1"
+              className="flex-1 shadow-lg"
             >
               Cancel
             </Button>
@@ -272,7 +300,7 @@ const ImageUpload = ({ value, onChange }: ImageUploadProps) => {
 
         {/* Transform info */}
         {isEditing && (
-          <div className="absolute top-2 left-2 bg-black/60 text-white px-2 py-1 rounded text-xs">
+          <div className="absolute top-2 left-2 bg-black/70 text-white px-2 py-1 rounded text-xs font-medium">
             Scale: {imageTransform.scale.toFixed(1)}x | Rotation: {imageTransform.rotation}°
           </div>
         )}
