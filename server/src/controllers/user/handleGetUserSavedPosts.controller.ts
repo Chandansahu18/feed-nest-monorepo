@@ -20,6 +20,7 @@ const handleGetUserSavedPosts = async (
         where: {
           userId: userId as string,
         },
+        orderBy:{createdAt:'desc'},
         include:{
           post:true
         }

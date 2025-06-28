@@ -1,5 +1,4 @@
-import CreatePostPage from '@/pages/posts/CreatePostPage';
-
+import CreatePostPage from "@/pages/posts/CreatePostPage"
 
 const CreatePostPageWrapper = () => {
   return <CreatePostPage />

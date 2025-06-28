@@ -10,9 +10,7 @@ const handleAllPosts = async (cursor?: string): Promise<IPostsDataResponse> => {
         withCredentials: true,
     })
     return response.data
-   } catch (error) {
-    console.log(error);
-    
+   } catch (error) {      
      const errorMessage = error instanceof Error ? error.message : 'Something went wrong'
     throw new Error(errorMessage);
    }

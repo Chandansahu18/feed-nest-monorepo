@@ -13,6 +13,7 @@ const handleGoogleAuth = async (userData: TGoogleAuth): Promise<number> => {
         "Content-Type": "application/json",
       },
     });
+    
     return response.status;
   } catch (error) {
    const errorMessage = error instanceof Error ? error.message : 'Something went wrong'

@@ -1,11 +1,13 @@
 import { useUserData } from "@/hooks/useUserData";
 import { Button } from "./ui/button";
 import { Bookmark, Newspaper, PencilLine, Search } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigationHandlers } from "@/hooks/useNavigateHandlers";
+import { useLocation } from "react-router-dom";
 
 const Footer = () => {
   const { data } = useUserData();
+  const {pathname} = useLocation();
   const isUserLoggedIn = data?.data;
   const [activeTab, setActiveTab] = useState("Discover");
   const {
@@ -14,6 +16,19 @@ const Footer = () => {
     handleCreateBlogPost,
     handleDiscover,
   } = useNavigationHandlers();
+
+  useEffect(() => {
+    if (pathname === "/bookmarks" || pathname.startsWith("/bookmarks/")) {
+      setActiveTab("Bookmark");
+    } else if (pathname === "/search") {
+      setActiveTab("Search");
+    } else if (pathname === "/create" || pathname === "/write") {
+      setActiveTab("CreatePost");
+    } else {
+      setActiveTab("Discover");
+    }
+  }, [pathname]);
+
   const handlePressDiscover = () => {
     setActiveTab("Discover");
     handleDiscover();
@@ -30,6 +45,7 @@ const Footer = () => {
     setActiveTab("Search");
     handleSearch();
   };
+  
   return (
     <>
       {isUserLoggedIn ? (
