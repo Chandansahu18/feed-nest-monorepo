@@ -10,7 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import TiptapEditor from "@/components/editor/TiptapEditor";
 import ImageUpload from "@/components/posts/ImageUpload";
 import TagInput from "@/components/posts/TagInput";
-import { Save, Eye, Upload, Sparkles, ArrowLeft, Check } from "lucide-react";
+import { Save, Eye, Upload, Sparkles, ArrowLeft, Check, User } from "lucide-react";
 import { useCreatePost } from "@/hooks/useCreatePost";
 import { useEnhanceContent } from "@/hooks/useEnhanceContent";
 
@@ -36,6 +36,9 @@ const CreatePostPage = () => {
 
   const { mutate: createPost, isPending: isCreating } = useCreatePost();
   const { mutate: enhanceContent, isPending: isEnhancing } = useEnhanceContent();
+
+  // Mock user ID - replace with actual user ID from auth context
+  const currentUserId = "user123"; // This should come from your auth context
 
   // Validation limits
   const TITLE_MIN_LENGTH = 5;
@@ -176,11 +179,13 @@ const CreatePostPage = () => {
                 {/* Banner Image */}
                 {postData.postBannerImage && (
                   <div className="mb-4 sm:mb-6">
-                    <img
-                      src={postData.postBannerImage}
-                      alt="Post banner"
-                      className="w-full h-48 sm:h-56 md:h-64 object-cover rounded-lg"
-                    />
+                    <div className="relative overflow-hidden rounded-lg" style={{ aspectRatio: '16/9' }}>
+                      <img
+                        src={postData.postBannerImage}
+                        alt="Post banner"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
                   </div>
                 )}
 
@@ -268,13 +273,20 @@ const CreatePostPage = () => {
                   <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
                     <Upload className="w-5 h-5" />
                     Banner Image
+                    <Badge variant="outline" className="text-xs">16:9 Ratio</Badge>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ImageUpload
                     value={postData.postBannerImage}
                     onChange={(url) => handleInputChange("postBannerImage", url)}
+                    userId={currentUserId}
+                    imageType="banner"
+                    fileName="banner-image"
                   />
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Images are automatically uploaded to: postImageFiles/{currentUserId}/postBannerImage/
+                  </p>
                 </CardContent>
               </Card>
 
@@ -333,12 +345,36 @@ const CreatePostPage = () => {
                     onChange={(content) => handleInputChange("postDescription", content)}
                     maxLength={DESCRIPTION_MAX_LENGTH}
                   />
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Post images will be uploaded to: postImageFiles/{currentUserId}/
+                  </p>
                 </CardContent>
               </Card>
             </div>
 
             {/* Sidebar */}
             <div className="space-y-6">
+              {/* User Info */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                    <User className="w-5 h-5" />
+                    Author
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                      <User className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-medium">User ID: {currentUserId}</p>
+                      <p className="text-xs text-muted-foreground">Cloudinary folder: postImageFiles/{currentUserId}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
               {/* Publish Settings */}
               <Card>
                 <CardHeader>
