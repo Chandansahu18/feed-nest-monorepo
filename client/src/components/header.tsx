@@ -211,7 +211,7 @@ const Header = () => {
         </div>
         <Dialog open={isLogoutDialogOpen} onOpenChange={setIsLogoutDialogOpen}>
           <DialogOverlay className="fixed inset-0 z-50 bg-black/20 backdrop-blur-sm transition-all duration-300" />
-          <DialogContent className="fixed left-[50%] top-[50%] right-[50%] bottom-[30%] z-50 w-full max-w-sm translate-x-[-50%] translate-y-[-50%] gap-8 bg-background/95 backdrop-blur-md p-6 transition-all duration-300 ease-out rounded-3xl border-0 shadow-2xl">
+          <DialogContent className="fixed left-[50%] top-[50%] right-[50%] bottom-[30%] z-50 max-[425px]:w-72  max-w-sm translate-x-[-50%] translate-y-[-50%] gap-8 bg-background/95 backdrop-blur-md p-6 transition-all duration-300 ease-out rounded-2xl border-0 shadow-2xl">
             <DialogHeader className="space-y-0">
               <DialogTitle className="text-xl font-semibold text-center leading-tight">
                 Are you sure you want to sign out?

@@ -9,7 +9,10 @@ import NotFoundPageWrapper from "./app/not-found/page";
 import LandingPageWrapper from "./app/landing/page";
 import AuthPageWrapper from "./app/auth/page";
 import HomePageWrapper from "./app/home/page";
-import { PublicRouteAccess } from "./middleware/auth";
+import { ProtectedRouteAccess, PublicRouteAccess } from "./middleware/auth";
+import AccountSettingsPageWrapper from "./app/settings/page";
+import BookmarkedPostsPageWrapper from "./app/posts/bookmarked-posts/page";
+import CreatePostPageWrapper from "./app/posts/bookmarked-posts/create-post/page";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -19,6 +22,9 @@ const router = createBrowserRouter(
           <Route index={true} element={<PublicRouteAccess><LandingPageWrapper /></PublicRouteAccess>} />
           <Route path="/auth" element={<PublicRouteAccess><AuthPageWrapper /></PublicRouteAccess>} />
           <Route path="/home" element={<PublicRouteAccess><HomePageWrapper /></PublicRouteAccess>} />
+          <Route path="/create" element={<ProtectedRouteAccess><CreatePostPageWrapper /></ProtectedRouteAccess>} />
+          <Route path="/settings" element={<ProtectedRouteAccess><AccountSettingsPageWrapper /></ProtectedRouteAccess>} />
+          <Route path="/bookmarks" element={<ProtectedRouteAccess><BookmarkedPostsPageWrapper /></ProtectedRouteAccess>} />
       </Route>
       <Route path="*" element={<NotFoundPageWrapper />} />
     </>
