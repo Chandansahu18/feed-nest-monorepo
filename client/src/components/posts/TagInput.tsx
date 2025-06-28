@@ -7,14 +7,15 @@ import { X, Plus } from "lucide-react";
 interface TagInputProps {
   tags: string[];
   onChange: (tags: string[]) => void;
+  maxTags?: number;
 }
 
-const TagInput = ({ tags, onChange }: TagInputProps) => {
+const TagInput = ({ tags, onChange, maxTags = 10 }: TagInputProps) => {
   const [inputValue, setInputValue] = useState("");
 
   const addTag = () => {
     const trimmedValue = inputValue.trim();
-    if (trimmedValue && !tags.includes(trimmedValue) && tags.length < 10) {
+    if (trimmedValue && !tags.includes(trimmedValue) && tags.length < maxTags) {
       onChange([...tags, trimmedValue]);
       setInputValue("");
     }
@@ -31,6 +32,9 @@ const TagInput = ({ tags, onChange }: TagInputProps) => {
     }
   };
 
+  const isAtLimit = tags.length >= maxTags;
+  const isDuplicate = tags.includes(inputValue.trim());
+
   return (
     <div className="space-y-3">
       <div className="flex gap-2">
@@ -39,12 +43,14 @@ const TagInput = ({ tags, onChange }: TagInputProps) => {
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyPress={handleKeyPress}
-          disabled={tags.length >= 10}
+          disabled={isAtLimit}
+          className={isAtLimit ? "opacity-50" : ""}
         />
         <Button
           onClick={addTag}
-          disabled={!inputValue.trim() || tags.includes(inputValue.trim()) || tags.length >= 10}
+          disabled={!inputValue.trim() || isDuplicate || isAtLimit}
           size="sm"
+          className="shrink-0"
         >
           <Plus className="w-4 h-4" />
         </Button>
@@ -57,7 +63,7 @@ const TagInput = ({ tags, onChange }: TagInputProps) => {
               {tag}
               <button
                 onClick={() => removeTag(tag)}
-                className="ml-1 hover:text-destructive"
+                className="ml-1 hover:text-destructive transition-colors"
               >
                 <X className="w-3 h-3" />
               </button>
@@ -66,9 +72,17 @@ const TagInput = ({ tags, onChange }: TagInputProps) => {
         </div>
       )}
       
-      <p className="text-xs text-muted-foreground">
-        {tags.length}/10 tags • Press Enter to add a tag
-      </p>
+      <div className="flex justify-between items-center">
+        <p className={`text-xs ${isAtLimit ? 'text-red-500' : tags.length > maxTags * 0.8 ? 'text-orange-500' : 'text-muted-foreground'}`}>
+          {tags.length}/{maxTags} tags • Press Enter to add a tag
+        </p>
+        {isDuplicate && inputValue.trim() && (
+          <span className="text-xs text-orange-500">Tag already exists</span>
+        )}
+        {isAtLimit && (
+          <span className="text-xs text-red-500">Tag limit reached</span>
+        )}
+      </div>
     </div>
   );
 };

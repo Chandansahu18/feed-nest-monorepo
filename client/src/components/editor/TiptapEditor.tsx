@@ -19,9 +19,10 @@ import './editor.css';
 interface TiptapEditorProps {
   content: string;
   onChange: (content: string) => void;
+  maxLength?: number;
 }
 
-const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
+const TiptapEditor = ({ content, onChange, maxLength = 5000 }: TiptapEditorProps) => {
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -58,13 +59,17 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
       Color,
       TextStyle,
       CharacterCount.configure({
-        limit: 5000,
+        limit: maxLength,
       }),
       SlashCommands,
     ],
     content,
     onUpdate: ({ editor }) => {
-      onChange(editor.getHTML());
+      const newContent = editor.getHTML();
+      // Prevent updates if character limit is exceeded
+      if (editor.storage.characterCount.characters() <= maxLength) {
+        onChange(newContent);
+      }
     },
     editorProps: {
       attributes: {
@@ -77,13 +82,22 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
     return null;
   }
 
+  const characterCount = editor.storage.characterCount.characters();
+  const isNearLimit = characterCount > maxLength * 0.9;
+  const isAtLimit = characterCount >= maxLength;
+
   return (
     <div className="border rounded-lg">
       <EditorToolbar editor={editor} />
       <div className="relative">
         <EditorContent editor={editor} />
-        <div className="absolute bottom-2 right-2 text-xs text-muted-foreground">
-          {editor.storage.characterCount.characters()}/5000 characters
+        <div className={`absolute bottom-2 right-2 text-xs ${
+          isAtLimit ? 'text-red-500' : isNearLimit ? 'text-orange-500' : 'text-muted-foreground'
+        }`}>
+          {characterCount}/{maxLength} characters
+          {isAtLimit && (
+            <span className="ml-2 text-red-500 font-medium">Limit reached</span>
+          )}
         </div>
       </div>
     </div>
