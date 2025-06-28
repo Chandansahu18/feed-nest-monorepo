@@ -8,7 +8,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "./ui/dropdown-menu";
-import { Menu } from "lucide-react";
+import { Menu, Bookmark } from "lucide-react";
 const Header = () => {
   const { theme } = useTheme();
   const navigate = useNavigate();
@@ -20,6 +20,9 @@ const Header = () => {
   };
   const handleContact = () => {
     navigate("/contact");
+  };
+  const handleBookmarks = () => {
+    navigate("/bookmarks");
   };
 
   return (
@@ -40,6 +43,9 @@ const Header = () => {
             <DropdownMenuContent className="ml-3 rounded-xl">
               <DropdownMenuItem onClick={handleFeed} className="cursor-pointer">
                 Feeds
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleBookmarks} className="cursor-pointer">
+                Bookmarks
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={handleContact}
@@ -86,6 +92,14 @@ const Header = () => {
               className="cursor-pointer"
             >
               Feeds
+            </Button>
+            <Button
+              variant={"ghost"}
+              onClick={handleBookmarks}
+              className="cursor-pointer gap-2"
+            >
+              <Bookmark className="w-4 h-4" />
+              Bookmarks
             </Button>
             <Button
               variant={"ghost"}
