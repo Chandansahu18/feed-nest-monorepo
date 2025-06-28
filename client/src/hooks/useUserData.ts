@@ -7,7 +7,7 @@ const handleUserData = async (userId?: string): Promise<IUserDataResponse> => {
     const response = await FEEDNEST_BACKEND_API.get("/v1/user", {
       params: { id: userId },
       withCredentials: true,
-    });
+    });  
     return response.data;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Something went wrong'

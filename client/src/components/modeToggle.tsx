@@ -1,6 +1,6 @@
 import { Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useTheme } from "@/components/theme-provider";
+import { useTheme } from "@/components/themeProvider";
 
 export function ModeToggle() {
   const { theme, setTheme } = useTheme();
@@ -10,7 +10,7 @@ export function ModeToggle() {
   }
 
   return (
-    <Button variant="ghost" size="icon" onClick={handleTheme}>
+    <Button variant="ghost" size="icon" onClick={handleTheme} className="cursor-pointer">
       {theme === "dark" ? (
       <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
       ) : (

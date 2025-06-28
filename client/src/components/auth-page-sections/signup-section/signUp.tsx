@@ -10,7 +10,7 @@ import { useGoogleAuth } from "@/hooks/useGoogleAuth";
 import type { TGoogleAuth } from "@/utils/schema/userAuth";
 import BackgroundDecoration from "../backgroundDecoration";
 import EmailSignUp from "./emailSignUp";
-import { useTheme } from "@/components/theme-provider";
+import { useTheme } from "@/components/themeProvider";
 import PendingLoader from "../../pendingLoader";
 
 const SignUp = () => {

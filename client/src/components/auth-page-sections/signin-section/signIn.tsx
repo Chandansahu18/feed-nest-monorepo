@@ -11,7 +11,7 @@ import type { TGoogleAuth } from "@/utils/schema/userAuth";
 import BackgroundDecoration from "../backgroundDecoration";
 import EmailSignIn from "./emailSignIn";
 import PendingLoader from "../../pendingLoader";
-import { useTheme } from "@/components/theme-provider";
+import { useTheme } from "@/components/themeProvider";
 
 const SignIn = () => {
   const { theme } = useTheme();

@@ -1,32 +1,34 @@
-import { useLocation, useNavigate } from "react-router-dom";
-import { useTheme } from "./theme-provider";
+import { useLocation } from "react-router-dom";
+import { useTheme } from "./themeProvider";
 import { Button } from "./ui/button";
-import { ModeToggle } from "./mode-toggle";
+import { ModeToggle } from "./modeToggle";
 import { useUserData } from "@/hooks/useUserData";
-import { PenLine, Search } from "lucide-react";
+import { Bookmark, LogOut, PenLine, Search, User } from "lucide-react";
 import { Avatar, AvatarFallback } from "@radix-ui/react-avatar";
 import { AvatarImage } from "@/components/ui/avatar";
+import {
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarSeparator,
+  MenubarTrigger,
+} from "@/components/ui/menubar";
+import { useNavigationHandlers } from "@/hooks/useNavigateHandlers";
+import { useUserLogout } from "@/hooks/useUserLogout";
 
 const Header = () => {
   const { theme } = useTheme();
-  const navigate = useNavigate();
   const { pathname } = useLocation();
   const { data } = useUserData();
-
+  const {mutate:userLogout} = useUserLogout();
+  const {handleSignIn, handleFeed, handleCreateBlogPost, handleSearch} = useNavigationHandlers();
+  
   const isLandingPage = pathname === "/";
-
-  const handleSignIn = () => {
-    navigate("/auth", { state: { type: "signin" } });
+  const isUserLoggedIn = data?.data;
+  const handleSignOut = () => {
+    userLogout();
   };
-  const handleFeed = () => {
-    navigate("/home", { state: { athenticated: false } });
-  };
-  const handleCreateBlogPost = () => {
-    navigate("/create", { state: { authenticated: true } });
-  };
-
-  const handleSettingsModal = () => {};
-  const handleSearch = () => {};
   return (
     <>
       <div className="h-16 px-4 border-b fixed w-full top-0 bg-background z-10">
@@ -83,7 +85,7 @@ const Header = () => {
               </div>
             ) : null}
 
-            {data ? (
+            {isUserLoggedIn ? (
               <div className="h-full w-16 hidden items-center sm:flex justify-center">
                 <Button
                   onClick={handleCreateBlogPost}
@@ -107,18 +109,60 @@ const Header = () => {
             <div className="h-full w-10 flex justify-center items-center">
               <ModeToggle />
             </div>
-            {data ? (
-              <div className="h-full w-10 flex justify-center items-center">
-                <Avatar
-                  className="h-10 w-full rounded-full border flex items-center justify-center cursor-pointer"
-                  onClick={handleSettingsModal}
-                >
-                  <AvatarImage />
-                  <AvatarFallback className="text-sm font-bold">
-                    CS
-                  </AvatarFallback>
-                </Avatar>
-              </div>
+            {isUserLoggedIn ? (
+              <Menubar className="border-none bg-background">
+                <MenubarMenu>
+                  <MenubarTrigger className="cursor-pointer p-0 h-10 w-10 rounded-full border data-[state=open]:bg-transparent hover:bg-transparent focus:bg-transparent">
+                    <Avatar className="size-10 rounded-full border flex items-center justify-center">
+                      <AvatarImage />
+                      <AvatarFallback className="text-sm font-bold">
+                        CS
+                      </AvatarFallback>
+                    </Avatar>
+                  </MenubarTrigger>
+                  <MenubarContent className="w-60 rounded-2xl mx-5 p-2">
+                    <div className="flex gap-1 px-2 py-3 rounded-xl hover:bg-accent">
+                      <div className="size-12 mr-2 rounded-full">
+                        <Avatar className="size-full rounded-full border flex items-center justify-center cursor-pointer">
+                          <AvatarImage
+                            src={data.data?.avatar ?? undefined}
+                            alt="avatar"
+                          />
+                          <AvatarFallback className="text-sm font-bold">
+                            CS
+                          </AvatarFallback>
+                        </Avatar>
+                      </div>
+                      <div className="space-y-1 flex-col cursor-pointer">
+                        <h3 className="font-semibold">Chandan K Sahu</h3>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          @ChandanKSahu
+                        </p>
+                      </div>
+                    </div>
+
+                    <MenubarSeparator className="my-1" />
+
+                    <div className="flex flex-col gap-1 py-1">
+                      <MenubarItem className="cursor-pointer px-3 py-2">
+                        <Bookmark className="size-4" />
+                        <h1 className="text-sm">Bookmarks</h1>
+                      </MenubarItem>
+                      <MenubarItem className="cursor-pointer px-3 py-2">
+                        <User className="size-4" />
+                        <h1 className="text-sm">Account settings</h1>
+                      </MenubarItem>
+                    </div>
+                    <MenubarSeparator className="my-1" />
+                    <MenubarItem className="cursor-pointer px-3 py-2" onClick={handleSignOut}>
+                      <LogOut className="text-red-500 size-5" />
+                      <h1 className="text-sm text-red-500 font-medium">
+                        Log out
+                      </h1>
+                    </MenubarItem>
+                  </MenubarContent>
+                </MenubarMenu>
+              </Menubar>
             ) : (
               <div className="h-full w-20 flex justify-center items-center">
                 <Button

@@ -18,8 +18,6 @@ const BlogPosts = () => {
   const [cursorId, setCursorId] = useState<string | undefined>(undefined);
   const { data: PostsData, hasMore, isPending } = usePostsData(cursorId);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  console.log(hasMore);
-  console.log(PostsData);
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -59,7 +57,7 @@ const BlogPosts = () => {
         style={{ height: "100vh", scrollbarWidth: "none" }}
       >
         <div className="flex space-x-1 mb-5 justify-between items-center">
-          <div className="flex">
+          <div className="flex cursor-pointer">
             <Button
               variant={activeTab === "Discover" ? "default" : "ghost"}
               onClick={() => setActiveTab("Discover")}
@@ -75,7 +73,7 @@ const BlogPosts = () => {
             <Button
               variant={activeTab === "Following" ? "default" : "ghost"}
               onClick={() => setActiveTab("Following")}
-              className={`flex items-center rounded-xl space-x-2 ${
+              className={`flex items-center rounded-xl space-x-2  ${
                 activeTab === "Following"
                   ? "bg-[#EFF6FFCC] text-blue-600 hover:bg-[#EFF6FFCC] dark:bg-accent dark:text-primary dark:hover:bg-accent"
                   : "text-muted-foreground hover:text-foreground"
@@ -86,7 +84,9 @@ const BlogPosts = () => {
             </Button>
           </div>
           <div className="mr-0 md:mr-3">
-            <Ellipsis className="text-muted-foreground" />
+            <Button variant={"ghost"}>
+            <Ellipsis className="size-5 text-muted-foreground"/>
+            </Button>
           </div>
         </div>
         <BlogsSkeleton />
@@ -97,7 +97,7 @@ const BlogPosts = () => {
   return (
     <div
       ref={containerRef}
-      className="max-[425px]:w-auto md:w-2xl lg:w-3xl overflow-y-auto"
+      className="max-[768px]:w-full md:w-2xl lg:w-3xl overflow-y-auto"
       style={{ height: "100vh", scrollbarWidth: "none" }}
     >
       <div className="flex space-x-1 mb-5 justify-between items-center">
@@ -105,7 +105,7 @@ const BlogPosts = () => {
           <Button
             variant={activeTab === "Discover" ? "default" : "ghost"}
             onClick={() => setActiveTab("Discover")}
-            className={`flex items-center rounded-xl space-x-2 ${
+            className={`flex items-center mr-2 rounded-xl space-x-2 ${
               activeTab === "Discover"
                 ? "bg-[#EFF6FFCC] text-blue-600 hover:bg-[#EFF6FFCC] dark:bg-accent dark:text-primary dark:hover:bg-accent"
                 : "text-muted-foreground hover:text-foreground"
@@ -128,7 +128,9 @@ const BlogPosts = () => {
           </Button>
         </div>
         <div className="mr-0 md:mr-3">
-          <Ellipsis className="text-muted-foreground" />
+          <Button className="rounded-xl" variant={"ghost"}>
+          <Ellipsis className="text-muted-foreground size-5" />
+          </Button>
         </div>
       </div>
 

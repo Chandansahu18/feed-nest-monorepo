@@ -21,6 +21,7 @@ export const restrictToAuthorisedUser = async (
       return next();
     }
     const { access_token, refresh_token } = req.cookies;
+   
     if (!refresh_token) {
       res.clearCookie('access_token').clearCookie('refresh_token');
       res.status(401).json({
