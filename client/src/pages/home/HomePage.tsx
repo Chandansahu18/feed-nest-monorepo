@@ -7,7 +7,7 @@ const HomePage = () => {
   const [activeTab, setActiveTab] = useState("Discover");
 
   return (
-    <div className="pb-16 pt-5 sm:p-8 min-h-screen w-full px-4 mx-auto xl:w-7xl sm:px-6 lg:w-3xl lg:px-8 ">
+    <div className="pb-16 mt-20 sm:mt-16 sm:p-8 min-h-screen w-full px-4 mx-auto xl:w-7xl sm:px-6 lg:w-3xl">
       <div className="flex justify-center">
         <BlogPosts />
         <div className="bg-background border-t h-14 fixed flex justify-around items-center bottom-0 w-full z-10 sm:hidden">

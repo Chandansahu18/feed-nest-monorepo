@@ -9,23 +9,97 @@ import {
 import { Button } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { Card, CardContent } from "../ui/card";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePostsData } from "@/hooks/usePostsData";
-import PendingLoader from "../pendingLoader";
+import BlogsSkeleton from "./blogsSkeleton";
 
 const BlogPosts = () => {
   const [activeTab, setActiveTab] = useState("Discover");
-  const { data: PostsData, isPending } = usePostsData();
+  const [cursorId, setCursorId] = useState<string | undefined>(undefined);
+  const { data: PostsData, hasMore, isPending } = usePostsData(cursorId);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  console.log(hasMore);
+  console.log(PostsData);
+
+  const containerRef = useRef<HTMLDivElement>(null);
+
+ useEffect(() => {
+    const container = containerRef.current;
+    if (!container || !hasMore || isPending) return;
+
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = container;
+      const atBottom = scrollTop + clientHeight >= scrollHeight - 20;
+
+      if (atBottom && !isLoadingMore && PostsData?.length) {
+        setIsLoadingMore(true);
+        const lastPost = PostsData[PostsData.length - 1];
+        setCursorId(lastPost.id);
+      }
+    };
+
+    container.addEventListener("scroll", handleScroll);
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, [PostsData, hasMore, isLoadingMore, isPending]);
+
+  useEffect(() => {
+    if (PostsData?.length && isLoadingMore) {
+      setIsLoadingMore(false);
+    }
+  }, [PostsData, isLoadingMore]);
+
   const handleBookmark = () => {
     // Bookmark functionality
   };
 
-  if (isPending) {
-    return <PendingLoader />;
+  if (isPending && !PostsData?.length) {
+    return (
+      <div
+        className="max-[425px]:w-auto md:w-2xl lg:w-3xl overflow-y-auto"
+        style={{ height: "100vh", scrollbarWidth: "none" }}
+      >
+        <div className="flex space-x-1 mb-5 justify-between items-center">
+          <div className="flex">
+            <Button
+              variant={activeTab === "Discover" ? "default" : "ghost"}
+              onClick={() => setActiveTab("Discover")}
+              className={`flex items-center rounded-xl space-x-2 ${
+                activeTab === "Discover"
+                  ? "bg-[#EFF6FFCC] text-blue-600 hover:bg-[#EFF6FFCC] dark:bg-accent dark:text-primary dark:hover:bg-accent"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Newspaper className="size-5 hidden md:flex" />
+              <span className="text-sm">Discover</span>
+            </Button>
+            <Button
+              variant={activeTab === "Following" ? "default" : "ghost"}
+              onClick={() => setActiveTab("Following")}
+              className={`flex items-center rounded-xl space-x-2 ${
+                activeTab === "Following"
+                  ? "bg-[#EFF6FFCC] text-blue-600 hover:bg-[#EFF6FFCC] dark:bg-accent dark:text-primary dark:hover:bg-accent"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Users className="size-5 hidden md:flex" />
+              <span className="text-sm">Following</span>
+            </Button>
+          </div>
+          <div className="mr-0 md:mr-3">
+            <Ellipsis className="text-muted-foreground" />
+          </div>
+        </div>
+        <BlogsSkeleton />
+      </div>
+    );
   }
 
   return (
-    <div className="max-[425px]:w-auto md:w-2xl lg:w-3xl">
+    <div
+      ref={containerRef}
+      className="max-[425px]:w-auto md:w-2xl lg:w-3xl overflow-y-auto"
+      style={{ height: "100vh", scrollbarWidth: "none" }}
+    >
       <div className="flex space-x-1 mb-5 justify-between items-center">
         <div className="flex">
           <Button
@@ -59,9 +133,9 @@ const BlogPosts = () => {
       </div>
 
       <div className="space-y-6">
-        {PostsData?.data?.map((post) => (
+        {PostsData?.map((post, index) => (
           <Card
-            key={post.id}
+            key={post.id || `${post.id}-${index}`}
             className="bg-card dark:bg-black dark:lg:bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl hover:shadow-md transition-shadow py-0"
           >
             <CardContent className="py-6 border-b max-[375px]:px-0 lg:border-0">
@@ -149,6 +223,20 @@ const BlogPosts = () => {
             </CardContent>
           </Card>
         ))}
+        
+        {(isLoadingMore || (isPending && PostsData?.length)) && (
+          <div className="space-y-6">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <BlogsSkeleton key={`skeleton-${index}`} />
+            ))}
+          </div>
+        )}
+        
+        {!hasMore && PostsData?.length && (
+          <div className="text-center py-4 text-muted-foreground">
+            You've reached the end
+          </div>
+        )}
       </div>
     </div>
   );

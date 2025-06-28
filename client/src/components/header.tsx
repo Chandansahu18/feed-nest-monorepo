@@ -29,7 +29,7 @@ const Header = () => {
   const handleSearch = () => {};
   return (
     <>
-      <div className="h-16 px-4 border-b">
+      <div className="h-16 px-4 border-b fixed w-full top-0 bg-background z-10">
         <div className="h-full flex justify-between items-center">
           <div className="h-full w-40 flex justify-start items-center cursor-pointer">
             {theme === "dark" ? (
