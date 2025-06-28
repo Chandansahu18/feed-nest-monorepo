@@ -264,18 +264,21 @@ const ImageUpload = ({
                 />
               </div>
               
-              {/* Control buttons */}
-              <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              {/* Control buttons - Always visible cross button, hover for crop */}
+              <div className="absolute top-2 right-2 flex gap-1">
+                {/* Crop button - only visible on hover */}
                 <Button
                   variant="secondary"
                   size="sm"
                   onClick={handleEditCrop}
-                  className="h-8 w-8 p-0 shadow-lg"
+                  className="h-8 w-8 p-0 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
                   title="Crop image"
                   disabled={isUploading}
                 >
                   <Crop className="w-4 h-4" />
                 </Button>
+                
+                {/* Remove button - always visible */}
                 <Button
                   variant="destructive"
                   size="sm"
