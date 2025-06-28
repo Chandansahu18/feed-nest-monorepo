@@ -101,33 +101,41 @@ const ImageCropper = ({ imageSrc, onCropComplete, onCancel }: ImageCropperProps)
       
       setCropArea(prev => {
         let newArea = { ...prev };
+        const aspectRatio = 16 / 9;
         
         switch (resizeHandle) {
           case 'nw':
             newArea.x = Math.max(0, prev.x + deltaX);
             newArea.y = Math.max(0, prev.y + deltaY);
-            newArea.width = Math.max(50, prev.width - deltaX);
-            newArea.height = Math.max(50, prev.height - deltaY);
+            newArea.width = Math.max(100, prev.width - deltaX);
+            newArea.height = newArea.width / aspectRatio;
             break;
           case 'ne':
             newArea.y = Math.max(0, prev.y + deltaY);
-            newArea.width = Math.max(50, prev.width + deltaX);
-            newArea.height = Math.max(50, prev.height - deltaY);
+            newArea.width = Math.max(100, prev.width + deltaX);
+            newArea.height = newArea.width / aspectRatio;
             break;
           case 'sw':
             newArea.x = Math.max(0, prev.x + deltaX);
-            newArea.width = Math.max(50, prev.width - deltaX);
-            newArea.height = Math.max(50, prev.height + deltaY);
+            newArea.width = Math.max(100, prev.width - deltaX);
+            newArea.height = newArea.width / aspectRatio;
             break;
           case 'se':
-            newArea.width = Math.max(50, prev.width + deltaX);
-            newArea.height = Math.max(50, prev.height + deltaY);
+            newArea.width = Math.max(100, prev.width + deltaX);
+            newArea.height = newArea.width / aspectRatio;
             break;
         }
         
         // Ensure crop area stays within image bounds
         newArea.width = Math.min(newArea.width, imageDimensions.width - newArea.x);
         newArea.height = Math.min(newArea.height, imageDimensions.height - newArea.y);
+        
+        // Maintain aspect ratio
+        if (newArea.width / aspectRatio > newArea.height) {
+          newArea.width = newArea.height * aspectRatio;
+        } else {
+          newArea.height = newArea.width / aspectRatio;
+        }
         
         return newArea;
       });
