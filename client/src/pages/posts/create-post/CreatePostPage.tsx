@@ -10,9 +10,10 @@ import { Switch } from "@/components/ui/switch";
 import TiptapEditor from "@/components/editor/TiptapEditor";
 import ImageUpload from "@/components/posts/ImageUpload";
 import TagInput from "@/components/posts/TagInput";
-import { Save, Eye, Upload, Sparkles, ArrowLeft, Check, User } from "lucide-react";
+import { Save, Eye, Upload, Sparkles, ArrowLeft, Check, User, AlertCircle } from "lucide-react";
 import { useCreatePost } from "@/hooks/useCreatePost";
 import { useEnhanceContent } from "@/hooks/useEnhanceContent";
+import { useCurrentUser } from "@/hooks/useCloudinaryUpload";
 
 interface PostData {
   postTitle: string;
@@ -36,9 +37,7 @@ const CreatePostPage = () => {
 
   const { mutate: createPost, isPending: isCreating } = useCreatePost();
   const { mutate: enhanceContent, isPending: isEnhancing } = useEnhanceContent();
-
-  // Mock user ID - replace with actual user ID from auth context
-  const currentUserId = "user123"; // This should come from your auth context
+  const { userId } = useCurrentUser();
 
   // Validation limits
   const TITLE_MIN_LENGTH = 5;
@@ -134,6 +133,9 @@ const CreatePostPage = () => {
     if (current > max * 0.8) return "text-orange-500";
     return "text-muted-foreground";
   };
+
+  // Check if Cloudinary is configured
+  const isCloudinaryConfigured = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME && import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
   if (showPreview) {
     return (
@@ -236,6 +238,28 @@ const CreatePostPage = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
+          {/* Cloudinary Configuration Warning */}
+          {!isCloudinaryConfigured && (
+            <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <h3 className="font-medium text-yellow-800">Cloudinary Configuration Required</h3>
+                  <p className="text-sm text-yellow-700 mt-1">
+                    To upload images directly to Cloudinary, please add the following to your .env file:
+                  </p>
+                  <div className="mt-2 p-2 bg-yellow-100 rounded text-xs font-mono text-yellow-800">
+                    VITE_CLOUDINARY_CLOUD_NAME=your_cloud_name<br/>
+                    VITE_CLOUDINARY_UPLOAD_PRESET=your_upload_preset
+                  </div>
+                  <p className="text-xs text-yellow-600 mt-2">
+                    You can still use image URLs without this configuration.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Header */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
             <div className="w-full sm:w-auto">
@@ -280,13 +304,14 @@ const CreatePostPage = () => {
                   <ImageUpload
                     value={postData.postBannerImage}
                     onChange={(url) => handleInputChange("postBannerImage", url)}
-                    userId={currentUserId}
                     imageType="banner"
                     fileName="banner-image"
                   />
-                  <p className="text-xs text-muted-foreground mt-2">
-                    Images are automatically uploaded to: postImageFiles/{currentUserId}/postBannerImage/
-                  </p>
+                  {isCloudinaryConfigured && (
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Images are automatically uploaded to: postImageFiles/{userId}/postBannerImage/
+                    </p>
+                  )}
                 </CardContent>
               </Card>
 
@@ -345,9 +370,11 @@ const CreatePostPage = () => {
                     onChange={(content) => handleInputChange("postDescription", content)}
                     maxLength={DESCRIPTION_MAX_LENGTH}
                   />
-                  <p className="text-xs text-muted-foreground mt-2">
-                    Post images will be uploaded to: postImageFiles/{currentUserId}/
-                  </p>
+                  {isCloudinaryConfigured && (
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Post images will be uploaded to: postImageFiles/{userId}/
+                    </p>
+                  )}
                 </CardContent>
               </Card>
             </div>
@@ -368,8 +395,10 @@ const CreatePostPage = () => {
                       <User className="w-5 h-5 text-primary" />
                     </div>
                     <div>
-                      <p className="font-medium">User ID: {currentUserId}</p>
-                      <p className="text-xs text-muted-foreground">Cloudinary folder: postImageFiles/{currentUserId}</p>
+                      <p className="font-medium">User ID: {userId}</p>
+                      {isCloudinaryConfigured && (
+                        <p className="text-xs text-muted-foreground">Cloudinary folder: postImageFiles/{userId}</p>
+                      )}
                     </div>
                   </div>
                 </CardContent>

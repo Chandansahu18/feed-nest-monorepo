@@ -17,58 +17,133 @@ interface CloudinaryUploadResponse {
   original_filename: string;
 }
 
+interface CloudinaryError {
+  error: {
+    message: string;
+    http_code: number;
+  };
+}
+
 interface UploadOptions {
   userId: string;
   imageType: 'banner' | 'post';
   fileName?: string;
 }
 
+// Validate environment variables
+const validateCloudinaryConfig = () => {
+  const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+  const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+
+  if (!cloudName) {
+    throw new Error('VITE_CLOUDINARY_CLOUD_NAME is not configured. Please add it to your .env file.');
+  }
+
+  if (!uploadPreset) {
+    throw new Error('VITE_CLOUDINARY_UPLOAD_PRESET is not configured. Please add it to your .env file.');
+  }
+
+  return { cloudName, uploadPreset };
+};
+
 export const uploadToCloudinary = async (
   file: File,
   options: UploadOptions
 ): Promise<CloudinaryUploadResponse> => {
-  const { userId, imageType, fileName } = options;
-  
-  // Generate file name based on type
-  const timestamp = Date.now();
-  const fileExtension = file.name.split('.').pop() || 'png';
-  
-  let publicId: string;
-  if (imageType === 'banner') {
-    publicId = `postImageFiles/${userId}/postBannerImage/banner-image`;
-  } else {
-    const imageName = fileName || `image${timestamp}`;
-    publicId = `postImageFiles/${userId}/${imageName}`;
-  }
-
-  // Create form data
-  const formData = new FormData();
-  formData.append('file', file);
-  formData.append('upload_preset', import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET);
-  formData.append('public_id', publicId);
-  formData.append('overwrite', 'true'); // Overwrite if same name exists
-  formData.append('resource_type', 'image');
-  
-  // Add folder structure
-  formData.append('folder', `postImageFiles/${userId}${imageType === 'banner' ? '/postBannerImage' : ''}`);
-
   try {
-    const response = await fetch(
-      `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload`,
-      {
-        method: 'POST',
-        body: formData,
-      }
-    );
+    // Validate configuration first
+    const { cloudName, uploadPreset } = validateCloudinaryConfig();
+    
+    const { userId, imageType, fileName } = options;
+    
+    // Validate file
+    if (!file) {
+      throw new Error('No file provided for upload');
+    }
+
+    if (!file.type.startsWith('image/')) {
+      throw new Error('File must be an image');
+    }
+
+    // Check file size (max 10MB)
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+      throw new Error('File size must be less than 10MB');
+    }
+
+    // Generate file name based on type
+    const timestamp = Date.now();
+    const fileExtension = file.name.split('.').pop()?.toLowerCase() || 'png';
+    
+    let publicId: string;
+    let folder: string;
+    
+    if (imageType === 'banner') {
+      publicId = `postImageFiles/${userId}/postBannerImage/banner-image`;
+      folder = `postImageFiles/${userId}/postBannerImage`;
+    } else {
+      const imageName = fileName || `image${timestamp}`;
+      publicId = `postImageFiles/${userId}/${imageName}`;
+      folder = `postImageFiles/${userId}`;
+    }
+
+    console.log('Upload configuration:', {
+      cloudName,
+      uploadPreset,
+      publicId,
+      folder,
+      fileSize: file.size,
+      fileType: file.type
+    });
+
+    // Create form data
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', uploadPreset);
+    formData.append('public_id', publicId);
+    formData.append('overwrite', 'true');
+    formData.append('resource_type', 'image');
+    formData.append('folder', folder);
+    
+    // Optional: Add tags for better organization
+    formData.append('tags', `user_${userId},${imageType}_image`);
+
+    const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+    
+    console.log('Uploading to:', uploadUrl);
+
+    const response = await fetch(uploadUrl, {
+      method: 'POST',
+      body: formData,
+    });
+
+    console.log('Response status:', response.status);
+    console.log('Response headers:', Object.fromEntries(response.headers.entries()));
 
     if (!response.ok) {
-      throw new Error(`Upload failed: ${response.statusText}`);
+      const errorText = await response.text();
+      console.error('Upload failed with status:', response.status);
+      console.error('Error response:', errorText);
+      
+      try {
+        const errorJson: CloudinaryError = JSON.parse(errorText);
+        throw new Error(`Cloudinary error: ${errorJson.error.message}`);
+      } catch (parseError) {
+        throw new Error(`Upload failed: ${response.status} ${response.statusText}. ${errorText}`);
+      }
     }
 
     const result: CloudinaryUploadResponse = await response.json();
+    console.log('Upload successful:', result);
+    
     return result;
   } catch (error) {
     console.error('Cloudinary upload error:', error);
+    
+    if (error instanceof Error) {
+      throw error;
+    }
+    
     throw new Error('Failed to upload image to Cloudinary');
   }
 };
@@ -78,6 +153,7 @@ export const deleteFromCloudinary = async (publicId: string): Promise<void> => {
     // Note: Deletion requires server-side implementation with API secret
     // This is a placeholder for the delete functionality
     console.log('Delete request for:', publicId);
+    // You would need to implement this on your backend
   } catch (error) {
     console.error('Cloudinary delete error:', error);
     throw new Error('Failed to delete image from Cloudinary');
@@ -86,14 +162,42 @@ export const deleteFromCloudinary = async (publicId: string): Promise<void> => {
 
 // Utility function to extract public_id from Cloudinary URL
 export const extractPublicIdFromUrl = (url: string): string => {
-  const parts = url.split('/');
-  const uploadIndex = parts.findIndex(part => part === 'upload');
-  if (uploadIndex !== -1 && uploadIndex + 2 < parts.length) {
-    const pathParts = parts.slice(uploadIndex + 2);
-    const fileName = pathParts[pathParts.length - 1];
-    const fileNameWithoutExtension = fileName.split('.')[0];
-    pathParts[pathParts.length - 1] = fileNameWithoutExtension;
-    return pathParts.join('/');
+  try {
+    const parts = url.split('/');
+    const uploadIndex = parts.findIndex(part => part === 'upload');
+    if (uploadIndex !== -1 && uploadIndex + 2 < parts.length) {
+      const pathParts = parts.slice(uploadIndex + 2);
+      const fileName = pathParts[pathParts.length - 1];
+      const fileNameWithoutExtension = fileName.split('.')[0];
+      pathParts[pathParts.length - 1] = fileNameWithoutExtension;
+      return pathParts.join('/');
+    }
+    return '';
+  } catch (error) {
+    console.error('Error extracting public ID:', error);
+    return '';
   }
-  return '';
+};
+
+// Utility function to generate optimized Cloudinary URLs
+export const getOptimizedImageUrl = (
+  publicId: string, 
+  options: {
+    width?: number;
+    height?: number;
+    quality?: string;
+    format?: string;
+  } = {}
+): string => {
+  const { cloudName } = validateCloudinaryConfig();
+  const { width, height, quality = 'auto', format = 'auto' } = options;
+  
+  let transformations = [`q_${quality}`, `f_${format}`];
+  
+  if (width) transformations.push(`w_${width}`);
+  if (height) transformations.push(`h_${height}`);
+  
+  const transformString = transformations.join(',');
+  
+  return `https://res.cloudinary.com/${cloudName}/image/upload/${transformString}/${publicId}`;
 };
