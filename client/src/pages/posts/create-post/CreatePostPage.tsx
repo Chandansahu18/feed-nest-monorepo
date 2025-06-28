@@ -115,13 +115,6 @@ const CreatePostPage = () => {
   };
 
   const handlePreview = () => {
-    const validationErrors = validatePost();
-    
-    if (validationErrors.length > 0) {
-      alert(validationErrors.join('\n'));
-      return;
-    }
-    
     setShowPreview(true);
   };
 
@@ -133,12 +126,7 @@ const CreatePostPage = () => {
     navigate("/posts");
   };
 
-  const isFormValid = () => {
-    return validatePost().length === 0;
-  };
-
-  const getCharacterCountColor = (current: number, max: number, min?: number) => {
-    if (min && current < min && current > 0) return "text-orange-500";
+  const getCharacterCountColor = (current: number, max: number) => {
     if (current > max * 0.9) return "text-red-500";
     if (current > max * 0.8) return "text-orange-500";
     return "text-muted-foreground";
@@ -255,7 +243,6 @@ const CreatePostPage = () => {
               <Button
                 variant="outline"
                 onClick={handlePreview}
-                disabled={!isFormValid()}
                 className="flex items-center gap-2 w-full sm:w-auto"
               >
                 <Eye className="w-4 h-4" />
@@ -263,7 +250,7 @@ const CreatePostPage = () => {
               </Button>
               <Button
                 onClick={handleSavePost}
-                disabled={isCreating || !isFormValid()}
+                disabled={isCreating}
                 className="flex items-center gap-2 w-full sm:w-auto"
               >
                 <Save className="w-4 h-4" />
@@ -316,22 +303,9 @@ const CreatePostPage = () => {
                       className="text-base sm:text-lg font-semibold"
                       maxLength={TITLE_MAX_LENGTH}
                     />
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1 sm:gap-2">
-                      <p className={`text-xs ${getCharacterCountColor(postData.postTitle.length, TITLE_MAX_LENGTH, TITLE_MIN_LENGTH)}`}>
-                        {postData.postTitle.length}/{TITLE_MAX_LENGTH} characters
-                        {postData.postTitle.length < TITLE_MIN_LENGTH && postData.postTitle.length > 0 && 
-                          ` (minimum ${TITLE_MIN_LENGTH})`
-                        }
-                      </p>
-                      <div className="flex gap-2">
-                        {postData.postTitle.length < TITLE_MIN_LENGTH && postData.postTitle.length > 0 && (
-                          <span className="text-xs text-orange-500">Too short</span>
-                        )}
-                        {postData.postTitle.length > TITLE_MAX_LENGTH * 0.9 && (
-                          <span className="text-xs text-red-500">Approaching limit</span>
-                        )}
-                      </div>
-                    </div>
+                    <p className={`text-xs ${getCharacterCountColor(postData.postTitle.length, TITLE_MAX_LENGTH)}`}>
+                      {postData.postTitle.length}/{TITLE_MAX_LENGTH} characters
+                    </p>
                   </div>
                 </CardContent>
               </Card>
@@ -357,23 +331,8 @@ const CreatePostPage = () => {
                   <TiptapEditor
                     content={postData.postDescription}
                     onChange={(content) => handleInputChange("postDescription", content)}
+                    maxLength={DESCRIPTION_MAX_LENGTH}
                   />
-                  <div className="mt-2 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1 sm:gap-2">
-                    <p className={`text-xs ${getCharacterCountColor(postData.postDescription.length, DESCRIPTION_MAX_LENGTH, DESCRIPTION_MIN_LENGTH)}`}>
-                      {postData.postDescription.length}/{DESCRIPTION_MAX_LENGTH} characters
-                      {postData.postDescription.length > 0 && postData.postDescription.length < DESCRIPTION_MIN_LENGTH && 
-                        ` (minimum ${DESCRIPTION_MIN_LENGTH})`
-                      }
-                    </p>
-                    <div className="flex gap-2">
-                      {postData.postDescription.length > 0 && postData.postDescription.length < DESCRIPTION_MIN_LENGTH && (
-                        <span className="text-xs text-orange-500">Too short</span>
-                      )}
-                      {postData.postDescription.length > DESCRIPTION_MAX_LENGTH * 0.9 && (
-                        <span className="text-xs text-red-500">Approaching limit</span>
-                      )}
-                    </div>
-                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -418,15 +377,8 @@ const CreatePostPage = () => {
                   <TagInput
                     tags={postData.postTags}
                     onChange={(tags) => handleInputChange("postTags", tags)}
+                    maxTags={MAX_TAGS}
                   />
-                  {postData.postTags.length > MAX_TAGS * 0.8 && (
-                    <p className={`text-xs mt-2 ${postData.postTags.length >= MAX_TAGS ? 'text-red-500' : 'text-orange-500'}`}>
-                      {postData.postTags.length >= MAX_TAGS 
-                        ? `Maximum ${MAX_TAGS} tags reached` 
-                        : `Approaching tag limit (${postData.postTags.length}/${MAX_TAGS})`
-                      }
-                    </p>
-                  )}
                 </CardContent>
               </Card>
 
@@ -438,13 +390,13 @@ const CreatePostPage = () => {
                 <CardContent className="space-y-3">
                   <div className="flex justify-between text-xs sm:text-sm">
                     <span>Title length:</span>
-                    <span className={getCharacterCountColor(postData.postTitle.length, TITLE_MAX_LENGTH, TITLE_MIN_LENGTH)}>
+                    <span className={getCharacterCountColor(postData.postTitle.length, TITLE_MAX_LENGTH)}>
                       {postData.postTitle.length}/{TITLE_MAX_LENGTH}
                     </span>
                   </div>
                   <div className="flex justify-between text-xs sm:text-sm">
                     <span>Content length:</span>
-                    <span className={getCharacterCountColor(postData.postDescription.length, DESCRIPTION_MAX_LENGTH, DESCRIPTION_MIN_LENGTH)}>
+                    <span className={getCharacterCountColor(postData.postDescription.length, DESCRIPTION_MAX_LENGTH)}>
                       {postData.postDescription.length}/{DESCRIPTION_MAX_LENGTH}
                     </span>
                   </div>
@@ -462,22 +414,6 @@ const CreatePostPage = () => {
                   </div>
                 </CardContent>
               </Card>
-
-              {/* Validation Errors */}
-              {!isFormValid() && (
-                <Card className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950">
-                  <CardHeader>
-                    <CardTitle className="text-red-700 dark:text-red-300 text-sm sm:text-base">Validation Errors</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="text-xs sm:text-sm text-red-600 dark:text-red-400 space-y-1">
-                      {validatePost().map((error, index) => (
-                        <li key={index}>• {error}</li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
-              )}
             </div>
           </div>
         </motion.div>

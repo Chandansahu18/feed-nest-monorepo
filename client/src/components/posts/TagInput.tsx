@@ -73,19 +73,9 @@ const TagInput = ({ tags, onChange, maxTags = 10 }: TagInputProps) => {
         </div>
       )}
       
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1 sm:gap-2">
-        <p className={`text-xs ${isAtLimit ? 'text-red-500' : tags.length > maxTags * 0.8 ? 'text-orange-500' : 'text-muted-foreground'}`}>
-          {tags.length}/{maxTags} tags • Press Enter to add a tag
-        </p>
-        <div className="flex gap-2">
-          {isDuplicate && inputValue.trim() && (
-            <span className="text-xs text-orange-500">Tag already exists</span>
-          )}
-          {isAtLimit && (
-            <span className="text-xs text-red-500">Tag limit reached</span>
-          )}
-        </div>
-      </div>
+      <p className={`text-xs ${isAtLimit ? 'text-red-500' : tags.length > maxTags * 0.8 ? 'text-orange-500' : 'text-muted-foreground'}`}>
+        {tags.length}/{maxTags} tags • Press Enter to add a tag
+      </p>
     </div>
   );
 };

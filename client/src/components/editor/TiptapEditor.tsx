@@ -65,11 +65,7 @@ const TiptapEditor = ({ content, onChange, maxLength = 5000 }: TiptapEditorProps
     ],
     content,
     onUpdate: ({ editor }) => {
-      const newContent = editor.getHTML();
-      // Prevent updates if character limit is exceeded
-      if (editor.storage.characterCount.characters() <= maxLength) {
-        onChange(newContent);
-      }
+      onChange(editor.getHTML());
     },
     editorProps: {
       attributes: {
@@ -95,9 +91,6 @@ const TiptapEditor = ({ content, onChange, maxLength = 5000 }: TiptapEditorProps
           isAtLimit ? 'text-red-500' : isNearLimit ? 'text-orange-500' : 'text-muted-foreground'
         }`}>
           {characterCount}/{maxLength} characters
-          {isAtLimit && (
-            <span className="ml-2 text-red-500 font-medium">Limit reached</span>
-          )}
         </div>
       </div>
     </div>
