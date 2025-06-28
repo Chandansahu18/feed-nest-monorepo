@@ -381,29 +381,6 @@ const CreatePostPage = () => {
 
             {/* Sidebar */}
             <div className="space-y-6">
-              {/* User Info */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                    <User className="w-5 h-5" />
-                    Author
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                      <User className="w-5 h-5 text-primary" />
-                    </div>
-                    <div>
-                      <p className="font-medium">User ID: {userId}</p>
-                      {isCloudinaryConfigured && (
-                        <p className="text-xs text-muted-foreground">Cloudinary folder: postImageFiles/{userId}</p>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
               {/* Publish Settings */}
               <Card>
                 <CardHeader>
@@ -420,7 +397,7 @@ const CreatePostPage = () => {
                     <Switch
                       id="published"
                       checked={postData.published}
-                      onCheckedChange={(checked) => handleInputChange("published", checked)}
+                      onCheckedChange={(checked:boolean) => handleInputChange("published", checked)}
                     />
                   </div>
                   {!postData.published && (
