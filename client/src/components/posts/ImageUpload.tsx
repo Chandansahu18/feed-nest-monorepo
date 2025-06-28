@@ -4,7 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Upload, X, Link, Image as ImageIcon, Crop, Cloud, Loader2, AlertCircle } from "lucide-react";
 import ImageCropper from "./ImageCropper";
-import { useCloudinaryUpload, useCurrentUser } from "@/hooks/useCloudinaryUpload";
+import { useCloudinaryUpload, useCloudinaryUrlUpload, useCurrentUser } from "@/hooks/useCloudinaryUpload";
+import { isImageUrl } from "@/utils/cloudinary";
 
 interface ImageUploadProps {
   value: string;
@@ -27,8 +28,11 @@ const ImageUpload = ({
   const [uploadError, setUploadError] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { mutate: uploadToCloudinary, isPending: isUploading } = useCloudinaryUpload();
+  const { mutate: uploadToCloudinary, isPending: isFileUploading } = useCloudinaryUpload();
+  const { mutate: uploadUrlToCloudinary, isPending: isUrlUploading } = useCloudinaryUrlUpload();
   const { userId } = useCurrentUser();
+
+  const isUploading = isFileUploading || isUrlUploading;
 
   const clearError = () => setUploadError("");
 
@@ -41,9 +45,46 @@ const ImageUpload = ({
     // Basic URL validation
     try {
       new URL(imageUrl);
-      onChange(imageUrl);
-      setIsUrlMode(false);
-      clearError();
+      
+      // Check if Cloudinary is configured
+      const isCloudinaryConfigured = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME && import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+      
+      if (isCloudinaryConfigured && isImageUrl(imageUrl)) {
+        // Upload URL to Cloudinary
+        console.log('🔗 Uploading URL to Cloudinary:', imageUrl);
+        
+        uploadUrlToCloudinary(
+          { 
+            url: imageUrl, 
+            options: { 
+              userId, 
+              imageType,
+              fileName: fileName || `url-${imageType}-${Date.now()}`
+            } 
+          },
+          {
+            onSuccess: (response) => {
+              console.log('✅ URL upload to Cloudinary successful:', response.secure_url);
+              onChange(response.secure_url);
+              setIsUrlMode(false);
+              clearError();
+            },
+            onError: (error) => {
+              console.error('❌ URL upload to Cloudinary failed:', error);
+              // Fallback to using the original URL
+              console.log('📎 Falling back to original URL');
+              onChange(imageUrl);
+              setIsUrlMode(false);
+              clearError();
+            }
+          }
+        );
+      } else {
+        // Use URL directly if Cloudinary not configured or not an image URL
+        onChange(imageUrl);
+        setIsUrlMode(false);
+        clearError();
+      }
     } catch {
       setUploadError("Please enter a valid URL");
     }
@@ -87,12 +128,12 @@ const ImageUpload = ({
       },
       {
         onSuccess: (response) => {
-          console.log('✅ Upload successful:', response.secure_url);
+          console.log('✅ File upload successful:', response.secure_url);
           onChange(response.secure_url);
           clearError();
         },
         onError: (error) => {
-          console.error('❌ Upload failed:', error);
+          console.error('❌ File upload failed:', error);
           setUploadError(error.message || 'Failed to upload image. Please try again.');
         }
       }
@@ -252,7 +293,9 @@ const ImageUpload = ({
                 <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                   <div className="bg-white rounded-lg p-4 flex items-center gap-2">
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    <span className="text-sm font-medium">Uploading to Cloudinary...</span>
+                    <span className="text-sm font-medium">
+                      {isUrlUploading ? 'Uploading URL to Cloudinary...' : 'Uploading to Cloudinary...'}
+                    </span>
                   </div>
                 </div>
               )}
@@ -263,7 +306,7 @@ const ImageUpload = ({
                   <div className="bg-green-600/90 text-white px-3 py-2 rounded-lg text-sm font-medium text-center">
                     <div className="flex items-center justify-center gap-2">
                       <Cloud className="w-4 h-4" />
-                      Stored in Cloudinary • Click crop to adjust
+                      {value.includes('cloudinary.com') ? 'Stored in Cloudinary' : 'External URL'} • Click crop to adjust
                     </div>
                   </div>
                 </div>
@@ -307,7 +350,14 @@ const ImageUpload = ({
               disabled={!imageUrl.trim() || isUploading}
               className="flex-1 sm:flex-none"
             >
-              Add
+              {isUrlUploading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  Uploading...
+                </>
+              ) : (
+                'Add'
+              )}
             </Button>
             <Button 
               variant="outline" 
@@ -322,6 +372,13 @@ const ImageUpload = ({
             </Button>
           </div>
         </div>
+        
+        {/* URL upload info */}
+        {import.meta.env.VITE_CLOUDINARY_CLOUD_NAME && (
+          <p className="text-xs text-muted-foreground">
+            💡 Image URLs will be automatically uploaded to Cloudinary for better performance and reliability
+          </p>
+        )}
       </div>
     );
   }
@@ -416,6 +473,9 @@ const ImageUpload = ({
             >
               <Link className="w-4 h-4" />
               Add from URL
+              {import.meta.env.VITE_CLOUDINARY_CLOUD_NAME && (
+                <span className="text-xs opacity-75">(Auto-uploads to Cloudinary)</span>
+              )}
             </Button>
           </div>
         )}

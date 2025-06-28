@@ -21,8 +21,9 @@ import {
   Image,
   Highlighter,
 } from 'lucide-react';
-import { useCloudinaryUpload, useCurrentUser } from '@/hooks/useCloudinaryUpload';
+import { useCloudinaryUpload, useCloudinaryUrlUpload, useCurrentUser } from '@/hooks/useCloudinaryUpload';
 import { useRef } from 'react';
+import { isImageUrl } from '@/utils/cloudinary';
 
 interface EditorToolbarProps {
   editor: Editor;
@@ -30,8 +31,11 @@ interface EditorToolbarProps {
 
 const EditorToolbar = ({ editor }: EditorToolbarProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { mutate: uploadToCloudinary, isPending: isUploading } = useCloudinaryUpload();
+  const { mutate: uploadToCloudinary, isPending: isFileUploading } = useCloudinaryUpload();
+  const { mutate: uploadUrlToCloudinary, isPending: isUrlUploading } = useCloudinaryUrlUpload();
   const { userId } = useCurrentUser();
+
+  const isUploading = isFileUploading || isUrlUploading;
 
   const addImage = () => {
     fileInputRef.current?.click();
@@ -74,14 +78,37 @@ const EditorToolbar = ({ editor }: EditorToolbarProps) => {
     const url = window.prompt('Enter URL:');
     if (url) {
       // Check if it's an image URL
-      const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
-      const isImageUrl = imageExtensions.some(ext => 
-        url.toLowerCase().includes(ext) || url.toLowerCase().endsWith(ext)
-      );
-
-      if (isImageUrl) {
-        // If it's an image URL, insert as image
-        editor.chain().focus().setImage({ src: url }).run();
+      if (isImageUrl(url)) {
+        // Check if Cloudinary is configured
+        const isCloudinaryConfigured = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME && import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+        
+        if (isCloudinaryConfigured) {
+          console.log('🔗 Uploading image URL to Cloudinary:', url);
+          
+          uploadUrlToCloudinary(
+            { 
+              url, 
+              options: { 
+                userId, 
+                imageType: 'post',
+                fileName: `toolbar-url-${Date.now()}`
+              } 
+            },
+            {
+              onSuccess: (response) => {
+                console.log('✅ Toolbar URL upload successful:', response.secure_url);
+                editor.chain().focus().setImage({ src: response.secure_url }).run();
+              },
+              onError: (error) => {
+                console.error('❌ Toolbar URL upload failed, using original URL:', error);
+                editor.chain().focus().setImage({ src: url }).run();
+              }
+            }
+          );
+        } else {
+          // If Cloudinary not configured, insert as image directly
+          editor.chain().focus().setImage({ src: url }).run();
+        }
       } else {
         // Otherwise, insert as link
         editor.chain().focus().setLink({ href: url }).run();
@@ -229,7 +256,7 @@ const EditorToolbar = ({ editor }: EditorToolbarProps) => {
         variant="ghost"
         size="sm"
         onClick={addLink}
-        title="Add link or image URL"
+        title="Add link or image URL (auto-uploads images to Cloudinary)"
       >
         <Link className="w-4 h-4" />
       </Button>
@@ -277,7 +304,7 @@ const EditorToolbar = ({ editor }: EditorToolbarProps) => {
       {isUploading && (
         <div className="flex items-center gap-2 ml-2 px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs">
           <div className="w-3 h-3 border-2 border-blue-300 border-t-blue-700 rounded-full animate-spin" />
-          Uploading...
+          {isUrlUploading ? 'Uploading URL...' : 'Uploading...'}
         </div>
       )}
     </div>

@@ -14,7 +14,8 @@ import TextStyle from '@tiptap/extension-text-style';
 import CharacterCount from '@tiptap/extension-character-count';
 import EditorToolbar from './EditorToolbar';
 import SlashCommands from './SlashCommands';
-import { useCloudinaryUpload, useCurrentUser } from '@/hooks/useCloudinaryUpload';
+import { useCloudinaryUpload, useCloudinaryUrlUpload, useCurrentUser } from '@/hooks/useCloudinaryUpload';
+import { isImageUrl } from '@/utils/cloudinary';
 import './editor.css';
 
 interface TiptapEditorProps {
@@ -25,6 +26,7 @@ interface TiptapEditorProps {
 
 const TiptapEditor = ({ content, onChange, maxLength = 5000 }: TiptapEditorProps) => {
   const { mutate: uploadToCloudinary } = useCloudinaryUpload();
+  const { mutate: uploadUrlToCloudinary } = useCloudinaryUrlUpload();
   const { userId } = useCurrentUser();
 
   const editor = useEditor({
@@ -50,22 +52,64 @@ const TiptapEditor = ({ content, onChange, maxLength = 5000 }: TiptapEditorProps
         },
         // Auto-detect and convert image URLs to images
         validate: (href) => {
-          const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
-          const isImageUrl = imageExtensions.some(ext => 
-            href.toLowerCase().includes(ext) || href.toLowerCase().endsWith(ext)
-          );
-          
-          if (isImageUrl) {
-            // Convert link to image
-            setTimeout(() => {
-              if (editor) {
-                const { from, to } = editor.state.selection;
-                editor.chain()
-                  .deleteRange({ from, to })
-                  .setImage({ src: href })
-                  .run();
-              }
-            }, 0);
+          if (isImageUrl(href)) {
+            // Check if Cloudinary is configured
+            const isCloudinaryConfigured = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME && import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+            
+            if (isCloudinaryConfigured) {
+              // Upload URL to Cloudinary first, then insert as image
+              console.log('🔗 Auto-uploading image URL to Cloudinary:', href);
+              
+              uploadUrlToCloudinary(
+                { 
+                  url: href, 
+                  options: { 
+                    userId, 
+                    imageType: 'post',
+                    fileName: `auto-url-${Date.now()}`
+                  } 
+                },
+                {
+                  onSuccess: (response) => {
+                    console.log('✅ Auto URL upload successful:', response.secure_url);
+                    // Replace with Cloudinary URL
+                    setTimeout(() => {
+                      if (editor) {
+                        const { from, to } = editor.state.selection;
+                        editor.chain()
+                          .deleteRange({ from, to })
+                          .setImage({ src: response.secure_url })
+                          .run();
+                      }
+                    }, 0);
+                  },
+                  onError: (error) => {
+                    console.error('❌ Auto URL upload failed, using original URL:', error);
+                    // Fallback to original URL
+                    setTimeout(() => {
+                      if (editor) {
+                        const { from, to } = editor.state.selection;
+                        editor.chain()
+                          .deleteRange({ from, to })
+                          .setImage({ src: href })
+                          .run();
+                      }
+                    }, 0);
+                  }
+                }
+              );
+            } else {
+              // Convert link to image directly if Cloudinary not configured
+              setTimeout(() => {
+                if (editor) {
+                  const { from, to } = editor.state.selection;
+                  editor.chain()
+                    .deleteRange({ from, to })
+                    .setImage({ src: href })
+                    .run();
+                }
+              }, 0);
+            }
             return false; // Don't create the link
           }
           
@@ -135,17 +179,40 @@ const TiptapEditor = ({ content, onChange, maxLength = 5000 }: TiptapEditorProps
 
         // Check for text that might be image URLs
         const text = event.clipboardData?.getData('text/plain');
-        if (text) {
-          const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
-          const isImageUrl = imageExtensions.some(ext => 
-            text.toLowerCase().includes(ext) || text.toLowerCase().endsWith(ext)
-          );
+        if (text && isImageUrl(text) && (text.startsWith('http://') || text.startsWith('https://'))) {
+          event.preventDefault();
           
-          if (isImageUrl && (text.startsWith('http://') || text.startsWith('https://'))) {
-            event.preventDefault();
+          // Check if Cloudinary is configured
+          const isCloudinaryConfigured = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME && import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+          
+          if (isCloudinaryConfigured) {
+            console.log('🔗 Uploading pasted URL to Cloudinary:', text);
+            
+            uploadUrlToCloudinary(
+              { 
+                url: text, 
+                options: { 
+                  userId, 
+                  imageType: 'post',
+                  fileName: `pasted-url-${Date.now()}`
+                } 
+              },
+              {
+                onSuccess: (response) => {
+                  console.log('✅ Pasted URL upload successful:', response.secure_url);
+                  editor?.chain().focus().setImage({ src: response.secure_url }).run();
+                },
+                onError: (error) => {
+                  console.error('❌ Pasted URL upload failed, using original URL:', error);
+                  editor?.chain().focus().setImage({ src: text }).run();
+                }
+              }
+            );
+          } else {
+            // Use URL directly if Cloudinary not configured
             editor?.chain().focus().setImage({ src: text }).run();
-            return true;
           }
+          return true;
         }
 
         return false;
