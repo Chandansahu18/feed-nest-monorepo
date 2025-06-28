@@ -476,7 +476,8 @@ const ImageUpload = ({
         {import.meta.env.DEV && (
           <div className="text-xs text-muted-foreground p-2 bg-muted rounded">
             <p>Debug: User ID: {userId}</p>
-            <p>Upload path: postImageFiles/{userId}/{imageType === 'banner' ? 'postBannerImage/' : ''}</p>
+            <p>Banner path: postImages/postBannerImages/{userId}/</p>
+            <p>Post images path: postImages/{userId}/</p>
           </div>
         )}
       </div>

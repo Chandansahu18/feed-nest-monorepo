@@ -71,46 +71,48 @@ export const uploadToCloudinary = async (
       throw new Error('File size must be less than 10MB');
     }
 
-    // Generate file name based on type
+    // Generate unique timestamp for file naming
     const timestamp = Date.now();
+    const randomId = Math.random().toString(36).substring(2, 8);
     const fileExtension = file.name.split('.').pop()?.toLowerCase() || 'png';
     
     let publicId: string;
-    let folder: string;
     
     if (imageType === 'banner') {
-      publicId = `postImageFiles/${userId}/postBannerImage/banner-image`;
-      folder = `postImageFiles/${userId}/postBannerImage`;
+      // For banner images: postImages/postBannerImages/userId/banner-image-timestamp.ext
+      publicId = `postImages/postBannerImages/${userId}/banner-image-${timestamp}`;
     } else {
-      const imageName = fileName || `image${timestamp}`;
-      publicId = `postImageFiles/${userId}/${imageName}`;
-      folder = `postImageFiles/${userId}`;
+      // For post images: postImages/userId/post-image-timestamp.ext
+      const imageName = fileName ? `${fileName}-${timestamp}` : `post-image-${timestamp}-${randomId}`;
+      publicId = `postImages/${userId}/${imageName}`;
     }
 
     console.log('Upload configuration:', {
       cloudName,
       uploadPreset,
       publicId,
-      folder,
       fileSize: file.size,
-      fileType: file.type
+      fileType: file.type,
+      imageType
     });
 
-    // Create form data
+    // Create form data - REMOVED overwrite parameter for unsigned upload
     const formData = new FormData();
     formData.append('file', file);
     formData.append('upload_preset', uploadPreset);
     formData.append('public_id', publicId);
-    formData.append('overwrite', 'true');
     formData.append('resource_type', 'image');
-    formData.append('folder', folder);
     
     // Optional: Add tags for better organization
-    formData.append('tags', `user_${userId},${imageType}_image`);
+    formData.append('tags', `user_${userId},${imageType}_image,feednest`);
+
+    // Optional: Add context metadata
+    formData.append('context', `user_id=${userId}|image_type=${imageType}`);
 
     const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
     
     console.log('Uploading to:', uploadUrl);
+    console.log('Public ID:', publicId);
 
     const response = await fetch(uploadUrl, {
       method: 'POST',
@@ -118,7 +120,6 @@ export const uploadToCloudinary = async (
     });
 
     console.log('Response status:', response.status);
-    console.log('Response headers:', Object.fromEntries(response.headers.entries()));
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -127,18 +128,19 @@ export const uploadToCloudinary = async (
       
       try {
         const errorJson: CloudinaryError = JSON.parse(errorText);
-        throw new Error(`Cloudinary error: ${errorJson.error.message}`);
+        throw new Error(`Upload failed: ${errorJson.error.message}`);
       } catch (parseError) {
         throw new Error(`Upload failed: ${response.status} ${response.statusText}. ${errorText}`);
       }
     }
 
     const result: CloudinaryUploadResponse = await response.json();
-    console.log('Upload successful:', result);
+    console.log('✅ Upload successful:', result.secure_url);
+    console.log('📁 Stored at:', result.public_id);
     
     return result;
   } catch (error) {
-    console.error('Cloudinary upload error:', error);
+    console.error('❌ Cloudinary upload error:', error);
     
     if (error instanceof Error) {
       throw error;
