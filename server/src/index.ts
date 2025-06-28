@@ -15,7 +15,7 @@ const port = process.env.PORT;
 
 app.use(cookieParser());
 app.use(cors({
-  origin: "*",
+  origin: [process.env.FRONTEND_BASE_URL as string],
   credentials: true,
   methods:["GET","POST","PATCH","DELETE"]
 }));

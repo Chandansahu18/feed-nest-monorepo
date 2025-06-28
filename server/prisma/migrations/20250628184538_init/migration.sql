@@ -40,6 +40,8 @@ CREATE TABLE "PostLike" (
     "id" TEXT NOT NULL,
     "postId" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "PostLike_pkey" PRIMARY KEY ("id")
 );
@@ -62,6 +64,8 @@ CREATE TABLE "SavedPost" (
     "id" TEXT NOT NULL,
     "postId" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "SavedPost_pkey" PRIMARY KEY ("id")
 );
@@ -71,6 +75,8 @@ CREATE TABLE "FollowingRelations" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "followingUserId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "FollowingRelations_pkey" PRIMARY KEY ("id")
 );

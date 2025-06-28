@@ -20,7 +20,7 @@ const setCookiesAndResponse = (
   res: Response<IUserCreatedDataResponse>,
   email: string,
   message: string,
-  refreshToken?:string
+  refreshToken?: string
 ) => {
   const accessToken = generateToken(email, accessTokenExpiryTime);
   const refreshTokenToUse = refreshToken || generateToken(email, refreshTokenExpiryTime);
@@ -69,15 +69,18 @@ const handleUserAuth = async (
   try {
     const { isAuthWithGoogle } = req.query;
     const validUserData = validateUserData.safeParse(req.body);
+    
     if (!validUserData.data) {
       const errors = validUserData.error?.issues;
       const errorMessage =
-        errors.length === 1
+        errors && errors.length === 1
           ? errors[0].message
-          : errors.map((err) => err.message).join(' & ');
+          : errors?.map((err) => err.message).join(' & ');
       throw new Error(errorMessage);
     }
+
     const { email, name, userName, password } = validUserData.data;
+    
     const doUserExist = await prisma.user.findFirst({
       where: {
         email,
@@ -149,5 +152,4 @@ const handleUserAuth = async (
     });
   }
 };
-
 export default handleUserAuth;
