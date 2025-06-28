@@ -37,29 +37,30 @@ const TagInput = ({ tags, onChange, maxTags = 10 }: TagInputProps) => {
 
   return (
     <div className="space-y-3">
-      <div className="flex gap-2">
+      <div className="flex flex-col sm:flex-row gap-2">
         <Input
           placeholder="Add a tag..."
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyPress={handleKeyPress}
           disabled={isAtLimit}
-          className={isAtLimit ? "opacity-50" : ""}
+          className={`flex-1 ${isAtLimit ? "opacity-50" : ""}`}
         />
         <Button
           onClick={addTag}
           disabled={!inputValue.trim() || isDuplicate || isAtLimit}
           size="sm"
-          className="shrink-0"
+          className="shrink-0 w-full sm:w-auto"
         >
           <Plus className="w-4 h-4" />
+          <span className="ml-2 sm:hidden">Add Tag</span>
         </Button>
       </div>
       
       {tags.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {tags.map((tag, index) => (
-            <Badge key={index} variant="secondary" className="flex items-center gap-1">
+            <Badge key={index} variant="secondary" className="flex items-center gap-1 text-xs sm:text-sm">
               {tag}
               <button
                 onClick={() => removeTag(tag)}
@@ -72,16 +73,18 @@ const TagInput = ({ tags, onChange, maxTags = 10 }: TagInputProps) => {
         </div>
       )}
       
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1 sm:gap-2">
         <p className={`text-xs ${isAtLimit ? 'text-red-500' : tags.length > maxTags * 0.8 ? 'text-orange-500' : 'text-muted-foreground'}`}>
           {tags.length}/{maxTags} tags • Press Enter to add a tag
         </p>
-        {isDuplicate && inputValue.trim() && (
-          <span className="text-xs text-orange-500">Tag already exists</span>
-        )}
-        {isAtLimit && (
-          <span className="text-xs text-red-500">Tag limit reached</span>
-        )}
+        <div className="flex gap-2">
+          {isDuplicate && inputValue.trim() && (
+            <span className="text-xs text-orange-500">Tag already exists</span>
+          )}
+          {isAtLimit && (
+            <span className="text-xs text-red-500">Tag limit reached</span>
+          )}
+        </div>
       </div>
     </div>
   );
