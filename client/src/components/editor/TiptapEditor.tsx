@@ -19,6 +19,7 @@ import './editor.css';
 import {common, createLowlight} from 'lowlight'
 
 const lowlight = createLowlight(common)
+const lowlight = createLowlight(common)
 interface TiptapEditorProps {
   content: string;
   onChange: (content: string) => void;

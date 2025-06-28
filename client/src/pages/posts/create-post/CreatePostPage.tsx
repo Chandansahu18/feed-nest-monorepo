@@ -381,7 +381,6 @@ const CreatePostPage = () => {
 
             {/* Sidebar */}
             <div className="space-y-6">
-
               {/* Publish Settings */}
               <Card>
                 <CardHeader>
