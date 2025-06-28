@@ -101,33 +101,41 @@ const ImageCropper = ({ imageSrc, onCropComplete, onCancel }: ImageCropperProps)
       
       setCropArea(prev => {
         let newArea = { ...prev };
+        const aspectRatio = 16 / 9;
         
         switch (resizeHandle) {
           case 'nw':
             newArea.x = Math.max(0, prev.x + deltaX);
             newArea.y = Math.max(0, prev.y + deltaY);
-            newArea.width = Math.max(50, prev.width - deltaX);
-            newArea.height = Math.max(50, prev.height - deltaY);
+            newArea.width = Math.max(100, prev.width - deltaX);
+            newArea.height = newArea.width / aspectRatio;
             break;
           case 'ne':
             newArea.y = Math.max(0, prev.y + deltaY);
-            newArea.width = Math.max(50, prev.width + deltaX);
-            newArea.height = Math.max(50, prev.height - deltaY);
+            newArea.width = Math.max(100, prev.width + deltaX);
+            newArea.height = newArea.width / aspectRatio;
             break;
           case 'sw':
             newArea.x = Math.max(0, prev.x + deltaX);
-            newArea.width = Math.max(50, prev.width - deltaX);
-            newArea.height = Math.max(50, prev.height + deltaY);
+            newArea.width = Math.max(100, prev.width - deltaX);
+            newArea.height = newArea.width / aspectRatio;
             break;
           case 'se':
-            newArea.width = Math.max(50, prev.width + deltaX);
-            newArea.height = Math.max(50, prev.height + deltaY);
+            newArea.width = Math.max(100, prev.width + deltaX);
+            newArea.height = newArea.width / aspectRatio;
             break;
         }
         
         // Ensure crop area stays within image bounds
         newArea.width = Math.min(newArea.width, imageDimensions.width - newArea.x);
         newArea.height = Math.min(newArea.height, imageDimensions.height - newArea.y);
+        
+        // Maintain aspect ratio
+        if (newArea.width / aspectRatio > newArea.height) {
+          newArea.width = newArea.height * aspectRatio;
+        } else {
+          newArea.height = newArea.width / aspectRatio;
+        }
         
         return newArea;
       });
@@ -229,7 +237,7 @@ const ImageCropper = ({ imageSrc, onCropComplete, onCancel }: ImageCropperProps)
         <div className="p-4 border-b flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Crop className="w-5 h-5" />
-            <h2 className="text-lg font-semibold">Crop Banner Image</h2>
+            <h2 className="text-lg font-semibold">Crop Banner Image (16:9 Ratio)</h2>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={resetCrop}>
@@ -322,7 +330,7 @@ const ImageCropper = ({ imageSrc, onCropComplete, onCancel }: ImageCropperProps)
         {/* Footer */}
         <div className="p-4 border-t flex justify-between items-center">
           <p className="text-sm text-muted-foreground">
-            Drag to move • Drag corners to resize • Recommended ratio: 16:9
+            Drag to move • Drag corners to resize • Fixed 16:9 aspect ratio for banners
           </p>
           <div className="flex gap-2">
             <Button variant="outline" onClick={onCancel}>

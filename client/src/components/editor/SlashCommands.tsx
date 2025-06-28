@@ -1,7 +1,7 @@
 import { Extension } from '@tiptap/core';
 import { ReactRenderer } from '@tiptap/react';
 import Suggestion from '@tiptap/suggestion';
-import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
+import { useState, useEffect, forwardRef, useImperativeHandle, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import {
   Heading1,
@@ -14,6 +14,7 @@ import {
   Image,
   Minus,
 } from 'lucide-react';
+import { useCloudinaryUpload, useCurrentUser } from '@/hooks/useCloudinaryUpload';
 
 interface CommandItem {
   title: string;
@@ -22,75 +23,16 @@ interface CommandItem {
   command: (editor: any) => void;
 }
 
-const commands: CommandItem[] = [
-  {
-    title: 'Heading 1',
-    description: 'Big section heading',
-    icon: <Heading1 className="w-4 h-4" />,
-    command: (editor) => editor.chain().focus().toggleHeading({ level: 1 }).run(),
-  },
-  {
-    title: 'Heading 2',
-    description: 'Medium section heading',
-    icon: <Heading2 className="w-4 h-4" />,
-    command: (editor) => editor.chain().focus().toggleHeading({ level: 2 }).run(),
-  },
-  {
-    title: 'Heading 3',
-    description: 'Small section heading',
-    icon: <Heading3 className="w-4 h-4" />,
-    command: (editor) => editor.chain().focus().toggleHeading({ level: 3 }).run(),
-  },
-  {
-    title: 'Bullet List',
-    description: 'Create a simple bullet list',
-    icon: <List className="w-4 h-4" />,
-    command: (editor) => editor.chain().focus().toggleBulletList().run(),
-  },
-  {
-    title: 'Numbered List',
-    description: 'Create a numbered list',
-    icon: <ListOrdered className="w-4 h-4" />,
-    command: (editor) => editor.chain().focus().toggleOrderedList().run(),
-  },
-  {
-    title: 'Quote',
-    description: 'Capture a quote',
-    icon: <Quote className="w-4 h-4" />,
-    command: (editor) => editor.chain().focus().toggleBlockquote().run(),
-  },
-  {
-    title: 'Code Block',
-    description: 'Capture a code snippet',
-    icon: <Code className="w-4 h-4" />,
-    command: (editor) => editor.chain().focus().toggleCodeBlock().run(),
-  },
-  {
-    title: 'Image',
-    description: 'Upload an image',
-    icon: <Image className="w-4 h-4" />,
-    command: (editor) => {
-      const url = window.prompt('Enter image URL:');
-      if (url) {
-        editor.chain().focus().setImage({ src: url }).run();
-      }
-    },
-  },
-  {
-    title: 'Divider',
-    description: 'Visually divide blocks',
-    icon: <Minus className="w-4 h-4" />,
-    command: (editor) => editor.chain().focus().setHorizontalRule().run(),
-  },
-];
-
-interface CommandListProps {
-  items: CommandItem[];
-  command: (item: CommandItem) => void;
+// Define the ref handle interface
+interface CommandListRef {
+  onKeyDown: ({ event }: { event: KeyboardEvent }) => boolean;
 }
 
-const CommandList = forwardRef<any, CommandListProps>(({ items, command }, ref) => {
+const CommandList = forwardRef<CommandListRef, CommandListProps>(({ items, command }, ref) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { mutate: uploadToCloudinary } = useCloudinaryUpload();
+  const { userId } = useCurrentUser();
 
   const selectItem = (index: number) => {
     const item = items[index];
@@ -134,32 +76,147 @@ const CommandList = forwardRef<any, CommandListProps>(({ items, command }, ref) 
     },
   }));
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file');
+      return;
+    }
+
+    uploadToCloudinary(
+      { 
+        file, 
+        options: { 
+          userId, 
+          imageType: 'post',
+          fileName: `slash-command-image-${Date.now()}`
+        } 
+      },
+      {
+        onSuccess: (response) => {
+          // This will be handled by the command function
+          command({
+            title: 'Image',
+            description: 'Upload an image',
+            icon: <Image className="w-4 h-4" />,
+            command: (editor: any) => {
+              editor.chain().focus().setImage({ src: response.secure_url }).run();
+            }
+          });
+        },
+        onError: (error) => {
+          console.error('Failed to upload image:', error);
+          alert('Failed to upload image. Please try again.');
+        }
+      }
+    );
+
+    // Reset input
+    e.target.value = '';
+  };
+
+  const commands: CommandItem[] = [
+    {
+      title: 'Heading 1',
+      description: 'Big section heading',
+      icon: <Heading1 className="w-4 h-4" />,
+      command: (editor) => editor.chain().focus().toggleHeading({ level: 1 }).run(),
+    },
+    {
+      title: 'Heading 2',
+      description: 'Medium section heading',
+      icon: <Heading2 className="w-4 h-4" />,
+      command: (editor) => editor.chain().focus().toggleHeading({ level: 2 }).run(),
+    },
+    {
+      title: 'Heading 3',
+      description: 'Small section heading',
+      icon: <Heading3 className="w-4 h-4" />,
+      command: (editor) => editor.chain().focus().toggleHeading({ level: 3 }).run(),
+    },
+    {
+      title: 'Bullet List',
+      description: 'Create a simple bullet list',
+      icon: <List className="w-4 h-4" />,
+      command: (editor) => editor.chain().focus().toggleBulletList().run(),
+    },
+    {
+      title: 'Numbered List',
+      description: 'Create a numbered list',
+      icon: <ListOrdered className="w-4 h-4" />,
+      command: (editor) => editor.chain().focus().toggleOrderedList().run(),
+    },
+    {
+      title: 'Quote',
+      description: 'Capture a quote',
+      icon: <Quote className="w-4 h-4" />,
+      command: (editor) => editor.chain().focus().toggleBlockquote().run(),
+    },
+    {
+      title: 'Code Block',
+      description: 'Capture a code snippet',
+      icon: <Code className="w-4 h-4" />,
+      command: (editor) => editor.chain().focus().toggleCodeBlock().run(),
+    },
+    {
+      title: 'Image',
+      description: 'Upload an image to Cloudinary',
+      icon: <Image className="w-4 h-4" />,
+      command: () => {
+        fileInputRef.current?.click();
+      },
+    },
+    {
+      title: 'Divider',
+      description: 'Visually divide blocks',
+      icon: <Minus className="w-4 h-4" />,
+      command: (editor) => editor.chain().focus().setHorizontalRule().run(),
+    },
+  ];
+
   return (
-    <Card className="p-2 shadow-lg border max-h-80 overflow-auto">
-      {items.length ? (
-        items.map((item, index) => (
-          <button
-            key={index}
-            className={`flex items-center gap-3 w-full p-2 rounded text-left hover:bg-accent ${
-              index === selectedIndex ? 'bg-accent' : ''
-            }`}
-            onClick={() => selectItem(index)}
-          >
-            {item.icon}
-            <div>
-              <div className="font-medium text-sm">{item.title}</div>
-              <div className="text-xs text-muted-foreground">{item.description}</div>
-            </div>
-          </button>
-        ))
-      ) : (
-        <div className="p-2 text-sm text-muted-foreground">No results</div>
-      )}
-    </Card>
+    <>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleImageUpload}
+        className="hidden"
+      />
+      
+      <Card className="p-2 shadow-lg border max-h-80 overflow-auto">
+        {items.length ? (
+          items.map((item, index) => (
+            <button
+              key={index}
+              className={`flex items-center gap-3 w-full p-2 rounded text-left hover:bg-accent ${
+                index === selectedIndex ? 'bg-accent' : ''
+              }`}
+              onClick={() => selectItem(index)}
+            >
+              {item.icon}
+              <div>
+                <div className="font-medium text-sm">{item.title}</div>
+                <div className="text-xs text-muted-foreground">{item.description}</div>
+              </div>
+            </button>
+          ))
+        ) : (
+          <div className="p-2 text-sm text-muted-foreground">No results</div>
+        )}
+      </Card>
+    </>
   );
 });
 
 CommandList.displayName = 'CommandList';
+
+interface CommandListProps {
+  items: CommandItem[];
+  command: (item: CommandItem) => void;
+}
 
 const SlashCommands = Extension.create({
   name: 'slashCommands',
@@ -176,6 +233,65 @@ const SlashCommands = Extension.create({
   },
 
   addProseMirrorPlugins() {
+    const commands: CommandItem[] = [
+      {
+        title: 'Heading 1',
+        description: 'Big section heading',
+        icon: <Heading1 className="w-4 h-4" />,
+        command: (editor) => editor.chain().focus().toggleHeading({ level: 1 }).run(),
+      },
+      {
+        title: 'Heading 2',
+        description: 'Medium section heading',
+        icon: <Heading2 className="w-4 h-4" />,
+        command: (editor) => editor.chain().focus().toggleHeading({ level: 2 }).run(),
+      },
+      {
+        title: 'Heading 3',
+        description: 'Small section heading',
+        icon: <Heading3 className="w-4 h-4" />,
+        command: (editor) => editor.chain().focus().toggleHeading({ level: 3 }).run(),
+      },
+      {
+        title: 'Bullet List',
+        description: 'Create a simple bullet list',
+        icon: <List className="w-4 h-4" />,
+        command: (editor) => editor.chain().focus().toggleBulletList().run(),
+      },
+      {
+        title: 'Numbered List',
+        description: 'Create a numbered list',
+        icon: <ListOrdered className="w-4 h-4" />,
+        command: (editor) => editor.chain().focus().toggleOrderedList().run(),
+      },
+      {
+        title: 'Quote',
+        description: 'Capture a quote',
+        icon: <Quote className="w-4 h-4" />,
+        command: (editor) => editor.chain().focus().toggleBlockquote().run(),
+      },
+      {
+        title: 'Code Block',
+        description: 'Capture a code snippet',
+        icon: <Code className="w-4 h-4" />,
+        command: (editor) => editor.chain().focus().toggleCodeBlock().run(),
+      },
+      {
+        title: 'Image',
+        description: 'Upload an image to Cloudinary',
+        icon: <Image className="w-4 h-4" />,
+        command: () => {
+          // This will trigger the file input in the CommandList component
+        },
+      },
+      {
+        title: 'Divider',
+        description: 'Visually divide blocks',
+        icon: <Minus className="w-4 h-4" />,
+        command: (editor) => editor.chain().focus().setHorizontalRule().run(),
+      },
+    ];
+
     return [
       Suggestion({
         editor: this.editor,
@@ -186,8 +302,8 @@ const SlashCommands = Extension.create({
           );
         },
         render: () => {
-          let component: ReactRenderer;
-          let popup: any;
+          let component: ReactRenderer<CommandListRef>;
+          let popup: HTMLElement;
 
           return {
             onStart: (props: any) => {

@@ -46,6 +46,29 @@ const validateCloudinaryConfig = () => {
   return { cloudName, uploadPreset };
 };
 
+// Convert URL to File object
+const urlToFile = async (url: string, filename: string): Promise<File> => {
+  try {
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`);
+    }
+
+    const blob = await response.blob();
+    
+    // Validate that it's actually an image
+    if (!blob.type.startsWith('image/')) {
+      throw new Error('URL does not point to a valid image file');
+    }
+
+    return new File([blob], filename, { type: blob.type });
+  } catch (error) {
+    console.error('Error converting URL to file:', error);
+    throw new Error('Failed to load image from URL. Please check the URL and try again.');
+  }
+};
+
 export const uploadToCloudinary = async (
   file: File,
   options: UploadOptions
@@ -74,15 +97,14 @@ export const uploadToCloudinary = async (
     // Generate unique timestamp for file naming
     const timestamp = Date.now();
     const randomId = Math.random().toString(36).substring(2, 8);
-    const fileExtension = file.name.split('.').pop()?.toLowerCase() || 'png';
     
     let publicId: string;
     
     if (imageType === 'banner') {
-      // For banner images: postImages/postBannerImages/userId/banner-image-timestamp.ext
+      // For banner images: postImages/postBannerImages/userId/banner-image-timestamp
       publicId = `postImages/postBannerImages/${userId}/banner-image-${timestamp}`;
     } else {
-      // For post images: postImages/userId/post-image-timestamp.ext
+      // For post images: postImages/userId/post-image-timestamp
       const imageName = fileName ? `${fileName}-${timestamp}` : `post-image-${timestamp}-${randomId}`;
       publicId = `postImages/${userId}/${imageName}`;
     }
@@ -150,6 +172,59 @@ export const uploadToCloudinary = async (
   }
 };
 
+// New function to upload from URL
+export const uploadUrlToCloudinary = async (
+  imageUrl: string,
+  options: UploadOptions
+): Promise<CloudinaryUploadResponse> => {
+  try {
+    // Validate URL format
+    let url: URL;
+    try {
+      url = new URL(imageUrl);
+    } catch {
+      throw new Error('Invalid URL format');
+    }
+
+    // Check if it's likely an image URL
+    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp', '.tiff'];
+    const hasImageExtension = imageExtensions.some(ext => 
+      url.pathname.toLowerCase().includes(ext)
+    );
+
+    if (!hasImageExtension && !url.hostname.includes('cloudinary') && !url.hostname.includes('imgur') && !url.hostname.includes('unsplash')) {
+      console.warn('URL may not be an image, but proceeding with upload attempt');
+    }
+
+    console.log('🔗 Converting URL to file for Cloudinary upload:', imageUrl);
+
+    // Generate filename from URL or use default
+    const urlPath = url.pathname;
+    const urlFilename = urlPath.split('/').pop() || 'image';
+    const filename = options.fileName || `url-${urlFilename}-${Date.now()}`;
+
+    // Convert URL to File
+    const file = await urlToFile(imageUrl, filename);
+    
+    console.log('✅ URL converted to file:', {
+      name: file.name,
+      size: file.size,
+      type: file.type
+    });
+
+    // Upload the file to Cloudinary
+    return await uploadToCloudinary(file, options);
+  } catch (error) {
+    console.error('❌ URL to Cloudinary upload error:', error);
+    
+    if (error instanceof Error) {
+      throw error;
+    }
+    
+    throw new Error('Failed to upload image from URL to Cloudinary');
+  }
+};
+
 export const deleteFromCloudinary = async (publicId: string): Promise<void> => {
   try {
     // Note: Deletion requires server-side implementation with API secret
@@ -202,4 +277,25 @@ export const getOptimizedImageUrl = (
   const transformString = transformations.join(',');
   
   return `https://res.cloudinary.com/${cloudName}/image/upload/${transformString}/${publicId}`;
+};
+
+// Utility function to check if URL is an image
+export const isImageUrl = (url: string): boolean => {
+  try {
+    const urlObj = new URL(url);
+    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp', '.tiff'];
+    
+    return imageExtensions.some(ext => 
+      urlObj.pathname.toLowerCase().includes(ext) || 
+      urlObj.pathname.toLowerCase().endsWith(ext)
+    ) || 
+    // Check for common image hosting domains
+    urlObj.hostname.includes('cloudinary') ||
+    urlObj.hostname.includes('imgur') ||
+    urlObj.hostname.includes('unsplash') ||
+    urlObj.hostname.includes('pexels') ||
+    urlObj.hostname.includes('pixabay');
+  } catch {
+    return false;
+  }
 };
