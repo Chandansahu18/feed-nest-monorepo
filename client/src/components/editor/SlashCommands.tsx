@@ -28,6 +28,11 @@ interface CommandListRef {
   onKeyDown: ({ event }: { event: KeyboardEvent }) => boolean;
 }
 
+interface CommandListProps {
+  items: CommandItem[];
+  command: (item: CommandItem) => void;
+}
+
 const CommandList = forwardRef<CommandListRef, CommandListProps>(({ items, command }, ref) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -212,11 +217,6 @@ const CommandList = forwardRef<CommandListRef, CommandListProps>(({ items, comma
 });
 
 CommandList.displayName = 'CommandList';
-
-interface CommandListProps {
-  items: CommandItem[];
-  command: (item: CommandItem) => void;
-}
 
 const SlashCommands = Extension.create({
   name: 'slashCommands',
