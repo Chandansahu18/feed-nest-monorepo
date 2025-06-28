@@ -2,7 +2,7 @@ import { rateLimit } from 'express-rate-limit';
 
 export const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  limit: 50,
+  limit: 100,
   message: {
     error: 'Too many authentication attempts, please try again later.',
     retryAfter: '15 minutes',
@@ -14,7 +14,7 @@ export const authLimiter = rateLimit({
 
 export const userDataAccessLimiter = rateLimit({
   windowMs: 5 * 60 * 1000,
-  limit: 500,
+  limit: 1000,
   message: {
     error: 'Too many requests, please try again later.',
     retryAfter: '5 minutes',
@@ -26,7 +26,7 @@ export const userDataAccessLimiter = rateLimit({
 
 export const postDataAccessLimiter = rateLimit({
   windowMs: 5 * 60 * 1000,
-  limit: 500,
+  limit: 1000,
   message: {
     error: 'Too many requests, please try again later.',
     retryAfter: '5 minutes',

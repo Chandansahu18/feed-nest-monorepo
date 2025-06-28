@@ -12,7 +12,8 @@ const handleUserAuth = async (userData: TEmailAuth): Promise<number> => {
     });
     return response.status;
   } catch (error) {
-    throw new Error("Something went wrong");
+   const errorMessage = error instanceof Error ? error.message : 'Something went wrong'
+    throw new Error(errorMessage);
   }
 };
 

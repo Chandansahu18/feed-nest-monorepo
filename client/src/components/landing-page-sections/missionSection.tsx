@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useTheme } from "../theme-provider";
+import { useTheme } from "../themeProvider";
 
 const MissionSection = () => {
   const { theme } = useTheme();

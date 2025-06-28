@@ -14,7 +14,7 @@ const FeatureSection = () => {
     const fetchFeatureSection = async () => {
       try {
         const response = await CLOUDINARY_API.get(
-          "/v1750594454/feature-section_d5gwes.json",
+          "/v1750789971/feature-section_d5gwes.json",
           {
             headers: {
               cache: "no-cache",
@@ -47,7 +47,7 @@ const FeatureSection = () => {
             Why<span className="font-bold"> choose </span>feednest?
           </motion.h2>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {featureContent.features.map((feature, index) => (
               <motion.div
                 key={index}
@@ -56,9 +56,9 @@ const FeatureSection = () => {
                 transition={{ duration: 0.6, delay: index * 0.2 }}
                 viewport={{ once: true }}
               >
-                <Card className="bg-[#1a1a1a] border-gray-700 rounded-xl">
-                  <CardContent className="px-0">
-                    <div className="px-0">
+                <Card className="bg-[#1a1a1a] border-gray-700 h-72 rounded-xl py-0">
+                  <CardContent className="p-0">
+                    <div className="p-0">
                       <img
                         src={feature.image}
                         alt={feature.imageAlt}
@@ -69,7 +69,7 @@ const FeatureSection = () => {
                       <h3 className="text-white text-xl font-semibold">
                         {feature.title}
                       </h3>
-                      <p className="text-[#888888] text-base leading-relaxed">
+                      <p className="text-[#888888] text-sm leading-relaxed">
                         {feature.description}
                       </p>
                     </div>

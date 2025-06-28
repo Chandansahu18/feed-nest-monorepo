@@ -173,7 +173,7 @@ const EmailSignUp = ({ setIsEmailAuth }:TSetEmailAuthProp) => {
 
             <Button
               type="submit"
-              className="w-full py-6 text-base font-medium rounded-xl bg-blue-600 hover:bg-blue-700 text-white"
+              className="w-full py-6  font-medium rounded-xl bg-blue-600 hover:bg-blue-700 text-white"
             >
               Sign up
             </Button>

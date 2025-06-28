@@ -10,7 +10,7 @@ import { useGoogleAuth } from "@/hooks/useGoogleAuth";
 import type { TGoogleAuth } from "@/utils/schema/userAuth";
 import BackgroundDecoration from "../backgroundDecoration";
 import EmailSignUp from "./emailSignUp";
-import { useTheme } from "@/components/theme-provider";
+import { useTheme } from "@/components/themeProvider";
 import PendingLoader from "../../pendingLoader";
 
 const SignUp = () => {
@@ -20,6 +20,7 @@ const SignUp = () => {
   const {
     mutate: googleAuthMutate,
     data: googleAuthData,
+    error,
     isPending: isGoogleAuthPending,
   } = useGoogleAuth();
 
@@ -46,6 +47,9 @@ const SignUp = () => {
     return <PendingLoader />;
   }
 
+  if (error?.message.includes('429')) {
+    return <div>{error.message}</div>
+  }
   return (
     <div className="min-h-screen flex relative overflow-hidden">
       <div className="flex-1 bg-background flex items-center justify-center p-4 relative">
@@ -88,14 +92,14 @@ const SignUp = () => {
                       <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
                         feednest
                       </h1>
-                      <p className="text-muted-foreground text-base font-medium dark:text-white mt-2">
+                      <p className="text-muted-foreground text-sm font-medium dark:text-white mt-2">
                         sign up
                       </p>
                     </div>
                   </div>
                   <div className="space-y-4">
                     <Button
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white py-6 text-base font-medium cursor-pointer rounded-xl"
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white py-6 text-sm font-medium cursor-pointer rounded-xl"
                       onClick={handleGoogleAuth}
                     >
                       <img src="https://res.cloudinary.com/dgquchqc2/image/upload/v1750786711/google-logo_uoj06a.svg" alt="google-logo" className="size-4 mr-2"/>
@@ -104,7 +108,7 @@ const SignUp = () => {
 
                     <div className="flex items-center space-x-4 my-6">
                       <Separator className="flex-1" />
-                      <span className="text-base text-muted-foreground dark:text-white">
+                      <span className="text-sm text-muted-foreground dark:text-white">
                         or
                       </span>
                       <Separator className="flex-1" />
@@ -112,7 +116,7 @@ const SignUp = () => {
 
                     <Button
                       variant="link"
-                      className="w-full text-blue-600 hover:text-blue-700 dark:text-white font-medium cursor-pointer text-base"
+                      className="w-full text-blue-600 hover:text-blue-700 dark:text-white font-medium cursor-pointer text-sm"
                       onClick={() => setIsEmailAuth(true)}
                     >
                       <Mail className="w-4 h-4 mr-2" />
@@ -125,7 +129,7 @@ const SignUp = () => {
                       </span>
                       <Button
                         variant="link"
-                        className="text-blue-600 hover:text-blue-700 dark:text-white font-medium p-0 h-auto cursor-pointer text-base"
+                        className="text-blue-600 hover:text-blue-700 dark:text-white font-medium p-0 h-auto cursor-pointer text-sm"
                         onClick={handleSignIn}
                       >
                         Sign in

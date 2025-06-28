@@ -85,6 +85,8 @@ export interface IEnhancedPostDataResponse {
 
 export interface IAllPosts extends IPost {
   creator: IUser;
+  postLikes: IPostLikes[];
+  postComments: IPostCommentOrReply[];
 }
 
 export interface IPostsDataResponse {

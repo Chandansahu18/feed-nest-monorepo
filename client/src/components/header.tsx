@@ -1,77 +1,241 @@
-import { useNavigate } from "react-router-dom";
-import { useTheme } from "./theme-provider";
+import { useLocation } from "react-router-dom";
+import { useTheme } from "./themeProvider";
 import { Button } from "./ui/button";
-import { ModeToggle } from "./mode-toggle";
+import { ModeToggle } from "./modeToggle";
+import { useUserData } from "@/hooks/useUserData";
+import { Bookmark, LogOut, PenLine, Search, User } from "lucide-react";
+import { Avatar, AvatarFallback } from "@radix-ui/react-avatar";
+import { AvatarImage } from "@/components/ui/avatar";
+import {
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarSeparator,
+  MenubarTrigger,
+} from "@/components/ui/menubar";
+import { useNavigationHandlers } from "@/hooks/useNavigateHandlers";
+import { useUserLogout } from "@/hooks/useUserLogout";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogOverlay,
+} from "@/components/ui/dialog";
+import { DialogFooter, DialogHeader } from "./ui/dialog";
+import { useState } from "react";
+import PendingLoader from "./pendingLoader";
 
 const Header = () => {
   const { theme } = useTheme();
-  const navigate = useNavigate();
-
-  const handleSignIn = () => {
-    navigate("/auth", { state: { type: "signin" } });
+  const { pathname } = useLocation();
+  const { data } = useUserData();
+  const { mutate: userLogout, isPending: logoutPending } = useUserLogout();
+  const {
+    handleSignIn,
+    handleFeed,
+    handleCreateBlogPost,
+    handleSearch,
+    handleBookmarks,
+    handleUserProfile,
+    handleAccountSettings
+  } = useNavigationHandlers();
+  const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
+  const isLandingPage = pathname === "/";
+  const isUserLoggedIn = data?.data;
+  const handleSignOut = () => {
+    userLogout();
+    setIsLogoutDialogOpen(false);
   };
-  const handleFeed = () => {
-    navigate("/home", { state: { athenticated: false } });
-  };
 
+  if (logoutPending) {
+    return <PendingLoader />;
+  }
   return (
-    <div className="h-16 px-4 border-b">
-      <div className="h-full flex justify-between items-center">
-        <div className="h-10 w-40 flex justify-start items-center cursor-pointer">
-          {theme === "dark" ? (
-            <>
-              <img
-                src="https://res.cloudinary.com/dgquchqc2/image/upload/v1750357672/favicon_migqwq.svg"
-                alt="icon-dark"
-                className="size-5 object-contain min-[375px]:hidden"
-              />
-              <img
-                src="https://res.cloudinary.com/dgquchqc2/image/upload/v1750397416/logo-dark_jweijj.svg"
-                alt="logo-dark"
-                className="h-full w-32 object-cover hidden min-[375px]:block"
-              />
-            </>
-          ) : (
-            <>
-              <img
-                src="https://res.cloudinary.com/dgquchqc2/image/upload/v1750522650/favicon_nbl5mf.svg"
-                alt="icon"
-                className="size-5 object-contain min-[375px]:hidden"
-              />
-              <img
-                src="https://res.cloudinary.com/dgquchqc2/image/upload/v1750397284/logo_sk9cds.svg"
-                alt="logo"
-                className="h-full w-32 object-cover hidden min-[375px]:block"
-              />
-            </>
-          )}
-        </div>
-
-        <div className="h-10 lg:w-72 flex justify-end">
-          <div className="h-full w-20 hidden lg:items-center lg:flex lg:justify-center">
-            <Button
-              variant={"ghost"}
-              onClick={handleFeed}
-              className="cursor-pointer"
-            >
-              Feeds
-            </Button>
+    <>
+      <div className="h-16 px-4 border-b fixed w-full top-0 bg-background z-10">
+        <div className="h-full flex justify-between items-center">
+          <div className="h-full w-40 flex justify-start items-center cursor-pointer">
+            {theme === "dark" ? (
+              <>
+                <img
+                  src="https://res.cloudinary.com/dgquchqc2/image/upload/v1750357672/favicon_migqwq.svg"
+                  alt="icon-dark"
+                  className="size-5 object-contain min-[375px]:hidden"
+                />
+                <img
+                  src="https://res.cloudinary.com/dgquchqc2/image/upload/v1750397416/logo-dark_jweijj.svg"
+                  alt="logo-dark"
+                  className="h-full w-32 object-cover hidden min-[375px]:block"
+                />
+              </>
+            ) : (
+              <>
+                <img
+                  src="https://res.cloudinary.com/dgquchqc2/image/upload/v1750522650/favicon_nbl5mf.svg"
+                  alt="icon"
+                  className="size-5 object-contain min-[375px]:hidden"
+                />
+                <img
+                  src="https://res.cloudinary.com/dgquchqc2/image/upload/v1750397284/logo_sk9cds.svg"
+                  alt="logo"
+                  className="h-full w-32 object-cover hidden min-[375px]:block"
+                />
+              </>
+            )}
           </div>
 
-          <div className="h-full w-10">
-            <ModeToggle />
-          </div>
+          <div className="h-full lg:w-2/4 sm:w-80 flex justify-end items-center">
+            {!isLandingPage ? (
+              <div className="hidden sm:flex sm:w-12 lg:w-56 h-full items-center justify-center">
+                <div
+                  className="h-10 w-52 flex items-center justify-center rounded-xl lg:outline-1 outline-gray-300 hover:outline-2 hover:outline-gray-200 dark:outline-gray-700"
+                  onClick={handleSearch}
+                >
+                  <div className="hidden lg:flex justify-end items-center h-10 w-40 cursor-pointer">
+                    <h1 className="text-sm font-medium text-gray-500">
+                      Search
+                    </h1>
+                  </div>
+                  <div
+                    className="size-10 flex justify-center items-center"
+                    onClick={handleSearch}
+                  >
+                    <Search className="size-5 cursor-pointer" color="gray" />
+                  </div>
+                </div>
+              </div>
+            ) : null}
 
-          <Button
-            variant={"outline"}
-            className="h-full w-20 rounded-xl cursor-pointer"
-            onClick={handleSignIn}
-          >
-            Sign in
-          </Button>
+            {isUserLoggedIn ? (
+              <div className="h-full w-16 hidden items-center sm:flex justify-center">
+                <Button
+                  onClick={handleCreateBlogPost}
+                  className="cursor-pointer h-10 w-10 bg-blue-600 hover:bg-blue-500 rounded-xl flex items-center justify-center"
+                >
+                  <PenLine className="size-5" color="white" />
+                </Button>
+              </div>
+            ) : (
+              isLandingPage && (
+                <div className="h-full w-20 hidden items-center lg:flex justify-center">
+                  <Button
+                    variant={"ghost"}
+                    onClick={handleFeed}
+                    className="cursor-pointer h-10"
+                  >
+                    Feeds
+                  </Button>
+                </div>
+              )
+            )}
+
+            <div className="h-full w-10 flex justify-center items-center">
+              <ModeToggle />
+            </div>
+            {isUserLoggedIn ? (
+              <Menubar className="border-none bg-background">
+                <MenubarMenu>
+                  <MenubarTrigger className="cursor-pointer p-0 h-10 w-10 rounded-full border data-[state=open]:bg-transparent hover:bg-transparent focus:bg-transparent">
+                    <Avatar className="size-10 rounded-full border flex items-center justify-center">
+                      <AvatarImage />
+                      <AvatarFallback className="text-sm font-bold">
+                        CS
+                      </AvatarFallback>
+                    </Avatar>
+                  </MenubarTrigger>
+                  <MenubarContent className="w-60 rounded-2xl mx-5 p-2">
+                    <div
+                      className="flex gap-1 px-2 py-3 rounded-xl hover:bg-accent"
+                      onClick={() =>
+                        handleUserProfile(isUserLoggedIn?.userName ?? "")
+                      }
+                    >
+                      <div className="size-12 mr-2 rounded-full">
+                        <Avatar className="size-full rounded-full border flex items-center justify-center cursor-pointer">
+                          <AvatarImage
+                            src={data.data?.avatar ?? undefined}
+                            alt="avatar"
+                          />
+                          <AvatarFallback className="text-sm font-bold">
+                            CS
+                          </AvatarFallback>
+                        </Avatar>
+                      </div>
+                      <div className="space-y-1 flex-col cursor-pointer">
+                        <h3 className="font-semibold">Chandan K Sahu</h3>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          @ChandanKSahu
+                        </p>
+                      </div>
+                    </div>
+                    <MenubarSeparator className="my-1" />
+                    <div className="flex flex-col gap-1 py-1">
+                      <MenubarItem
+                        className="cursor-pointer px-3 py-2"
+                        onClick={handleBookmarks}
+                      >
+                        <Bookmark className="size-4" />
+                        <h1 className="text-sm">Bookmarks</h1>
+                      </MenubarItem>
+                      <MenubarItem className="cursor-pointer px-3 py-2" onClick={handleAccountSettings}>
+                        <User className="size-4" />
+                        <h1 className="text-sm">Account settings</h1>
+                      </MenubarItem>
+                    </div>
+                    <MenubarSeparator className="my-1" />
+                    <MenubarItem
+                      className="cursor-pointer px-3 py-2"
+                      onClick={() => setIsLogoutDialogOpen(true)}
+                    >
+                      <LogOut className="text-red-500 size-5" />
+                      <h1 className="text-sm text-red-500 font-medium">
+                        Log out
+                      </h1>
+                    </MenubarItem>
+                  </MenubarContent>
+                </MenubarMenu>
+              </Menubar>
+            ) : (
+              <div className="h-full w-20 flex justify-center items-center">
+                <Button
+                  variant={"outline"}
+                  className="h-10 w-20 rounded-xl cursor-pointer"
+                  onClick={handleSignIn}
+                >
+                  Sign in
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
+        <Dialog open={isLogoutDialogOpen} onOpenChange={setIsLogoutDialogOpen}>
+          <DialogOverlay className="fixed inset-0 z-50 bg-black/20 backdrop-blur-sm transition-all duration-300" />
+          <DialogContent className="fixed left-[50%] top-[50%] right-[50%] bottom-[30%] z-50 max-[425px]:w-72  max-w-sm translate-x-[-50%] translate-y-[-50%] gap-8 bg-background/95 backdrop-blur-md p-6 transition-all duration-300 ease-out rounded-2xl border-0 shadow-2xl">
+            <DialogHeader className="space-y-0">
+              <DialogTitle className="text-xl font-semibold text-center leading-tight">
+                Are you sure you want to sign out?
+              </DialogTitle>
+            </DialogHeader>
+            <DialogFooter className="flex flex-row justify-center gap-3 sm:gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setIsLogoutDialogOpen(false)}
+                className="flex-1 rounded-xl h-11 font-medium"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSignOut}
+                className="flex-1 rounded-xl h-11 font-medium bg-red-600 hover:bg-red-700 text-white"
+              >
+                Yes, sign out
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
-    </div>
+    </>
   );
 };
 
