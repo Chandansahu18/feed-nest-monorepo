@@ -7,11 +7,6 @@ interface UploadOptions {
   fileName?: string;
 }
 
-interface UploadError {
-  message: string;
-  details?: string;
-}
-
 export const useCloudinaryUpload = () => {
   return useMutation({
     mutationFn: ({ file, options }: { file: File; options: UploadOptions }) =>

@@ -74,15 +74,14 @@ export const uploadToCloudinary = async (
     // Generate unique timestamp for file naming
     const timestamp = Date.now();
     const randomId = Math.random().toString(36).substring(2, 8);
-    const fileExtension = file.name.split('.').pop()?.toLowerCase() || 'png';
     
     let publicId: string;
     
     if (imageType === 'banner') {
-      // For banner images: postImages/postBannerImages/userId/banner-image-timestamp.ext
+      // For banner images: postImages/postBannerImages/userId/banner-image-timestamp
       publicId = `postImages/postBannerImages/${userId}/banner-image-${timestamp}`;
     } else {
-      // For post images: postImages/userId/post-image-timestamp.ext
+      // For post images: postImages/userId/post-image-timestamp
       const imageName = fileName ? `${fileName}-${timestamp}` : `post-image-${timestamp}-${randomId}`;
       publicId = `postImages/${userId}/${imageName}`;
     }
