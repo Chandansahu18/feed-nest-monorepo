@@ -39,6 +39,7 @@ const BlogsSection = () => {
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
+           className='text-center lg:text-left'
           >
             <h2 className="text-4xl lg:text-5xl mb-6">
               {blogContent.headline.parts.map((part, index) => (
@@ -54,8 +55,8 @@ const BlogsSection = () => {
             <p className="text-xl text-muted-foreground mb-8">
               {blogContent.subtitle}
             </p>
-
-            <Button className="px-8 py-6 rounded-xl w-2/5 cursor-pointer">
+           
+            <Button className="px-8 py-6 rounded-xl w-3/4 min-[425px]:w-72 cursor-pointer  bg-blue-600 hover:bg-blue-700 text-white text-base font-medium">
               {blogContent.ctaButton.text}
             </Button>
           </motion.div>
