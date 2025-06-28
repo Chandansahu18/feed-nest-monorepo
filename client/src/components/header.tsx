@@ -16,19 +16,41 @@ import {
 } from "@/components/ui/menubar";
 import { useNavigationHandlers } from "@/hooks/useNavigateHandlers";
 import { useUserLogout } from "@/hooks/useUserLogout";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogOverlay,
+} from "@/components/ui/dialog";
+import { DialogFooter, DialogHeader } from "./ui/dialog";
+import { useState } from "react";
+import PendingLoader from "./pendingLoader";
 
 const Header = () => {
   const { theme } = useTheme();
   const { pathname } = useLocation();
   const { data } = useUserData();
-  const {mutate:userLogout} = useUserLogout();
-  const {handleSignIn, handleFeed, handleCreateBlogPost, handleSearch} = useNavigationHandlers();
-  
+  const { mutate: userLogout, isPending: logoutPending } = useUserLogout();
+  const {
+    handleSignIn,
+    handleFeed,
+    handleCreateBlogPost,
+    handleSearch,
+    handleBookmarks,
+    handleUserProfile,
+    handleAccountSettings
+  } = useNavigationHandlers();
+  const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
   const isLandingPage = pathname === "/";
   const isUserLoggedIn = data?.data;
   const handleSignOut = () => {
     userLogout();
+    setIsLogoutDialogOpen(false);
   };
+
+  if (logoutPending) {
+    return <PendingLoader />;
+  }
   return (
     <>
       <div className="h-16 px-4 border-b fixed w-full top-0 bg-background z-10">
@@ -94,16 +116,18 @@ const Header = () => {
                   <PenLine className="size-5" color="white" />
                 </Button>
               </div>
-            ) : !isLandingPage ? null : (
-              <div className="h-full w-20 hidden items-center lg:flex justify-center">
-                <Button
-                  variant={"ghost"}
-                  onClick={handleFeed}
-                  className="cursor-pointer h-10"
-                >
-                  Feeds
-                </Button>
-              </div>
+            ) : (
+              isLandingPage && (
+                <div className="h-full w-20 hidden items-center lg:flex justify-center">
+                  <Button
+                    variant={"ghost"}
+                    onClick={handleFeed}
+                    className="cursor-pointer h-10"
+                  >
+                    Feeds
+                  </Button>
+                </div>
+              )
             )}
 
             <div className="h-full w-10 flex justify-center items-center">
@@ -121,7 +145,12 @@ const Header = () => {
                     </Avatar>
                   </MenubarTrigger>
                   <MenubarContent className="w-60 rounded-2xl mx-5 p-2">
-                    <div className="flex gap-1 px-2 py-3 rounded-xl hover:bg-accent">
+                    <div
+                      className="flex gap-1 px-2 py-3 rounded-xl hover:bg-accent"
+                      onClick={() =>
+                        handleUserProfile(isUserLoggedIn?.userName ?? "")
+                      }
+                    >
                       <div className="size-12 mr-2 rounded-full">
                         <Avatar className="size-full rounded-full border flex items-center justify-center cursor-pointer">
                           <AvatarImage
@@ -140,21 +169,25 @@ const Header = () => {
                         </p>
                       </div>
                     </div>
-
                     <MenubarSeparator className="my-1" />
-
                     <div className="flex flex-col gap-1 py-1">
-                      <MenubarItem className="cursor-pointer px-3 py-2">
+                      <MenubarItem
+                        className="cursor-pointer px-3 py-2"
+                        onClick={handleBookmarks}
+                      >
                         <Bookmark className="size-4" />
                         <h1 className="text-sm">Bookmarks</h1>
                       </MenubarItem>
-                      <MenubarItem className="cursor-pointer px-3 py-2">
+                      <MenubarItem className="cursor-pointer px-3 py-2" onClick={handleAccountSettings}>
                         <User className="size-4" />
                         <h1 className="text-sm">Account settings</h1>
                       </MenubarItem>
                     </div>
                     <MenubarSeparator className="my-1" />
-                    <MenubarItem className="cursor-pointer px-3 py-2" onClick={handleSignOut}>
+                    <MenubarItem
+                      className="cursor-pointer px-3 py-2"
+                      onClick={() => setIsLogoutDialogOpen(true)}
+                    >
                       <LogOut className="text-red-500 size-5" />
                       <h1 className="text-sm text-red-500 font-medium">
                         Log out
@@ -176,6 +209,31 @@ const Header = () => {
             )}
           </div>
         </div>
+        <Dialog open={isLogoutDialogOpen} onOpenChange={setIsLogoutDialogOpen}>
+          <DialogOverlay className="fixed inset-0 z-50 bg-black/20 backdrop-blur-sm transition-all duration-300" />
+          <DialogContent className="fixed left-[50%] top-[50%] right-[50%] bottom-[30%] z-50 w-full max-w-sm translate-x-[-50%] translate-y-[-50%] gap-8 bg-background/95 backdrop-blur-md p-6 transition-all duration-300 ease-out rounded-3xl border-0 shadow-2xl">
+            <DialogHeader className="space-y-0">
+              <DialogTitle className="text-xl font-semibold text-center leading-tight">
+                Are you sure you want to sign out?
+              </DialogTitle>
+            </DialogHeader>
+            <DialogFooter className="flex flex-row justify-center gap-3 sm:gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setIsLogoutDialogOpen(false)}
+                className="flex-1 rounded-xl h-11 font-medium"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSignOut}
+                className="flex-1 rounded-xl h-11 font-medium bg-red-600 hover:bg-red-700 text-white"
+              >
+                Yes, sign out
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </>
   );

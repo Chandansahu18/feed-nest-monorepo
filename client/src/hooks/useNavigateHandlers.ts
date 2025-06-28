@@ -14,13 +14,32 @@ export const useNavigationHandlers = () => {
   };
 
   const handleSearch = () => {
-    navigate("/search")
+    navigate("/search");
   };
+
+  const handleBookmarks = () => {
+ navigate("/bookmarks")
+  };
+  const handleDiscover = () =>{
+    navigate("/home")
+  }
+
+  const handleUserProfile = (userName:string) =>{
+    navigate(`/user/${userName}`)
+  }
+
+  const handleAccountSettings = () =>{
+    navigate("/settings")
+  }
 
   return {
     handleSignIn,
     handleFeed,
     handleCreateBlogPost,
-    handleSearch
+    handleSearch,
+    handleBookmarks,
+    handleDiscover,
+    handleUserProfile,
+    handleAccountSettings
   };
 };

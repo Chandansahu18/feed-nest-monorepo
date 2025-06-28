@@ -18,10 +18,9 @@ const BlogPosts = () => {
   const [cursorId, setCursorId] = useState<string | undefined>(undefined);
   const { data: PostsData, hasMore, isPending } = usePostsData(cursorId);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-
   const containerRef = useRef<HTMLDivElement>(null);
 
- useEffect(() => {
+  useEffect(() => {
     const container = containerRef.current;
     if (!container || !hasMore || isPending) return;
 
@@ -46,9 +45,9 @@ const BlogPosts = () => {
     }
   }, [PostsData, isLoadingMore]);
 
-  const handleBookmark = () => {
-    // Bookmark functionality
-  };
+  const handleBookmarkBlog = () =>{
+    
+  }
 
   if (isPending && !PostsData?.length) {
     return (
@@ -85,7 +84,7 @@ const BlogPosts = () => {
           </div>
           <div className="mr-0 md:mr-3">
             <Button variant={"ghost"}>
-            <Ellipsis className="size-5 text-muted-foreground"/>
+              <Ellipsis className="size-5 text-muted-foreground" />
             </Button>
           </div>
         </div>
@@ -129,7 +128,7 @@ const BlogPosts = () => {
         </div>
         <div className="mr-0 md:mr-3">
           <Button className="rounded-xl" variant={"ghost"}>
-          <Ellipsis className="text-muted-foreground size-5" />
+            <Ellipsis className="text-muted-foreground size-5" />
           </Button>
         </div>
       </div>
@@ -217,7 +216,7 @@ const BlogPosts = () => {
                   variant="ghost"
                   size="icon"
                   className="text-muted-foreground hover:text-foreground"
-                  onClick={handleBookmark}
+                  onClick={handleBookmarkBlog}
                 >
                   <Bookmark className="size-5" />
                 </Button>
@@ -225,7 +224,7 @@ const BlogPosts = () => {
             </CardContent>
           </Card>
         ))}
-        
+
         {(isLoadingMore || (isPending && PostsData?.length)) && (
           <div className="space-y-6">
             {Array.from({ length: 3 }).map((_, index) => (
@@ -233,7 +232,7 @@ const BlogPosts = () => {
             ))}
           </div>
         )}
-        
+
         {!hasMore && PostsData?.length && (
           <div className="text-center py-4 text-muted-foreground">
             You've reached the end
