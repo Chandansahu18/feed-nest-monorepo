@@ -27,7 +27,7 @@ const router = createBrowserRouter(
           <Route path="/auth" element={<PublicRouteAccess><AuthPageWrapper /></PublicRouteAccess>} />
           <Route path="/home" element={<PublicRouteAccess><HomePageWrapper /></PublicRouteAccess>} />
           <Route path="/search" element={<SearchPageWrapper />} />
-          <Route path="/:postid" element={<PostPageWrapper />} />
+          <Route path="/:postTitle" element={<PostPageWrapper />} />
           <Route path="/:username" element={<UserProfilePageWrapper />} />
           <Route path="/create" element={<ProtectedRouteAccess><CreatePostPageWrapper /></ProtectedRouteAccess>} />
           <Route path="/settings" element={<ProtectedRouteAccess><AccountSettingsPageWrapper /></ProtectedRouteAccess>} />

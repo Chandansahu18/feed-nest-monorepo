@@ -150,7 +150,7 @@ const Header = () => {
                     <div
                       className="flex gap-1 px-2 py-3 rounded-xl hover:bg-accent"
                       onClick={() =>
-                        navigate(`/user/${isUserLoggedIn.userName}`)
+                        navigate(`/${isUserLoggedIn.userName}`,{state:{userName:isUserLoggedIn.userName}})
                       }
                     >
                       <div className="size-12 mr-2 rounded-full">

@@ -13,9 +13,11 @@ import { Card, CardContent } from "../ui/card";
 import { useEffect, useRef, useState } from "react";
 import { usePostsData } from "@/hooks/usePostsData";
 import BlogsSkeleton from "./blogsSkeleton";
+import { useNavigate } from "react-router-dom";
 
 const BlogPosts = () => {
   const [activeTab, setActiveTab] = useState("Discover");
+  const navigate = useNavigate();
   const [cursorId, setCursorId] = useState<string | undefined>(undefined);
   const { data: PostsData, hasMore, isPending } = usePostsData(cursorId);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -67,6 +69,7 @@ const BlogPosts = () => {
     <Card
       key={post.id || `${post.id}-${index}`}
       className="bg-card dark:bg-black dark:lg:bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl hover:shadow-md transition-all duration-300 py-0 will-change-transform"
+      onClick={() => navigate(`/${post.postTitle}`,{state:{postTitle:post.postTitle}})}
     >
       <CardContent className="py-6 border-b max-[375px]:px-0 lg:border-0">
         <div className="flex items-center space-x-3 mb-4">
