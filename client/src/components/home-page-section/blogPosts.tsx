@@ -5,6 +5,7 @@ import {
   Ellipsis,
   Heart,
   MessageCircle,
+  FileText,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
@@ -22,13 +23,13 @@ const BlogPosts = () => {
 
   useEffect(() => {
     const container = containerRef.current;
-    if (!container || !hasMore || isPending) return;
+    if (!container || !hasMore || isPending || isLoadingMore) return;
 
     const handleScroll = () => {
       const { scrollTop, scrollHeight, clientHeight } = container;
       const atBottom = scrollTop + clientHeight >= scrollHeight - 20;
 
-      if (atBottom && !isLoadingMore && PostsData?.length) {
+      if (atBottom && PostsData?.length) {
         setIsLoadingMore(true);
         const lastPost = PostsData[PostsData.length - 1];
         setCursorId(lastPost.id);
@@ -37,7 +38,7 @@ const BlogPosts = () => {
 
     container.addEventListener("scroll", handleScroll);
     return () => container.removeEventListener("scroll", handleScroll);
-  }, [PostsData, hasMore, isLoadingMore, isPending]);
+  }, [PostsData, hasMore, isPending, isLoadingMore]);
 
   useEffect(() => {
     if (PostsData?.length && isLoadingMore) {
@@ -140,6 +141,30 @@ const BlogPosts = () => {
     </Card>
   );
 
+  const EmptyState = () => (
+    <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+      <div className="w-32 h-32 mb-6 flex items-center justify-center bg-muted/50 rounded-full">
+        <FileText className="w-16 h-16 text-muted-foreground" />
+      </div>
+      <h3 className="text-xl font-semibold text-foreground mb-2">
+        No blog posts yet
+      </h3>
+      <p className="text-muted-foreground max-w-md mb-6">
+        {activeTab === "Discover" 
+          ? "Be the first to discover amazing content! Check back later for new posts."
+          : "You're not following anyone yet. Follow some writers to see their posts here."
+        }
+      </p>
+      <Button 
+        variant="outline" 
+        className="rounded-xl"
+        onClick={() => setActiveTab(activeTab === "Discover" ? "Following" : "Discover")}
+      >
+        {activeTab === "Discover" ? "Explore Following" : "Discover Posts"}
+      </Button>
+    </div>
+  );
+
   return (
     <div
       ref={containerRef}
@@ -162,24 +187,27 @@ const BlogPosts = () => {
         {/* Initial loading skeleton */}
         {isPending && !PostsData?.length && <BlogsSkeleton />}
 
+        {/* Empty state when no posts and not loading */}
+        {!isPending && PostsData?.length === 0 && <EmptyState />}
+
         {/* Posts */}
         {PostsData?.map((post, index) => (
           <PostCard key={post.id} post={post} index={index} />
         ))}
 
-        {/* Loading more skeleton */}
-        {(isLoadingMore || (isPending && PostsData?.length)) && (
+        {/* Loading more skeleton - only show when we have existing posts and are loading more */}
+        {isLoadingMore && PostsData?.length && (
           <div className="space-y-6">
             {Array.from({ length: 3 }).map((_, index) => (
               <div key={`loading-skeleton-${index}`}>
-                <BlogsSkeleton />
+                <BlogsSkeleton showSingle />
               </div>
             ))}
           </div>
         )}
 
         {/* End message */}
-        {!hasMore && PostsData?.length && (
+        {!hasMore && PostsData && PostsData.length > 0 && (
           <div className="text-center py-4 text-muted-foreground">
             You've reached the end
           </div>

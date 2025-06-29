@@ -1,9 +1,15 @@
 import { Card, CardContent } from "../ui/card";
 
-const BlogsSkeleton = () => {
+interface BlogsSkeletonProps {
+  showSingle?: boolean;
+}
+
+const BlogsSkeleton = ({ showSingle = false }: BlogsSkeletonProps) => {
+  const skeletonCount = showSingle ? 1 : 5;
+  
   return (
     <div className="space-y-6">
-      {Array.from({ length: 5 }).map((_, index) => (
+      {Array.from({ length: skeletonCount }).map((_, index) => (
         <Card
           key={`skeleton-${index}`}
           className="bg-card dark:bg-black dark:lg:bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl py-0"
@@ -26,8 +32,8 @@ const BlogsSkeleton = () => {
                 <div className="h-4 w-1/2 bg-muted rounded animate-pulse" />
               </div>
               
-              {/* Random banner image skeleton */}
-              {Math.random() > 0.5 && (
+              {/* Random banner image skeleton - 60% chance to show */}
+              {Math.random() > 0.4 && (
                 <div className="md:w-44 h-36 md:h-full bg-muted rounded-xl animate-pulse" />
               )}
             </div>
@@ -38,10 +44,12 @@ const BlogsSkeleton = () => {
                 <div className="flex gap-1 items-center">
                   <div className="size-5 bg-muted rounded animate-pulse" />
                   <div className="h-4 w-8 bg-muted rounded animate-pulse" />
+                  <div className="h-4 w-12 bg-muted rounded animate-pulse hidden lg:block" />
                 </div>
                 <div className="flex gap-1 items-center">
                   <div className="size-5 bg-muted rounded animate-pulse" />
                   <div className="h-4 w-8 bg-muted rounded animate-pulse" />
+                  <div className="h-4 w-16 bg-muted rounded animate-pulse hidden lg:block" />
                 </div>
               </div>
               <div className="size-5 bg-muted rounded animate-pulse" />
