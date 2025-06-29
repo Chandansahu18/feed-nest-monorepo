@@ -1,242 +1,228 @@
-import { useState, useEffect, useCallback } from "react";
-import { useSearchParams } from "react-router-dom";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Input } from "@/components/ui/input";
-import { 
+import { useState, useEffect, useRef } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import {
   Search,
+  Users,
+  FileText,
+  Hash,
+  ArrowLeft,
+  Filter,
+  SortAsc,
   Heart,
   MessageCircle,
   Bookmark,
-  User,
-  FileText,
-  Tag,
-  X,
-  Filter
+  Calendar,
 } from "lucide-react";
-import { motion } from "framer-motion";
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
+import BlogsSkeleton from "@/components/home-page-section/blogsSkeleton";
 
-// Mock data types
 interface SearchResult {
-  type: 'post' | 'user' | 'tag';
   id: string;
-  // Post fields
-  postTitle?: string;
-  postDescription?: string;
-  postBannerImage?: string;
-  postTags?: string[];
-  createdAt?: string;
-  creator?: {
-    id: string;
-    name: string;
-    avatar?: string;
-    userName?: string;
-  };
-  postLikes?: { id: string }[];
-  postComments?: { id: string }[];
-  isLiked?: boolean;
-  // User fields
-  name?: string;
-  userName?: string;
-  avatar?: string;
-  bio?: string;
-  followersCount?: number;
-  postsCount?: number;
-  tagName?: string;
+  type: "post" | "user" | "tag";
+  data: any;
 }
 
 const SearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
+  const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState(searchParams.get("q") || "");
+  const [activeTab, setActiveTab] = useState("All");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [activeFilter, setActiveFilter] = useState<'all' | 'posts' | 'users' | 'tags'>('all');
+  const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
-  const performSearch = useCallback(async (query: string) => {
-    if (!query.trim()) {
-      setSearchResults([]);
-      setHasSearched(false);
-      return;
-    }
-
-    setLoading(true);
-    setHasSearched(true);
-
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 800));
-
-    // Mock empty search results
-    const mockResults: SearchResult[] = [];
-
-    setSearchResults(mockResults);
-    setLoading(false);
-  }, []);
+  const tabs = [
+    { id: "All", label: "All", icon: Search },
+    { id: "Posts", label: "Posts", icon: FileText },
+    { id: "People", label: "People", icon: Users },
+    { id: "Tags", label: "Tags", icon: Hash },
+  ];
 
   useEffect(() => {
-    const query = searchParams.get('q');
+    const query = searchParams.get("q");
     if (query) {
-      setSearchQuery(query);
+      setSearchTerm(query);
       performSearch(query);
     }
-  }, [searchParams, performSearch]);
+    // Focus search input on mount
+    searchInputRef.current?.focus();
+  }, [searchParams]);
+
+  const performSearch = async (query: string) => {
+    if (!query.trim()) return;
+    
+    setIsLoading(true);
+    setHasSearched(true);
+    
+    try {
+      // Simulate API call - replace with actual search API
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Mock search results
+      const mockResults: SearchResult[] = [
+        {
+          id: "1",
+          type: "post",
+          data: {
+            id: "1",
+            postTitle: "Getting Started with React and TypeScript",
+            postDescription: "A comprehensive guide to building modern web applications with React and TypeScript. Learn best practices and advanced patterns.",
+            postBannerImage: "https://images.pexels.com/photos/11035380/pexels-photo-11035380.jpeg?auto=compress&cs=tinysrgb&w=800",
+            postTags: ["react", "typescript", "javascript"],
+            published: true,
+            createdAt: new Date(),
+            creator: {
+              id: "1",
+              name: "John Doe",
+              userName: "johndoe",
+              avatar: "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=100",
+            },
+            postLikes: [1, 2, 3],
+            postComments: [1, 2],
+          }
+        },
+        {
+          id: "2",
+          type: "user",
+          data: {
+            id: "2",
+            name: "Jane Smith",
+            userName: "janesmith",
+            bio: "Full-stack developer passionate about React and Node.js",
+            avatar: "https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=100",
+            posts: [1, 2, 3, 4, 5],
+            followingRelations: [1, 2],
+          }
+        },
+        {
+          id: "3",
+          type: "tag",
+          data: {
+            name: "react",
+            postCount: 156,
+            description: "A JavaScript library for building user interfaces"
+          }
+        }
+      ];
+      
+      setSearchResults(mockResults);
+    } catch (error) {
+      console.error("Search failed:", error);
+      setSearchResults([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      setSearchParams({ q: searchQuery.trim() });
-    } else {
-      setSearchParams({});
-      setSearchResults([]);
-      setHasSearched(false);
+    if (searchTerm.trim()) {
+      setSearchParams({ q: searchTerm.trim() });
+      performSearch(searchTerm.trim());
     }
   };
 
-  const handleClearSearch = () => {
-    setSearchQuery('');
-    setSearchParams({});
-    setSearchResults([]);
-    setHasSearched(false);
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
   };
 
   const filteredResults = searchResults.filter(result => {
-    if (activeFilter === 'all') return true;
-    if (activeFilter === 'posts') return result.type === 'post';
-    if (activeFilter === 'users') return result.type === 'user';
-    if (activeFilter === 'tags') return result.type === 'tag';
+    if (activeTab === "All") return true;
+    if (activeTab === "Posts") return result.type === "post";
+    if (activeTab === "People") return result.type === "user";
+    if (activeTab === "Tags") return result.type === "tag";
     return true;
   });
 
-  const formatDate = (dateString: string) => {
-    const now = new Date();
-    const postDate = new Date(dateString);
-    const diffInHours = Math.floor((now.getTime() - postDate.getTime()) / (1000 * 60 * 60));
-    
-    if (diffInHours < 24) {
-      return `${diffInHours}h ago`;
-    } else if (diffInHours < 168) {
-      return `${Math.floor(diffInHours / 24)}d ago`;
-    } else {
-      return postDate.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric'
-      });
-    }
-  };
-
-  const SearchSkeleton = () => (
-    <Card className="bg-card dark:bg-black dark:lg:bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl">
-      <CardContent className="py-6 border-b max-[375px]:px-0 lg:border-0">
-        <div className="flex items-center space-x-3 mb-4">
-          <Skeleton className="size-10 rounded-full" />
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-32" />
-            <Skeleton className="h-3 w-20" />
-          </div>
-        </div>
-        <div className="space-y-2">
-          <Skeleton className="h-6 w-3/4" />
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-2/3" />
-        </div>
-      </CardContent>
-    </Card>
+  const TabButton = ({ tab }: { tab: typeof tabs[0] }) => (
+    <Button
+      variant={activeTab === tab.id ? "default" : "ghost"}
+      onClick={() => setActiveTab(tab.id)}
+      className={`flex items-center rounded-xl space-x-2 transition-all duration-200 ${
+        activeTab === tab.id
+          ? "bg-[#EFF6FFCC] text-blue-600 hover:bg-[#EFF6FFCC] dark:bg-accent dark:text-primary dark:hover:bg-accent"
+          : "text-muted-foreground hover:text-foreground"
+      }`}
+    >
+      <tab.icon className="size-4" />
+      <span className="text-sm">{tab.label}</span>
+    </Button>
   );
 
-  const PostResult = ({ result }: { result: SearchResult }) => (
-    <Card className="bg-card dark:bg-black dark:lg:bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl hover:shadow-md transition-shadow py-0 cursor-pointer group">
+  const PostCard = ({ post }: { post: any }) => (
+    <Card className="bg-card dark:bg-black dark:lg:bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl hover:shadow-md transition-all duration-300 py-0">
       <CardContent className="py-6 border-b max-[375px]:px-0 lg:border-0">
         <div className="flex items-center space-x-3 mb-4">
           <Avatar className="size-10 rounded-full border border-border flex items-center justify-center cursor-pointer">
-            <AvatarImage
-              src={result.creator?.avatar ?? undefined}
-              alt="avatar-image"
-            />
+            <AvatarImage src={post.creator.avatar} alt="avatar-image" />
             <AvatarFallback className="text-sm font-bold text-foreground">
-              {result.creator?.name.split(' ').map(n => n[0]).join('')}
+              {post.creator.name.charAt(0).toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <div>
-            <p className="font-semibold text-foreground">
-              {result.creator?.name}
-            </p>
+            <p className="font-semibold text-foreground">{post.creator.name}</p>
             <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-              <span>{result.createdAt && formatDate(result.createdAt)}</span>
+              <Calendar className="size-3" />
+              <span>{new Date(post.createdAt).toLocaleDateString()}</span>
             </div>
           </div>
         </div>
-        <div
-          className={
-            result.postBannerImage
-              ? "md:flex md:h-28 flex-col md:flex-row md:w-[625px] lg:w-2xl lg:justify-between xl:w-[715px]"
-              : "md:flex flex-col md:w-[625px] lg:w-2xl xl:w-[715px]"
-          }
-        >
-          <div
-            className={
-              result.postBannerImage
-                ? "h-full md:w-md xl:w-[500px] mb-2"
-                : "mb-2"
-            }
-          >
-            <h2 className="md:text-xl text-base font-bold text-foreground line-clamp-2 hover:text-primary cursor-pointer group-hover:text-primary transition-colors">
-              {result.postTitle}
+
+        <div className={`${
+          post.postBannerImage
+            ? "md:flex md:h-28 flex-col md:flex-row md:w-[625px] lg:w-2xl lg:justify-between xl:w-[715px]"
+            : "md:flex flex-col md:w-[625px] lg:w-2xl xl:w-[715px]"
+        }`}>
+          <div className={`${post.postBannerImage ? "h-full md:w-md xl:w-[500px] mb-2" : "mb-2"}`}>
+            <h2 className="md:text-xl text-base font-bold text-foreground line-clamp-2 hover:text-primary cursor-pointer transition-colors duration-200">
+              {post.postTitle}
             </h2>
-            <p className="text-muted-foreground line-clamp-2">
-              {result.postDescription}
-            </p>
-            <div className="flex flex-wrap gap-1 mt-2">
-              {result.postTags?.slice(0, 3).map((tag) => (
-                <Badge key={tag} variant="secondary" className="text-xs rounded-full">
-                  {tag}
-                </Badge>
+            <p className="text-muted-foreground line-clamp-2 mb-2">{post.postDescription}</p>
+            <div className="flex flex-wrap gap-2">
+              {post.postTags.slice(0, 3).map((tag: string) => (
+                <span
+                  key={tag}
+                  className="px-2 py-1 bg-muted rounded-full text-xs text-muted-foreground hover:bg-accent cursor-pointer transition-colors"
+                >
+                  #{tag}
+                </span>
               ))}
-              {result.postTags && result.postTags.length > 3 && (
-                <Badge variant="outline" className="text-xs rounded-full">
-                  +{result.postTags.length - 3}
-                </Badge>
-              )}
             </div>
           </div>
-          {result.postBannerImage ? (
+          {post.postBannerImage && (
             <div className="md:w-44 h-36 md:h-full bg-muted rounded-xl overflow-hidden">
               <img
-                src={result.postBannerImage ?? undefined}
+                src={post.postBannerImage}
                 alt="post-image"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                loading="lazy"
               />
             </div>
-          ) : null}
+          )}
         </div>
+
         <div className="flex items-center h-6 justify-between mt-3">
           <div className="flex gap-4 mx-1">
             <div className="flex gap-1 items-center">
-              <Heart className={cn("size-5", result.isLiked ? "text-red-500 fill-current" : "text-muted-foreground")} />
-              <h1 className="text-sm font-medium text-muted-foreground">
-                {result.postLikes?.length || 0}
-              </h1>
-              <h1 className="hidden lg:flex text-sm font-medium text-muted-foreground">
-                {(result.postLikes?.length || 0) > 1 ? "likes" : "like"}
-              </h1>
+              <Heart className="size-5 text-muted-foreground transition-colors duration-200 hover:text-red-500" />
+              <span className="text-sm font-medium text-muted-foreground">
+                {post.postLikes.length}
+              </span>
             </div>
             <div className="flex gap-1 items-center">
-              <MessageCircle className="size-5 text-muted-foreground" />
-              <h1 className="text-sm font-medium text-muted-foreground">
-                {result.postComments?.length || 0}
-              </h1>
-              <h1 className="hidden lg:flex text-sm font-medium text-muted-foreground">
-                {(result.postComments?.length || 0) > 1 ? "comments" : "comment"}
-              </h1>
+              <MessageCircle className="size-5 text-muted-foreground transition-colors duration-200 hover:text-blue-500" />
+              <span className="text-sm font-medium text-muted-foreground">
+                {post.postComments.length}
+              </span>
             </div>
           </div>
           <Button
             variant="ghost"
             size="icon"
-            className="text-muted-foreground hover:text-foreground"
+            className="text-muted-foreground hover:text-foreground transition-all duration-200 hover:scale-110"
           >
             <Bookmark className="size-5" />
           </Button>
@@ -245,32 +231,28 @@ const SearchPage = () => {
     </Card>
   );
 
-  const UserResult = ({ result }: { result: SearchResult }) => (
-    <Card className="bg-card dark:bg-black dark:lg:bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl hover:shadow-md transition-shadow py-0 cursor-pointer">
-      <CardContent className="py-6 border-b max-[375px]:px-0 lg:border-0">
+  const UserCard = ({ user }: { user: any }) => (
+    <Card className="bg-card dark:bg-black dark:lg:bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl hover:shadow-md transition-all duration-300 py-0">
+      <CardContent className="py-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <Avatar className="size-12 rounded-full border border-border">
-              <AvatarImage src={result.avatar ?? undefined} alt="avatar-image" />
-              <AvatarFallback className="text-sm font-bold text-foreground">
-                {result.name?.split(' ').map(n => n[0]).join('')}
+            <Avatar className="size-12 rounded-full border border-border flex items-center justify-center cursor-pointer">
+              <AvatarImage src={user.avatar} alt="avatar-image" />
+              <AvatarFallback className="text-lg font-bold text-foreground">
+                {user.name.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div>
-              <h3 className="font-semibold text-foreground">{result.name}</h3>
-              <p className="text-sm text-muted-foreground">@{result.userName}</p>
-              {result.bio && (
-                <p className="text-sm text-muted-foreground mt-1 line-clamp-2 max-w-md">
-                  {result.bio}
-                </p>
-              )}
+              <h3 className="font-semibold text-foreground">{user.name}</h3>
+              <p className="text-sm text-muted-foreground">@{user.userName}</p>
+              <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{user.bio}</p>
               <div className="flex items-center space-x-4 mt-2 text-xs text-muted-foreground">
-                <span>{result.followersCount} followers</span>
-                <span>{result.postsCount} posts</span>
+                <span>{user.posts.length} posts</span>
+                <span>{user.followingRelations.length} following</span>
               </div>
             </div>
           </div>
-          <Button variant="outline" size="sm" className="rounded-xl">
+          <Button variant="outline" className="rounded-xl">
             Follow
           </Button>
         </div>
@@ -278,184 +260,116 @@ const SearchPage = () => {
     </Card>
   );
 
-  const TagResult = ({ result }: { result: SearchResult }) => (
-    <Card className="bg-card dark:bg-black dark:lg:bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl hover:shadow-md transition-shadow py-0 cursor-pointer">
-      <CardContent className="py-6 border-b max-[375px]:px-0 lg:border-0">
+  const TagCard = ({ tag }: { tag: any }) => (
+    <Card className="bg-card dark:bg-black dark:lg:bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl hover:shadow-md transition-all duration-300 py-0">
+      <CardContent className="py-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
-              <Tag className="w-6 h-6 text-muted-foreground" />
+            <div className="size-12 rounded-full bg-muted flex items-center justify-center">
+              <Hash className="size-6 text-muted-foreground" />
             </div>
             <div>
-              <h3 className="font-semibold text-foreground">#{result.tagName}</h3>
-              <p className="text-sm text-muted-foreground">
-                {result.postsCount} posts
-              </p>
+              <h3 className="font-semibold text-foreground">#{tag.name}</h3>
+              <p className="text-sm text-muted-foreground">{tag.postCount} posts</p>
+              <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{tag.description}</p>
             </div>
           </div>
-          <Button variant="outline" size="sm" className="rounded-xl">
+          <Button variant="outline" className="rounded-xl">
             Follow
           </Button>
         </div>
       </CardContent>
     </Card>
+  );
+
+  const EmptyState = () => (
+    <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+      <div className="w-32 h-32 mb-6 flex items-center justify-center bg-muted/50 rounded-full">
+        <Search className="w-16 h-16 text-muted-foreground" />
+      </div>
+      <h3 className="text-xl font-semibold text-foreground mb-2">
+        {hasSearched ? "No results found" : "Start searching"}
+      </h3>
+      <p className="text-muted-foreground max-w-md">
+        {hasSearched 
+          ? `We couldn't find anything for "${searchTerm}". Try different keywords or check your spelling.`
+          : "Search for posts, people, or tags to discover amazing content."
+        }
+      </p>
+    </div>
   );
 
   return (
-    <div className="pb-16 mt-20 sm:mt-16 sm:p-8 min-h-screen w-full flex justify-center px-4 mx-auto xl:w-7xl sm:px-6 lg:w-3xl">
-      <div className="max-[768px]:w-full md:w-2xl lg:w-3xl overflow-y-auto" style={{ height: "100vh", scrollbarWidth: "none" }}>
-        {/* Search Form */}
-        <div className="mb-6">
-          <form onSubmit={handleSearch} className="relative">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
-              <Input
-                type="text"
-                placeholder="Search posts, users, or tags..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-10 py-3 rounded-xl border-border focus:border-primary"
-              />
-              {searchQuery && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleClearSearch}
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6"
-                >
-                  <X className="w-4 h-4" />
-                </Button>
-              )}
+    <div className="pb-16 mt-20 sm:mt-16 sm:p-8 h-screen w-full flex justify-center px-4 mx-auto xl:w-7xl sm:px-6 lg:w-3xl">
+      <div className="max-[768px]:w-full md:w-2xl lg:w-3xl h-full flex flex-col">
+        {/* Header with search and navigation */}
+        <div className="flex-shrink-0 bg-background border-b border-border/50 pb-4 mb-5">
+          <div className="flex items-center space-x-4 mb-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate(-1)}
+              className="rounded-xl transition-all duration-200 hover:scale-105"
+            >
+              <ArrowLeft className="size-5" />
+            </Button>
+            
+            <form onSubmit={handleSearch} className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 size-5 text-muted-foreground" />
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  value={searchTerm}
+                  onChange={handleInputChange}
+                  placeholder="Search for posts, people, or tags..."
+                  className="w-full pl-10 pr-4 py-3 bg-muted/50 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
+                />
+              </div>
+            </form>
+
+            <div className="flex space-x-2">
+              <Button variant="ghost" size="icon" className="rounded-xl">
+                <Filter className="size-5" />
+              </Button>
+              <Button variant="ghost" size="icon" className="rounded-xl">
+                <SortAsc className="size-5" />
+              </Button>
             </div>
-          </form>
+          </div>
+
+          {/* Tabs */}
+          <div className="flex space-x-2 overflow-x-auto">
+            {tabs.map((tab) => (
+              <TabButton key={tab.id} tab={tab} />
+            ))}
+          </div>
         </div>
 
-        {/* Filter Tabs - Only show if there are results */}
-        {searchResults.length > 0 && (
-          <div className="flex space-x-1 mb-5 justify-between items-center">
-            <div className="flex">
-              <Button
-                variant={activeFilter === "all" ? "default" : "ghost"}
-                onClick={() => setActiveFilter("all")}
-                className={`flex items-center mr-2 rounded-xl space-x-2 ${
-                  activeFilter === "all"
-                    ? "bg-[#EFF6FFCC] text-blue-600 hover:bg-[#EFF6FFCC] dark:bg-accent dark:text-primary dark:hover:bg-accent"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <Filter className="size-5 hidden md:flex" />
-                <span className="text-sm">All</span>
-              </Button>
-              <Button
-                variant={activeFilter === "posts" ? "default" : "ghost"}
-                onClick={() => setActiveFilter("posts")}
-                className={`flex items-center mr-2 rounded-xl space-x-2 ${
-                  activeFilter === "posts"
-                    ? "bg-[#EFF6FFCC] text-blue-600 hover:bg-[#EFF6FFCC] dark:bg-accent dark:text-primary dark:hover:bg-accent"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <FileText className="size-5 hidden md:flex" />
-                <span className="text-sm">Posts</span>
-              </Button>
-              <Button
-                variant={activeFilter === "users" ? "default" : "ghost"}
-                onClick={() => setActiveFilter("users")}
-                className={`flex items-center mr-2 rounded-xl space-x-2 ${
-                  activeFilter === "users"
-                    ? "bg-[#EFF6FFCC] text-blue-600 hover:bg-[#EFF6FFCC] dark:bg-accent dark:text-primary dark:hover:bg-accent"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <User className="size-5 hidden md:flex" />
-                <span className="text-sm">Users</span>
-              </Button>
-              <Button
-                variant={activeFilter === "tags" ? "default" : "ghost"}
-                onClick={() => setActiveFilter("tags")}
-                className={`flex items-center rounded-xl space-x-2 ${
-                  activeFilter === "tags"
-                    ? "bg-[#EFF6FFCC] text-blue-600 hover:bg-[#EFF6FFCC] dark:bg-accent dark:text-primary dark:hover:bg-accent"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <Tag className="size-5 hidden md:flex" />
-                <span className="text-sm">Tags</span>
-              </Button>
-            </div>
+        {/* Scrollable content */}
+        <div className="flex-1 overflow-y-auto smooth-scroll" style={{ scrollbarWidth: "none" }}>
+          <div className="space-y-6 pb-6">
+            {/* Loading state */}
+            {isLoading && <BlogsSkeleton />}
+
+            {/* Empty state */}
+            {!isLoading && filteredResults.length === 0 && <EmptyState />}
+
+            {/* Search results */}
+            {!isLoading && filteredResults.map((result) => {
+              switch (result.type) {
+                case "post":
+                  return <PostCard key={result.id} post={result.data} />;
+                case "user":
+                  return <UserCard key={result.id} user={result.data} />;
+                case "tag":
+                  return <TagCard key={result.id} tag={result.data} />;
+                default:
+                  return null;
+              }
+            })}
           </div>
-        )}
-
-        {/* Loading State */}
-        {loading && (
-          <div className="space-y-6">
-            {Array.from({ length: 3 }).map((_, index) => (
-              <SearchSkeleton key={`skeleton-${index}`} />
-            ))}
-          </div>
-        )}
-
-        {/* Empty State */}
-        {!loading && hasSearched && filteredResults.length === 0 && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-center py-16 flex flex-col items-center justify-center min-h-[60vh]"
-          >
-            <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-muted/50 flex items-center justify-center">
-              <Search className="w-12 h-12 text-muted-foreground/60" />
-            </div>
-            <h3 className="text-2xl font-semibold mb-3 text-foreground">No data found</h3>
-            <p className="text-muted-foreground mb-8 max-w-md text-center leading-relaxed">
-              We couldn't find any results for "{searchQuery}". Try searching with different keywords or check your spelling.
-            </p>
-            <Button onClick={handleClearSearch} variant="outline" className="rounded-xl px-6 py-2">
-              Clear Search
-            </Button>
-          </motion.div>
-        )}
-
-        {/* Initial State */}
-        {!loading && !hasSearched && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
-            className="text-center py-16 flex flex-col items-center justify-center min-h-[60vh]"
-          >
-            <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-muted/50 flex items-center justify-center">
-              <Search className="w-12 h-12 text-muted-foreground/60" />
-            </div>
-            <h3 className="text-2xl font-semibold mb-3 text-foreground">Search FeedNest</h3>
-            <p className="text-muted-foreground mb-8 max-w-md text-center leading-relaxed">
-              Discover posts, users, and topics that interest you. Start typing to search across all content.
-            </p>
-          </motion.div>
-        )}
-
-        {/* Search Results */}
-        {!loading && filteredResults.length > 0 && (
-          <div className="space-y-6">
-            {filteredResults.map((result, index) => (
-              <motion.div
-                key={`${result.type}-${result.id}`}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-              >
-                {result.type === 'post' && <PostResult result={result} />}
-                {result.type === 'user' && <UserResult result={result} />}
-                {result.type === 'tag' && <TagResult result={result} />}
-              </motion.div>
-            ))}
-
-            <div className="text-center py-4 text-muted-foreground">
-              You've reached the end of search results
-            </div>
-          </div>
-        )}
+        </div>
       </div>
     </div>
   );
