@@ -27,7 +27,7 @@ const BlogPosts = () => {
 
     const handleScroll = () => {
       const { scrollTop, scrollHeight, clientHeight } = container;
-      const atBottom = scrollTop + clientHeight >= scrollHeight - 20;
+      const atBottom = scrollTop + clientHeight >= scrollHeight - 100; // Increased threshold for smoother loading
 
       if (atBottom && PostsData?.length) {
         setIsLoadingMore(true);
@@ -36,7 +36,8 @@ const BlogPosts = () => {
       }
     };
 
-    container.addEventListener("scroll", handleScroll);
+    // Use passive listener for better performance
+    container.addEventListener("scroll", handleScroll, { passive: true });
     return () => container.removeEventListener("scroll", handleScroll);
   }, [PostsData, hasMore, isPending, isLoadingMore]);
 
@@ -52,7 +53,7 @@ const BlogPosts = () => {
     <Button
       variant={activeTab === tab ? "default" : "ghost"}
       onClick={() => setActiveTab(tab)}
-      className={`flex items-center rounded-xl space-x-2 ${
+      className={`flex items-center rounded-xl space-x-2 transition-all duration-200 ${
         activeTab === tab
           ? "bg-[#EFF6FFCC] text-blue-600 hover:bg-[#EFF6FFCC] dark:bg-accent dark:text-primary dark:hover:bg-accent"
           : "text-muted-foreground hover:text-foreground"
@@ -66,7 +67,7 @@ const BlogPosts = () => {
   const PostCard = ({ post, index }: { post: any; index: number }) => (
     <Card
       key={post.id || `${post.id}-${index}`}
-      className="bg-card dark:bg-black dark:lg:bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl hover:shadow-md transition-shadow py-0"
+      className="bg-card dark:bg-black dark:lg:bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl hover:shadow-md transition-all duration-300 py-0 will-change-transform"
     >
       <CardContent className="py-6 border-b max-[375px]:px-0 lg:border-0">
         <div className="flex items-center space-x-3 mb-4">
@@ -90,7 +91,7 @@ const BlogPosts = () => {
             : "md:flex flex-col md:w-[625px] lg:w-2xl xl:w-[715px]"
         }`}>
           <div className={`${post.postBannerImage ? "h-full md:w-md xl:w-[500px] mb-2" : "mb-2"}`}>
-            <h2 className="md:text-xl text-base font-bold text-foreground line-clamp-2 hover:text-primary cursor-pointer">
+            <h2 className="md:text-xl text-base font-bold text-foreground line-clamp-2 hover:text-primary cursor-pointer transition-colors duration-200">
               {post.postTitle}
             </h2>
             <p className="text-muted-foreground line-clamp-2">{post.postDescription}</p>
@@ -100,7 +101,8 @@ const BlogPosts = () => {
               <img
                 src={post.postBannerImage}
                 alt="post-image"
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                loading="lazy"
               />
             </div>
           )}
@@ -109,7 +111,7 @@ const BlogPosts = () => {
         <div className="flex items-center h-6 justify-between mt-3">
           <div className="flex gap-4 mx-1">
             <div className="flex gap-1 items-center">
-              <Heart className="size-5 text-muted-foreground" />
+              <Heart className="size-5 text-muted-foreground transition-colors duration-200 hover:text-red-500" />
               <span className="text-sm font-medium text-muted-foreground">
                 {post.postLikes.length}
               </span>
@@ -118,7 +120,7 @@ const BlogPosts = () => {
               </span>
             </div>
             <div className="flex gap-1 items-center">
-              <MessageCircle className="size-5 text-muted-foreground" />
+              <MessageCircle className="size-5 text-muted-foreground transition-colors duration-200 hover:text-blue-500" />
               <span className="text-sm font-medium text-muted-foreground">
                 {post.postComments.length}
               </span>
@@ -131,7 +133,7 @@ const BlogPosts = () => {
           <Button
             variant="ghost"
             size="icon"
-            className="text-muted-foreground hover:text-foreground"
+            className="text-muted-foreground hover:text-foreground transition-all duration-200 hover:scale-110"
             onClick={handleBookmarkBlog}
           >
             <Bookmark className="size-5" />
@@ -157,7 +159,7 @@ const BlogPosts = () => {
       </p>
       <Button 
         variant="outline" 
-        className="rounded-xl"
+        className="rounded-xl transition-all duration-200 hover:scale-105"
         onClick={() => setActiveTab(activeTab === "Discover" ? "Following" : "Discover")}
       >
         {activeTab === "Discover" ? "Explore Following" : "Discover Posts"}
@@ -168,22 +170,29 @@ const BlogPosts = () => {
   return (
     <div
       ref={containerRef}
-      className="max-[768px]:w-full md:w-2xl lg:w-3xl overflow-y-auto"
-      style={{ height: "100vh", scrollbarWidth: "none" }}
+      className="max-[768px]:w-full md:w-2xl lg:w-3xl overflow-y-auto smooth-scroll"
+      style={{ 
+        height: "100vh", 
+        scrollbarWidth: "none",
+        scrollBehavior: "smooth",
+        WebkitOverflowScrolling: "touch"
+      }}
     >
-      {/* Header with tabs */}
-      <div className="flex space-x-1 mb-5 justify-between items-center">
-        <div className="flex space-x-2">
-          <TabButton tab="Discover" icon={Newspaper} label="Discover" />
-          <TabButton tab="Following" icon={Users} label="Following" />
+      {/* Header with tabs - sticky for better UX */}
+      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border/50 pb-4 mb-5">
+        <div className="flex space-x-1 justify-between items-center pt-4">
+          <div className="flex space-x-2">
+            <TabButton tab="Discover" icon={Newspaper} label="Discover" />
+            <TabButton tab="Following" icon={Users} label="Following" />
+          </div>
+          <Button className="rounded-xl mr-0 md:mr-3 transition-all duration-200 hover:scale-105" variant="ghost">
+            <Ellipsis className="text-muted-foreground size-5" />
+          </Button>
         </div>
-        <Button className="rounded-xl mr-0 md:mr-3" variant="ghost">
-          <Ellipsis className="text-muted-foreground size-5" />
-        </Button>
       </div>
 
       {/* Content */}
-      <div className="space-y-6">
+      <div className="space-y-6 pb-6">
         {/* Initial loading skeleton */}
         {isPending && !PostsData?.length && <BlogsSkeleton />}
 
@@ -198,7 +207,7 @@ const BlogPosts = () => {
         {/* Loading more skeleton - only show when we have existing posts and are loading more */}
         {isLoadingMore && PostsData?.length && (
           <div className="space-y-6">
-            {Array.from({ length: 3 }).map((_, index) => (
+            {Array.from({ length: 2 }).map((_, index) => (
               <div key={`loading-skeleton-${index}`}>
                 <BlogsSkeleton showSingle />
               </div>
@@ -208,8 +217,11 @@ const BlogPosts = () => {
 
         {/* End message */}
         {!hasMore && PostsData && PostsData.length > 0 && (
-          <div className="text-center py-4 text-muted-foreground">
-            You've reached the end
+          <div className="text-center py-8 text-muted-foreground">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-muted/50 mb-3">
+              <FileText className="w-6 h-6" />
+            </div>
+            <p>You've reached the end</p>
           </div>
         )}
       </div>
