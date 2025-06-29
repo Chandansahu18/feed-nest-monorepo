@@ -114,7 +114,7 @@ const PostPage = () => {
 const Button: React.FC<ButtonProps> = ({ children, onClick, variant = 'primary' }) => {
   return (
     <button 
-      className={`btn btn-${variant}`}
+      className={\`btn btn-${variant}`}
       onClick={onClick}
     >
       {children}
