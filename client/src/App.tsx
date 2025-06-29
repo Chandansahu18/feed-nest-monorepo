@@ -11,9 +11,10 @@ import AuthPageWrapper from "./app/auth/page";
 import HomePageWrapper from "./app/home/page";
 import { ProtectedRouteAccess, PublicRouteAccess } from "./middleware/auth";
 import AccountSettingsPageWrapper from "./app/settings/page";
-import BookmarkedPostPageWrapper from "./app/posts/bookmarked-posts/post/page";
-import BookmarkedPostsPageWrapper from "./app/posts/bookmarked-posts/bookmarked-posts/posts/page";
+import BookmarkedPostPageWrapper from "./app/posts/bookmarked/post/page";
+import BookmarkedPostsPageWrapper from "./app/posts/bookmarked/posts/page";
 import CreatePostPageWrapper from "./app/posts/create-post/page";
+import SearchPageWrapper from "./app/search/page";
 
 
 const router = createBrowserRouter(
@@ -23,6 +24,7 @@ const router = createBrowserRouter(
           <Route index={true} element={<PublicRouteAccess><LandingPageWrapper /></PublicRouteAccess>} />
           <Route path="/auth" element={<PublicRouteAccess><AuthPageWrapper /></PublicRouteAccess>} />
           <Route path="/home" element={<PublicRouteAccess><HomePageWrapper /></PublicRouteAccess>} />
+          <Route path="/search" element={<SearchPageWrapper />} />
           <Route path="/create" element={<ProtectedRouteAccess><CreatePostPageWrapper /></ProtectedRouteAccess>} />
           <Route path="/settings" element={<ProtectedRouteAccess><AccountSettingsPageWrapper /></ProtectedRouteAccess>} />
           <Route path="/bookmarks" element={<ProtectedRouteAccess><BookmarkedPostsPageWrapper /></ProtectedRouteAccess>} />
