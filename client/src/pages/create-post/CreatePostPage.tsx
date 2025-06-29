@@ -175,7 +175,7 @@ const CreatePostPage = () => {
   // Cloudinary Warning Component
   const CloudinaryWarning = () => (
     !isCloudinaryConfigured && (
-      <div className="p-6 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl">
+      <div className="mx-4 sm:mx-0 p-6 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl">
         <div className="flex items-start gap-4">
           <AlertCircle className="w-6 h-6 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-1" />
           <div className="space-y-3">
@@ -183,7 +183,7 @@ const CreatePostPage = () => {
             <p className="text-sm text-yellow-700 dark:text-yellow-300">
               To upload images directly to Cloudinary, please add the following to your .env file:
             </p>
-            <div className="p-4 bg-yellow-100 dark:bg-yellow-800/30 rounded-lg text-sm font-mono text-yellow-800 dark:text-yellow-200">
+            <div className="p-4 bg-yellow-100 dark:bg-yellow-800/30 rounded-lg text-sm font-mono text-yellow-800 dark:text-yellow-200 overflow-x-auto">
               VITE_CLOUDINARY_CLOUD_NAME=your_cloud_name<br/>
               VITE_CLOUDINARY_UPLOAD_PRESET=your_upload_preset
             </div>
@@ -198,8 +198,8 @@ const CreatePostPage = () => {
 
   if (showPreview) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 py-8">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 pb-16">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -223,8 +223,8 @@ const CreatePostPage = () => {
             </div>
 
             {/* Preview Content */}
-            <Card className="bg-card dark:bg-black dark:lg:bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl">
-              <CardContent className="p-8 lg:p-12">
+            <Card className="bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl">
+              <CardContent className="p-6 sm:p-8 lg:p-12">
                 {postData.postBannerImage && (
                   <div className="mb-8">
                     <div className="relative overflow-hidden rounded-xl" style={{ aspectRatio: '16/9' }}>
@@ -237,7 +237,7 @@ const CreatePostPage = () => {
                   </div>
                 )}
 
-                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 leading-tight">{postData.postTitle}</h1>
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-6 leading-tight">{postData.postTitle}</h1>
 
                 {postData.postTags.length > 0 && (
                   <div className="flex flex-wrap gap-3 mb-8">
@@ -251,7 +251,7 @@ const CreatePostPage = () => {
 
                 {postData.postDescription && (
                   <div 
-                    className="prose prose-lg max-w-none mb-8 leading-relaxed"
+                    className="prose prose-sm sm:prose lg:prose-lg max-w-none mb-8 leading-relaxed"
                     dangerouslySetInnerHTML={{ __html: postData.postDescription }}
                   />
                 )}
@@ -273,8 +273,8 @@ const CreatePostPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 py-8">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 pb-16">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8" style={{ minWidth: '320px' }}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -284,27 +284,29 @@ const CreatePostPage = () => {
           <CloudinaryWarning />
 
           {/* Header */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 px-4 sm:px-0">
             <div className="w-full sm:w-auto">
-              <h1 className="text-3xl sm:text-4xl font-bold">Create New Post</h1>
-              <p className="text-muted-foreground mt-3 text-lg">Share your thoughts with the world</p>
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold">Create New Post</h1>
+              <p className="text-muted-foreground mt-3 text-base sm:text-lg">Share your thoughts with the world</p>
             </div>
             <HeaderActions />
           </div>
 
-          <div className="grid lg:grid-cols-4 gap-8">
+          <div className="grid lg:grid-cols-4 gap-6 lg:gap-8">
             {/* Main Content */}
-            <div className="lg:col-span-3 space-y-8">
+            <div className="lg:col-span-3 space-y-6 lg:space-y-8">
               {/* Banner Image */}
-              <Card className="bg-card dark:bg-black dark:lg:bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl transition-all duration-300 hover:shadow-md">
-                <CardHeader className="pb-4">
-                  <CardTitle className="flex items-center gap-3 text-xl">
-                    <Upload className="w-6 h-6" />
-                    Banner Image
-                    <Badge variant="outline" className="rounded-xl">16:9 Ratio</Badge>
+              <Card className="mx-4 sm:mx-0 bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl transition-all duration-300 hover:shadow-md hover:border-0 lg:hover:border">
+                <CardHeader className="p-4 sm:p-6 pb-2 sm:pb-4">
+                  <CardTitle className="flex flex-col sm:flex-row sm:items-center gap-3 text-lg sm:text-xl">
+                    <div className="flex items-center gap-3">
+                      <Upload className="w-5 h-5 sm:w-6 sm:h-6" />
+                      Banner Image
+                    </div>
+                    <Badge variant="outline" className="rounded-xl w-fit">16:9 Ratio</Badge>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="pt-0">
+                <CardContent className="p-4 sm:p-6 pt-0">
                   <ImageUpload
                     value={postData.postBannerImage}
                     onChange={(url) => handleInputChange("postBannerImage", url)}
@@ -312,7 +314,7 @@ const CreatePostPage = () => {
                     fileName="banner-image"
                   />
                   {isCloudinaryConfigured && (
-                    <p className="text-sm text-muted-foreground mt-4 p-4 bg-muted/50 rounded-xl">
+                    <p className="text-xs sm:text-sm text-muted-foreground mt-4 p-3 sm:p-4 bg-muted/50 rounded-xl">
                       Images are automatically uploaded to: postImageFiles/{userId}/postBannerImage/
                     </p>
                   )}
@@ -320,11 +322,11 @@ const CreatePostPage = () => {
               </Card>
 
               {/* Title */}
-              <Card className="bg-card dark:bg-black dark:lg:bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl transition-all duration-300 hover:shadow-md">
-                <CardContent className="pt-8">
+              <Card className="mx-4 sm:mx-0 bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl transition-all duration-300 hover:shadow-md hover:border-0 lg:hover:border">
+                <CardContent className="p-4 sm:p-6 lg:p-8">
                   <div className="space-y-4">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                      <Label htmlFor="title" className="font-semibold text-lg">Post Title *</Label>
+                      <Label htmlFor="title" className="font-semibold text-base sm:text-lg">Post Title *</Label>
                       <EnhanceButton 
                         onClick={() => handleEnhance('title')}
                         disabled={isEnhancing || !postData.postTitle.trim()}
@@ -336,10 +338,10 @@ const CreatePostPage = () => {
                       placeholder="Enter your post title..."
                       value={postData.postTitle}
                       onChange={(e) => handleInputChange("postTitle", e.target.value)}
-                      className="text-xl font-semibold rounded-xl py-4 px-4 min-h-[60px]"
+                      className="text-lg sm:text-xl font-semibold rounded-xl py-3 sm:py-4 px-3 sm:px-4 min-h-[50px] sm:min-h-[60px]"
                       maxLength={VALIDATION_LIMITS.TITLE_MAX}
                     />
-                    <p className={`text-sm ${getCharacterCountColor(postData.postTitle.length, VALIDATION_LIMITS.TITLE_MAX)}`}>
+                    <p className={`text-xs sm:text-sm ${getCharacterCountColor(postData.postTitle.length, VALIDATION_LIMITS.TITLE_MAX)}`}>
                       {postData.postTitle.length}/{VALIDATION_LIMITS.TITLE_MAX} characters
                     </p>
                   </div>
@@ -347,10 +349,10 @@ const CreatePostPage = () => {
               </Card>
 
               {/* Content Editor */}
-              <Card className="bg-card dark:bg-black dark:lg:bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl transition-all duration-300 hover:shadow-md">
-                <CardHeader className="pb-4">
+              <Card className="mx-4 sm:mx-0 bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl transition-all duration-300 hover:shadow-md hover:border-0 lg:hover:border">
+                <CardHeader className="p-4 sm:p-6 pb-2 sm:pb-4">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <CardTitle className="text-xl">Content</CardTitle>
+                    <CardTitle className="text-lg sm:text-xl">Content</CardTitle>
                     <EnhanceButton 
                       onClick={() => handleEnhance('description')}
                       disabled={isEnhancing || !postData.postDescription.trim()}
@@ -358,8 +360,8 @@ const CreatePostPage = () => {
                     />
                   </div>
                 </CardHeader>
-                <CardContent className="pt-0">
-                  <div className="min-h-[400px]">
+                <CardContent className="p-4 sm:p-6 pt-0">
+                  <div className="min-h-[300px] sm:min-h-[400px]">
                     <TiptapEditor
                       content={postData.postDescription}
                       onChange={(content) => handleInputChange("postDescription", content)}
@@ -367,7 +369,7 @@ const CreatePostPage = () => {
                     />
                   </div>
                   {isCloudinaryConfigured && (
-                    <p className="text-sm text-muted-foreground mt-4 p-4 bg-muted/50 rounded-xl">
+                    <p className="text-xs sm:text-sm text-muted-foreground mt-4 p-3 sm:p-4 bg-muted/50 rounded-xl">
                       Post images will be uploaded to: postImageFiles/{userId}/
                     </p>
                   )}
@@ -378,15 +380,15 @@ const CreatePostPage = () => {
             {/* Sidebar */}
             <div className="lg:col-span-1 space-y-6">
               {/* Publish Settings */}
-              <Card className="bg-card dark:bg-black dark:lg:bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl transition-all duration-300 hover:shadow-md">
-                <CardHeader className="pb-4">
-                  <CardTitle className="text-lg">Publish Settings</CardTitle>
+              <Card className="mx-4 sm:mx-0 lg:mx-0 bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl transition-all duration-300 hover:shadow-md hover:border-0 lg:hover:border">
+                <CardHeader className="p-4 sm:p-6 pb-2 sm:pb-4">
+                  <CardTitle className="text-base sm:text-lg">Publish Settings</CardTitle>
                 </CardHeader>
-                <CardContent className="pt-0 space-y-4">
+                <CardContent className="p-4 sm:p-6 pt-0 space-y-4">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
-                      <Label htmlFor="published" className="font-medium">Publish immediately</Label>
-                      <p className="text-sm text-muted-foreground mt-1">
+                      <Label htmlFor="published" className="font-medium text-sm sm:text-base">Publish immediately</Label>
+                      <p className="text-xs sm:text-sm text-muted-foreground mt-1">
                         Make this post visible to everyone
                       </p>
                     </div>
@@ -397,8 +399,8 @@ const CreatePostPage = () => {
                     />
                   </div>
                   {!postData.published && (
-                    <div className="p-4 bg-muted rounded-xl">
-                      <p className="text-sm text-muted-foreground">
+                    <div className="p-3 sm:p-4 bg-muted rounded-xl">
+                      <p className="text-xs sm:text-sm text-muted-foreground">
                         This post will be saved as a draft
                       </p>
                     </div>
@@ -407,11 +409,11 @@ const CreatePostPage = () => {
               </Card>
 
               {/* Tags */}
-              <Card className="bg-card dark:bg-black dark:lg:bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl transition-all duration-300 hover:shadow-md">
-                <CardHeader className="pb-4">
-                  <CardTitle className="text-lg">Tags</CardTitle>
+              <Card className="mx-4 sm:mx-0 lg:mx-0 bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl transition-all duration-300 hover:shadow-md hover:border-0 lg:hover:border">
+                <CardHeader className="p-4 sm:p-6 pb-2 sm:pb-4">
+                  <CardTitle className="text-base sm:text-lg">Tags</CardTitle>
                 </CardHeader>
-                <CardContent className="pt-0">
+                <CardContent className="p-4 sm:p-6 pt-0">
                   <TagInput
                     tags={postData.postTags}
                     onChange={(tags) => handleInputChange("postTags", tags)}
@@ -421,26 +423,26 @@ const CreatePostPage = () => {
               </Card>
 
               {/* Post Stats */}
-              <Card className="bg-card dark:bg-black dark:lg:bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl transition-all duration-300 hover:shadow-md">
-                <CardHeader className="pb-4">
-                  <CardTitle className="text-lg">Post Statistics</CardTitle>
+              <Card className="mx-4 sm:mx-0 lg:mx-0 bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl transition-all duration-300 hover:shadow-md hover:border-0 lg:hover:border">
+                <CardHeader className="p-4 sm:p-6 pb-2 sm:pb-4">
+                  <CardTitle className="text-base sm:text-lg">Post Statistics</CardTitle>
                 </CardHeader>
-                <CardContent className="pt-0 space-y-4">
+                <CardContent className="p-4 sm:p-6 pt-0 space-y-4">
                   {[
                     { label: "Title length", current: postData.postTitle.length, max: VALIDATION_LIMITS.TITLE_MAX },
                     { label: "Content length", current: postData.postDescription.length, max: VALIDATION_LIMITS.DESCRIPTION_MAX },
                     { label: "Tags", current: postData.postTags.length, max: VALIDATION_LIMITS.MAX_TAGS },
                   ].map(({ label, current, max }) => (
-                    <div key={label} className="flex justify-between text-sm">
+                    <div key={label} className="flex justify-between text-xs sm:text-sm">
                       <span className="text-muted-foreground">{label}:</span>
                       <span className={getCharacterCountColor(current, max)}>
                         {current}/{max}
                       </span>
                     </div>
                   ))}
-                  <div className="flex justify-between text-sm pt-2 border-t">
+                  <div className="flex justify-between text-xs sm:text-sm pt-2 border-t">
                     <span className="text-muted-foreground">Status:</span>
-                    <Badge variant={postData.published ? "default" : "secondary"} className="rounded-xl">
+                    <Badge variant={postData.published ? "default" : "secondary"} className="rounded-xl text-xs">
                       {postData.published ? "Published" : "Draft"}
                     </Badge>
                   </div>
