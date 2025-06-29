@@ -14,7 +14,6 @@ import {
   UserPlus,
   UserCheck,
   Settings,
-  ExternalLink,
   Github,
   Linkedin,
   Twitter
@@ -25,7 +24,6 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useUserData } from "@/hooks/useUserData";
-import BlogsSkeleton from "@/components/home-page-section/blogsSkeleton";
 
 interface UserProfile {
   id: string;
@@ -59,64 +57,137 @@ interface Post {
 }
 
 const UserProfilePage = () => {
-  const { username } = useParams();
+  const { username } = useParams<{ username: string }>();
   const navigate = useNavigate();
   const { data: currentUserData } = useUserData();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("Posts");
   const [isFollowing, setIsFollowing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
+      if (!username) {
+        setError("Username not provided");
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      setError(null);
       
-      // Mock user profile data
-      const mockProfile: UserProfile = {
-        id: "user123",
-        name: "Sarah Johnson",
-        userName: username || "sarahdev",
-        email: "sarah@example.com",
-        bio: "Full-stack developer passionate about creating amazing user experiences. Love to write about tech, design, and productivity. Always learning something new! 🚀",
-        location: "San Francisco, CA",
-        avatar: "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=400",
-        profileBanner: "https://images.pexels.com/photos/557804/pexels-photo-557804.jpeg?auto=compress&cs=tinysrgb&w=1200&h=300&fit=crop",
-        linkedInHandle: "https://www.linkedin.com/in/sarahdev",
-        twitterHandle: "https://x.com/sarahdev",
-        githubHandle: "https://github.com/sarahdev",
-        createdAt: "2023-01-15T10:30:00Z",
-        posts: [
-          {
-            id: "1",
-            postTitle: "Building Modern React Applications with TypeScript",
-            postDescription: "Learn how to create scalable and maintainable React applications using TypeScript. This comprehensive guide covers best practices, advanced patterns, and real-world examples.",
-            postBannerImage: "https://images.pexels.com/photos/11035380/pexels-photo-11035380.jpeg?auto=compress&cs=tinysrgb&w=800",
-            postTags: ["React", "TypeScript", "Frontend"],
-            published: true,
-            createdAt: "2024-01-15T10:30:00Z",
-            postLikes: Array.from({ length: 42 }, (_, i) => ({ id: `like-${i}` })),
-            postComments: Array.from({ length: 8 }, (_, i) => ({ id: `comment-${i}` }))
+      try {
+        // Simulate API call delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Mock user profile data based on username
+        const mockProfiles: Record<string, UserProfile> = {
+          "sarahdev": {
+            id: "user123",
+            name: "Sarah Johnson",
+            userName: "sarahdev",
+            email: "sarah@example.com",
+            bio: "Full-stack developer passionate about creating amazing user experiences. Love to write about tech, design, and productivity. Always learning something new! 🚀",
+            location: "San Francisco, CA",
+            avatar: "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=400",
+            profileBanner: "https://images.pexels.com/photos/557804/pexels-photo-557804.jpeg?auto=compress&cs=tinysrgb&w=1200&h=300&fit=crop",
+            linkedInHandle: "https://www.linkedin.com/in/sarahdev",
+            twitterHandle: "https://x.com/sarahdev",
+            githubHandle: "https://github.com/sarahdev",
+            createdAt: "2023-01-15T10:30:00Z",
+            posts: [
+              {
+                id: "1",
+                postTitle: "Building Modern React Applications with TypeScript",
+                postDescription: "Learn how to create scalable and maintainable React applications using TypeScript. This comprehensive guide covers best practices, advanced patterns, and real-world examples.",
+                postBannerImage: "https://images.pexels.com/photos/11035380/pexels-photo-11035380.jpeg?auto=compress&cs=tinysrgb&w=800",
+                postTags: ["React", "TypeScript", "Frontend"],
+                published: true,
+                createdAt: "2024-01-15T10:30:00Z",
+                postLikes: Array.from({ length: 42 }, (_, i) => ({ id: `like-${i}` })),
+                postComments: Array.from({ length: 8 }, (_, i) => ({ id: `comment-${i}` }))
+              },
+              {
+                id: "2",
+                postTitle: "The Future of Web Development: Trends to Watch",
+                postDescription: "Explore the latest trends and technologies shaping the future of web development. From AI integration to new frameworks, discover what's coming next.",
+                postBannerImage: "https://images.pexels.com/photos/546819/pexels-photo-546819.jpeg?auto=compress&cs=tinysrgb&w=800",
+                postTags: ["Web Development", "AI", "Future Tech"],
+                published: true,
+                createdAt: "2024-01-12T14:20:00Z",
+                postLikes: Array.from({ length: 67 }, (_, i) => ({ id: `like-${i}` })),
+                postComments: Array.from({ length: 15 }, (_, i) => ({ id: `comment-${i}` }))
+              }
+            ],
+            followingRelations: Array.from({ length: 156 }, (_, i) => ({ id: `following-${i}` })),
+            postLikes: Array.from({ length: 89 }, (_, i) => ({ id: `like-${i}` })),
+            postComments: Array.from({ length: 234 }, (_, i) => ({ id: `comment-${i}` }))
           },
-          {
-            id: "2",
-            postTitle: "The Future of Web Development: Trends to Watch",
-            postDescription: "Explore the latest trends and technologies shaping the future of web development. From AI integration to new frameworks, discover what's coming next.",
-            postBannerImage: "https://images.pexels.com/photos/546819/pexels-photo-546819.jpeg?auto=compress&cs=tinysrgb&w=800",
-            postTags: ["Web Development", "AI", "Future Tech"],
-            published: true,
-            createdAt: "2024-01-12T14:20:00Z",
-            postLikes: Array.from({ length: 67 }, (_, i) => ({ id: `like-${i}` })),
-            postComments: Array.from({ length: 15 }, (_, i) => ({ id: `comment-${i}` }))
+          "alexdev": {
+            id: "user456",
+            name: "Alex Chen",
+            userName: "alexdev",
+            email: "alex@example.com",
+            bio: "Frontend engineer specializing in React and Vue.js. Open source contributor and tech blogger. Building the future of web development one component at a time.",
+            location: "New York, NY",
+            avatar: "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=400",
+            profileBanner: "https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?auto=compress&cs=tinysrgb&w=1200&h=300&fit=crop",
+            linkedInHandle: "https://www.linkedin.com/in/alexdev",
+            twitterHandle: "https://x.com/alexdev",
+            githubHandle: "https://github.com/alexdev",
+            createdAt: "2022-08-20T14:15:00Z",
+            posts: [
+              {
+                id: "3",
+                postTitle: "Vue.js vs React: A Comprehensive Comparison",
+                postDescription: "An in-depth analysis of Vue.js and React, comparing their strengths, weaknesses, and use cases to help you choose the right framework.",
+                postBannerImage: "https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?auto=compress&cs=tinysrgb&w=800",
+                postTags: ["Vue.js", "React", "JavaScript", "Frontend"],
+                published: true,
+                createdAt: "2024-01-08T16:45:00Z",
+                postLikes: Array.from({ length: 73 }, (_, i) => ({ id: `like-${i}` })),
+                postComments: Array.from({ length: 12 }, (_, i) => ({ id: `comment-${i}` }))
+              }
+            ],
+            followingRelations: Array.from({ length: 89 }, (_, i) => ({ id: `following-${i}` })),
+            postLikes: Array.from({ length: 156 }, (_, i) => ({ id: `like-${i}` })),
+            postComments: Array.from({ length: 78 }, (_, i) => ({ id: `comment-${i}` }))
+          },
+          "mariacode": {
+            id: "user789",
+            name: "Maria Rodriguez",
+            userName: "mariacode",
+            email: "maria@example.com",
+            bio: "Backend developer with expertise in Node.js, Python, and cloud architecture. Passionate about scalable systems and clean code. Coffee enthusiast ☕",
+            location: "Barcelona, Spain",
+            avatar: "https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=400",
+            profileBanner: "https://images.pexels.com/photos/546819/pexels-photo-546819.jpeg?auto=compress&cs=tinysrgb&w=1200&h=300&fit=crop",
+            linkedInHandle: "https://www.linkedin.com/in/mariacode",
+            twitterHandle: "https://x.com/mariacode",
+            githubHandle: "https://github.com/mariacode",
+            createdAt: "2023-03-10T09:20:00Z",
+            posts: [],
+            followingRelations: Array.from({ length: 234 }, (_, i) => ({ id: `following-${i}` })),
+            postLikes: Array.from({ length: 445 }, (_, i) => ({ id: `like-${i}` })),
+            postComments: Array.from({ length: 167 }, (_, i) => ({ id: `comment-${i}` }))
           }
-        ],
-        followingRelations: Array.from({ length: 156 }, (_, i) => ({ id: `following-${i}` })),
-        postLikes: Array.from({ length: 89 }, (_, i) => ({ id: `like-${i}` })),
-        postComments: Array.from({ length: 234 }, (_, i) => ({ id: `comment-${i}` }))
-      };
-      
-      setUserProfile(mockProfile);
-      setLoading(false);
+        };
+
+        const profile = mockProfiles[username];
+        
+        if (!profile) {
+          setError("User not found");
+          setUserProfile(null);
+        } else {
+          setUserProfile(profile);
+        }
+      } catch (err) {
+        setError("Failed to load user profile");
+        console.error("Error fetching user profile:", err);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchUserProfile();
@@ -255,12 +326,19 @@ const UserProfilePage = () => {
     );
   }
 
-  if (!userProfile) {
+  if (error || !userProfile) {
     return (
       <div className="pb-16 mt-20 sm:mt-16 sm:p-8 min-h-screen w-full flex justify-center px-4 mx-auto xl:w-7xl sm:px-6 lg:w-3xl" style={{ minWidth: "320px" }}>
         <div className="max-[768px]:w-full md:w-2xl lg:w-3xl text-center py-16">
-          <h2 className="text-2xl font-bold mb-4">User not found</h2>
-          <p className="text-muted-foreground mb-6">The user you're looking for doesn't exist.</p>
+          <h2 className="text-2xl font-bold mb-4">
+            {error === "User not found" ? "User not found" : "Something went wrong"}
+          </h2>
+          <p className="text-muted-foreground mb-6">
+            {error === "User not found" 
+              ? `The user @${username} doesn't exist or may have changed their username.`
+              : "We couldn't load this user's profile. Please try again later."
+            }
+          </p>
           <Button onClick={() => navigate(-1)} className="rounded-xl">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Go Back
