@@ -1,4 +1,4 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useTheme } from "./themeProvider";
 import { Button } from "./ui/button";
 import { ModeToggle } from "./modeToggle";
@@ -14,7 +14,6 @@ import {
   MenubarSeparator,
   MenubarTrigger,
 } from "@/components/ui/menubar";
-import { useNavigationHandlers } from "@/hooks/useNavigateHandlers";
 import { useUserLogout } from "@/hooks/useUserLogout";
 import {
   Dialog,
@@ -28,24 +27,20 @@ import PendingLoader from "./pendingLoader";
 
 const Header = () => {
   const { theme } = useTheme();
+  const navigate = useNavigate();
   const { pathname } = useLocation();
   const { data } = useUserData();
   const { mutate: userLogout, isPending: logoutPending } = useUserLogout();
-  const {
-    handleSignIn,
-    handleFeed,
-    handleCreateBlogPost,
-    handleSearch,
-    handleBookmarks,
-    handleUserProfile,
-    handleAccountSettings
-  } = useNavigationHandlers();
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
   const isLandingPage = pathname === "/";
   const isUserLoggedIn = data?.data;
   const handleSignOut = () => {
     userLogout();
     setIsLogoutDialogOpen(false);
+  };
+
+  const handleHomePage = () => {
+    isUserLoggedIn ? navigate("/home") : navigate("/");
   };
 
   if (logoutPending) {
@@ -55,7 +50,10 @@ const Header = () => {
     <>
       <div className="h-16 px-4 border-b fixed w-full top-0 bg-background z-10">
         <div className="h-full flex justify-between items-center">
-          <div className="h-full w-40 flex justify-start items-center cursor-pointer">
+          <div
+            className="h-full w-40 flex justify-start items-center cursor-pointer"
+            onClick={handleHomePage}
+          >
             {theme === "dark" ? (
               <>
                 <img
@@ -90,7 +88,7 @@ const Header = () => {
               <div className="hidden sm:flex sm:w-12 lg:w-56 h-full items-center justify-center">
                 <div
                   className="h-10 w-52 flex items-center justify-center rounded-xl lg:outline-1 outline-gray-300 hover:outline-2 hover:outline-gray-200 dark:outline-gray-700"
-                  onClick={handleSearch}
+                  onClick={() => navigate("/search")}
                 >
                   <div className="hidden lg:flex justify-end items-center h-10 w-40 cursor-pointer">
                     <h1 className="text-sm font-medium text-gray-500">
@@ -99,7 +97,7 @@ const Header = () => {
                   </div>
                   <div
                     className="size-10 flex justify-center items-center"
-                    onClick={handleSearch}
+                    onClick={() => navigate("/search")}
                   >
                     <Search className="size-5 cursor-pointer" color="gray" />
                   </div>
@@ -110,7 +108,9 @@ const Header = () => {
             {isUserLoggedIn ? (
               <div className="h-full w-16 hidden items-center sm:flex justify-center">
                 <Button
-                  onClick={handleCreateBlogPost}
+                  onClick={() =>
+                    navigate("/create", { state: { authenticated: true } })
+                  }
                   className="cursor-pointer h-10 w-10 bg-blue-600 hover:bg-blue-500 rounded-xl flex items-center justify-center"
                 >
                   <PenLine className="size-5" color="white" />
@@ -121,7 +121,9 @@ const Header = () => {
                 <div className="h-full w-20 hidden items-center lg:flex justify-center">
                   <Button
                     variant={"ghost"}
-                    onClick={handleFeed}
+                    onClick={() =>
+                      navigate("/home", { state: { athenticated: false } })
+                    }
                     className="cursor-pointer h-10"
                   >
                     Feeds
@@ -148,7 +150,7 @@ const Header = () => {
                     <div
                       className="flex gap-1 px-2 py-3 rounded-xl hover:bg-accent"
                       onClick={() =>
-                        handleUserProfile(isUserLoggedIn?.userName ?? "")
+                        navigate(`/user/${isUserLoggedIn.userName}`)
                       }
                     >
                       <div className="size-12 mr-2 rounded-full">
@@ -173,12 +175,15 @@ const Header = () => {
                     <div className="flex flex-col gap-1 py-1">
                       <MenubarItem
                         className="cursor-pointer px-3 py-2"
-                        onClick={handleBookmarks}
+                        onClick={() => navigate("/bookmarks")}
                       >
                         <Bookmark className="size-4" />
                         <h1 className="text-sm">Bookmarks</h1>
                       </MenubarItem>
-                      <MenubarItem className="cursor-pointer px-3 py-2" onClick={handleAccountSettings}>
+                      <MenubarItem
+                        className="cursor-pointer px-3 py-2"
+                        onClick={() => navigate("/settings")}
+                      >
                         <User className="size-4" />
                         <h1 className="text-sm">Account settings</h1>
                       </MenubarItem>
@@ -201,7 +206,9 @@ const Header = () => {
                 <Button
                   variant={"outline"}
                   className="h-10 w-20 rounded-xl cursor-pointer"
-                  onClick={handleSignIn}
+                  onClick={() =>
+                    navigate("/auth", { state: { type: "signin" } })
+                  }
                 >
                   Sign in
                 </Button>

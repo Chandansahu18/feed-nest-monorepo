@@ -1,20 +1,14 @@
 import { useMutation } from '@tanstack/react-query';
 import { uploadToCloudinary, uploadUrlToCloudinary } from '@/utils/cloudinary';
+import type { TCloudinaryUploadOptions } from '@/utils/schema/cloudinary';
 
-interface UploadOptions {
-  userId: string;
-  imageType: 'banner' | 'post';
-  fileName?: string;
-}
 
 export const useCloudinaryUpload = () => {
   return useMutation({
-    mutationFn: ({ file, options }: { file: File; options: UploadOptions }) =>
+    mutationFn: ({ file, options }: { file: File; options: TCloudinaryUploadOptions }) =>
       uploadToCloudinary(file, options),
     onError: (error: Error) => {
       console.error('Upload mutation error:', error);
-      
-      // Log detailed error information for debugging
       if (error.message.includes('VITE_CLOUDINARY')) {
         console.error('❌ Cloudinary configuration error. Please check your .env file.');
         console.error('Required variables:');
@@ -31,7 +25,7 @@ export const useCloudinaryUpload = () => {
 // New hook for URL uploads
 export const useCloudinaryUrlUpload = () => {
   return useMutation({
-    mutationFn: ({ url, options }: { url: string; options: UploadOptions }) =>
+    mutationFn: ({ url, options }: { url: string; options: TCloudinaryUploadOptions }) =>
       uploadUrlToCloudinary(url, options),
     onError: (error: Error) => {
       console.error('URL upload mutation error:', error);
@@ -49,7 +43,6 @@ export const useCloudinaryUrlUpload = () => {
   });
 };
 
-// Hook for getting current user ID (mock implementation)
 export const useCurrentUser = () => {
   // TODO: Replace with actual user context/auth hook
   return {

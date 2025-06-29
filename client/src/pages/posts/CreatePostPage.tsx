@@ -8,8 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import TiptapEditor from "@/components/editor/TiptapEditor";
-import ImageUpload from "@/components/posts/ImageUpload";
-import TagInput from "@/components/posts/TagInput";
+import ImageUpload from "@/components/create-post-sections/ImageUpload";
+import TagInput from "@/components/create-post-sections/TagInput";
 import {
   Save,
   Eye,

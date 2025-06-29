@@ -15,6 +15,8 @@ import BookmarkedPostPageWrapper from "./app/posts/bookmarked/post/page";
 import BookmarkedPostsPageWrapper from "./app/posts/bookmarked/posts/page";
 import CreatePostPageWrapper from "./app/posts/create-post/page";
 import SearchPageWrapper from "./app/search/page";
+import UserProfilePageWrapper from "./app/user/page";
+import PostPageWrapper from "./app/posts/post/page";
 
 
 const router = createBrowserRouter(
@@ -25,6 +27,8 @@ const router = createBrowserRouter(
           <Route path="/auth" element={<PublicRouteAccess><AuthPageWrapper /></PublicRouteAccess>} />
           <Route path="/home" element={<PublicRouteAccess><HomePageWrapper /></PublicRouteAccess>} />
           <Route path="/search" element={<SearchPageWrapper />} />
+          <Route path="/:postid" element={<PostPageWrapper />} />
+          <Route path="/:username" element={<UserProfilePageWrapper />} />
           <Route path="/create" element={<ProtectedRouteAccess><CreatePostPageWrapper /></ProtectedRouteAccess>} />
           <Route path="/settings" element={<ProtectedRouteAccess><AccountSettingsPageWrapper /></ProtectedRouteAccess>} />
           <Route path="/bookmarks" element={<ProtectedRouteAccess><BookmarkedPostsPageWrapper /></ProtectedRouteAccess>} />
