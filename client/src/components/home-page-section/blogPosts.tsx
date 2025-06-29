@@ -14,12 +14,22 @@ import { useEffect, useRef, useState } from "react";
 import { usePostsData } from "@/hooks/usePostsData";
 import BlogsSkeleton from "./blogsSkeleton";
 import { useNavigate } from "react-router-dom";
+import { usePostBookmark } from "@/hooks/usePostBookmark";
+import { useUserData } from "@/hooks/useUserData";
+import { useGetBookmarkedPosts } from "@/hooks/useGetBookmarkedPosts";
+import type { ISavedPostData } from "../../../../types/dist";
 
 const BlogPosts = () => {
   const [activeTab, setActiveTab] = useState("Discover");
   const navigate = useNavigate();
   const [cursorId, setCursorId] = useState<string | undefined>(undefined);
+  const [bookmarkedPostIds, setBookmarkedPostIds] = useState<string[]>([]);
   const { data: PostsData, hasMore, isPending } = usePostsData(cursorId);
+  const { data: userData } = useUserData();
+  const { mutate: BookmarkPost } = usePostBookmark();
+  const { data: BookmarkedPost } = useGetBookmarkedPosts({
+    userId: userData?.data?.id!,
+  });
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -29,7 +39,7 @@ const BlogPosts = () => {
 
     const handleScroll = () => {
       const { scrollTop, scrollHeight, clientHeight } = container;
-      const atBottom = scrollTop + clientHeight >= scrollHeight - 100;
+      const atBottom = scrollTop + clientHeight >= scrollHeight - 20;
 
       if (atBottom && PostsData?.length) {
         setIsLoadingMore(true);
@@ -48,9 +58,38 @@ const BlogPosts = () => {
     }
   }, [PostsData, isLoadingMore]);
 
-  const handleBookmarkBlog = () => {};
+  useEffect(() => {
+    if (!BookmarkedPost?.data || !PostsData) return;
 
-  const TabButton = ({ tab, icon: Icon, label }: { tab: string; icon: any; label: string }) => (
+    if (Array.isArray(BookmarkedPost.data)) {
+      const bookmarkedIds = BookmarkedPost.data.map(
+        (bookmarkedPost: ISavedPostData) => bookmarkedPost.post.id
+      );
+      setBookmarkedPostIds(bookmarkedIds);
+    }
+  }, [BookmarkedPost, PostsData]);
+
+  const handleBookmarkBlog = (postId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!userData?.data?.id) return navigate("/");
+    BookmarkPost({ postId, userId: userData.data.id });
+
+    setBookmarkedPostIds((prev) =>
+      prev.includes(postId)
+        ? prev.filter((id) => id !== postId)
+        : [...prev, postId]
+    );
+  };
+
+  const TabButton = ({
+    tab,
+    icon: Icon,
+    label,
+  }: {
+    tab: string;
+    icon: any;
+    label: string;
+  }) => (
     <Button
       variant={activeTab === tab ? "default" : "ghost"}
       onClick={() => setActiveTab(tab)}
@@ -68,13 +107,18 @@ const BlogPosts = () => {
   const PostCard = ({ post, index }: { post: any; index: number }) => (
     <Card
       key={post.id || `${post.id}-${index}`}
-      className="bg-card dark:bg-black dark:lg:bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl hover:shadow-md transition-all duration-300 py-0 will-change-transform"
-      onClick={() => navigate(`/${post.postTitle}`,{state:{postTitle:post.postTitle}})}
+      className="bg-card cursor-pointer dark:bg-black dark:lg:bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl hover:shadow-md transition-all duration-300 py-0 will-change-transform"
+      onClick={() =>
+        navigate(`/${post.postTitle}`, { state: { postTitle: post.postTitle } })
+      }
     >
       <CardContent className="py-6 border-b max-[375px]:px-0 lg:border-0">
         <div className="flex items-center space-x-3 mb-4">
           <Avatar className="size-10 rounded-full border border-border flex items-center justify-center cursor-pointer">
-            <AvatarImage src={post.creator.avatar ?? undefined} alt="avatar-image" />
+            <AvatarImage
+              src={post.creator.avatar ?? undefined}
+              alt="avatar-image"
+            />
             <AvatarFallback className="text-sm font-bold text-foreground">
               {post.creator.name.charAt(0).toUpperCase()}
             </AvatarFallback>
@@ -87,16 +131,24 @@ const BlogPosts = () => {
           </div>
         </div>
 
-        <div className={`${
-          post.postBannerImage
-            ? "md:flex md:h-28 flex-col md:flex-row md:w-[625px] lg:w-2xl lg:justify-between xl:w-[715px]"
-            : "md:flex flex-col md:w-[625px] lg:w-2xl xl:w-[715px]"
-        }`}>
-          <div className={`${post.postBannerImage ? "h-full md:w-md xl:w-[500px] mb-2" : "mb-2"}`}>
+        <div
+          className={`${
+            post.postBannerImage
+              ? "md:flex md:h-28 flex-col md:flex-row md:w-[625px] lg:w-2xl lg:justify-between xl:w-[715px]"
+              : "md:flex flex-col md:w-[625px] lg:w-2xl xl:w-[715px]"
+          }`}
+        >
+          <div
+            className={`${
+              post.postBannerImage ? "h-full md:w-md xl:w-[500px] mb-2" : "mb-2"
+            }`}
+          >
             <h2 className="md:text-xl text-base font-bold text-foreground line-clamp-2 hover:text-primary cursor-pointer transition-colors duration-200">
               {post.postTitle}
             </h2>
-            <p className="text-muted-foreground line-clamp-2">{post.postDescription}</p>
+            <p className="text-muted-foreground line-clamp-2">
+              {post.postDescription}
+            </p>
           </div>
           {post.postBannerImage && (
             <div className="md:w-44 h-36 md:h-full bg-muted rounded-xl overflow-hidden">
@@ -136,16 +188,22 @@ const BlogPosts = () => {
             variant="ghost"
             size="icon"
             className="text-muted-foreground hover:text-foreground transition-all duration-200 hover:scale-110"
-            onClick={handleBookmarkBlog}
+            onClick={(e) => handleBookmarkBlog(post.id, e)}
           >
-            <Bookmark className="size-5" />
+            <Bookmark
+              className={`size-5 ${
+                bookmarkedPostIds.includes(post.id)
+                  ? "fill-blue-600 text-blue-600"
+                  : ""
+              }`}
+            />
           </Button>
         </div>
       </CardContent>
     </Card>
   );
 
-  const EmptyState = () => (
+  const PostsNotAvailable = () => (
     <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
       <div className="w-32 h-32 mb-6 flex items-center justify-center bg-muted/50 rounded-full">
         <FileText className="w-16 h-16 text-muted-foreground" />
@@ -154,15 +212,16 @@ const BlogPosts = () => {
         No blog posts yet
       </h3>
       <p className="text-muted-foreground max-w-md mb-6">
-        {activeTab === "Discover" 
+        {activeTab === "Discover"
           ? "Be the first to discover amazing content! Check back later for new posts."
-          : "You're not following anyone yet. Follow some writers to see their posts here."
-        }
+          : "You're not following anyone yet. Follow some writers to see their posts here."}
       </p>
-      <Button 
-        variant="outline" 
+      <Button
+        variant="outline"
         className="rounded-xl transition-all duration-200 hover:scale-105"
-        onClick={() => setActiveTab(activeTab === "Discover" ? "Following" : "Discover")}
+        onClick={() =>
+          setActiveTab(activeTab === "Discover" ? "Following" : "Discover")
+        }
       >
         {activeTab === "Discover" ? "Explore Following" : "Discover Posts"}
       </Button>
@@ -171,13 +230,16 @@ const BlogPosts = () => {
 
   return (
     <div className="max-[768px]:w-full md:w-2xl lg:w-3xl h-full flex flex-col">
-      <div className="flex-shrink-0 bg-background border-b border-border/50 pb-4 mb-5">
+      <div className="flex-shrink-0 bg-background border-border/50 pb-4 mb-5">
         <div className="flex space-x-1 justify-between items-center pt-4">
           <div className="flex space-x-2">
             <TabButton tab="Discover" icon={Newspaper} label="Discover" />
             <TabButton tab="Following" icon={Users} label="Following" />
           </div>
-          <Button className="rounded-xl mr-0 md:mr-3 transition-all duration-200 hover:scale-105" variant="ghost">
+          <Button
+            className="rounded-xl mr-0 md:mr-3 transition-all duration-200 hover:scale-105"
+            variant="ghost"
+          >
             <Ellipsis className="text-muted-foreground size-5" />
           </Button>
         </div>
@@ -186,24 +248,19 @@ const BlogPosts = () => {
       <div
         ref={containerRef}
         className="flex-1 overflow-y-auto smooth-scroll"
-        style={{ 
+        style={{
           scrollbarWidth: "none",
-          scrollBehavior: "smooth"
+          scrollBehavior: "smooth",
         }}
       >
         <div className="space-y-6 pb-6">
-          {/* Initial loading skeleton */}
           {isPending && !PostsData?.length && <BlogsSkeleton />}
+          {!isPending && PostsData?.length === 0 && <PostsNotAvailable />}
 
-          {/* Empty state when no posts and not loading */}
-          {!isPending && PostsData?.length === 0 && <EmptyState />}
-
-          {/* Posts */}
           {PostsData?.map((post, index) => (
             <PostCard key={post.id} post={post} index={index} />
           ))}
 
-          {/* Loading more skeleton - only show when we have existing posts and are loading more */}
           {isLoadingMore && PostsData && PostsData.length > 0 && (
             <div className="space-y-6">
               {Array.from({ length: 2 }).map((_, index) => (
@@ -214,7 +271,6 @@ const BlogPosts = () => {
             </div>
           )}
 
-          {/* End message */}
           {!hasMore && PostsData && PostsData.length > 0 && (
             <div className="text-center py-8 text-muted-foreground">
               <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-muted/50 mb-3">

@@ -122,7 +122,7 @@ export interface ISavedPost {
     userId: string;
 }
 export interface ISavedPostData extends ISavedPost {
-    post: IPost;
+    post: IPostData;
 }
 export interface ISavedPostsDataResponse {
     success: boolean;

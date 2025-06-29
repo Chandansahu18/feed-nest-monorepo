@@ -147,7 +147,7 @@ export interface ISavedPost {
 }
 
 export interface ISavedPostData extends ISavedPost {
-  post: IPost;
+  post: IPostData;
 }
 export interface ISavedPostsDataResponse {
   success: boolean;

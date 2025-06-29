@@ -15,5 +15,11 @@ const enhancePostData = z.object({
   blog: z.string().optional()
 })
 
+// Bookmark post prop data schema
+const bookmarkPostProp = z.object({
+   postId: z.string().optional(),
+  userId: z.string()
+})
 export type TEnhancePostData = z.infer<typeof enhancePostData>
 export type TCreatePostData = z.infer<typeof createPostData>
+export type TBookmarkPostProp = z.infer<typeof bookmarkPostProp>
