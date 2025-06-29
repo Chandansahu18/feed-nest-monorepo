@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useTheme } from "./theme-provider";
 import { Button } from "./ui/button";
 import { ModeToggle } from "./mode-toggle";
+import { Search } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -9,17 +10,25 @@ import {
   DropdownMenuItem,
 } from "./ui/dropdown-menu";
 import { Menu } from "lucide-react";
+
 const Header = () => {
   const { theme } = useTheme();
   const navigate = useNavigate();
+  
   const handleSignIn = () => {
     navigate("/auth");
   };
+  
   const handleFeed = () => {
     navigate("/feeds");
   };
+  
   const handleContact = () => {
     navigate("/contact");
+  };
+
+  const handleSearch = () => {
+    navigate("/search");
   };
 
   return (
@@ -93,6 +102,17 @@ const Header = () => {
               className="cursor-pointer"
             >
               Contact
+            </Button>
+          </div>
+
+          <div className="h-full w-10">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleSearch}
+              className="cursor-pointer transition-all duration-200 hover:scale-105"
+            >
+              <Search className="size-5" />
             </Button>
           </div>
 
