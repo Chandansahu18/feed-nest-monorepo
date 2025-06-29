@@ -27,7 +27,7 @@ const BlogPosts = () => {
 
     const handleScroll = () => {
       const { scrollTop, scrollHeight, clientHeight } = container;
-      const atBottom = scrollTop + clientHeight >= scrollHeight - 100; // Increased threshold for smoother loading
+      const atBottom = scrollTop + clientHeight >= scrollHeight - 100;
 
       if (atBottom && PostsData?.length) {
         setIsLoadingMore(true);
@@ -36,7 +36,6 @@ const BlogPosts = () => {
       }
     };
 
-    // Use passive listener for better performance
     container.addEventListener("scroll", handleScroll, { passive: true });
     return () => container.removeEventListener("scroll", handleScroll);
   }, [PostsData, hasMore, isPending, isLoadingMore]);
@@ -168,18 +167,9 @@ const BlogPosts = () => {
   );
 
   return (
-    <div
-      ref={containerRef}
-      className="max-[768px]:w-full md:w-2xl lg:w-3xl overflow-y-auto smooth-scroll"
-      style={{ 
-        height: "100vh", 
-        scrollbarWidth: "none",
-        scrollBehavior: "smooth",
-        WebkitOverflowScrolling: "touch"
-      }}
-    >
-      {/* Header with tabs - sticky for better UX */}
-      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border/50 pb-4 mb-5">
+    <div className="max-[768px]:w-full md:w-2xl lg:w-3xl h-full flex flex-col">
+      {/* Header with tabs - fixed at top */}
+      <div className="flex-shrink-0 bg-background border-b border-border/50 pb-4 mb-5">
         <div className="flex space-x-1 justify-between items-center pt-4">
           <div className="flex space-x-2">
             <TabButton tab="Discover" icon={Newspaper} label="Discover" />
@@ -191,39 +181,49 @@ const BlogPosts = () => {
         </div>
       </div>
 
-      {/* Content */}
-      <div className="space-y-6 pb-6">
-        {/* Initial loading skeleton */}
-        {isPending && !PostsData?.length && <BlogsSkeleton />}
+      {/* Scrollable content container */}
+      <div
+        ref={containerRef}
+        className="flex-1 overflow-y-auto smooth-scroll"
+        style={{ 
+          scrollbarWidth: "none",
+          scrollBehavior: "smooth",
+          WebkitOverflowScrolling: "touch"
+        }}
+      >
+        <div className="space-y-6 pb-6">
+          {/* Initial loading skeleton */}
+          {isPending && !PostsData?.length && <BlogsSkeleton />}
 
-        {/* Empty state when no posts and not loading */}
-        {!isPending && PostsData?.length === 0 && <EmptyState />}
+          {/* Empty state when no posts and not loading */}
+          {!isPending && PostsData?.length === 0 && <EmptyState />}
 
-        {/* Posts */}
-        {PostsData?.map((post, index) => (
-          <PostCard key={post.id} post={post} index={index} />
-        ))}
+          {/* Posts */}
+          {PostsData?.map((post, index) => (
+            <PostCard key={post.id} post={post} index={index} />
+          ))}
 
-        {/* Loading more skeleton - only show when we have existing posts and are loading more */}
-        {isLoadingMore && PostsData?.length && (
-          <div className="space-y-6">
-            {Array.from({ length: 2 }).map((_, index) => (
-              <div key={`loading-skeleton-${index}`}>
-                <BlogsSkeleton showSingle />
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* End message */}
-        {!hasMore && PostsData && PostsData.length > 0 && (
-          <div className="text-center py-8 text-muted-foreground">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-muted/50 mb-3">
-              <FileText className="w-6 h-6" />
+          {/* Loading more skeleton - only show when we have existing posts and are loading more */}
+          {isLoadingMore && PostsData && PostsData.length > 0 && (
+            <div className="space-y-6">
+              {Array.from({ length: 2 }).map((_, index) => (
+                <div key={`loading-skeleton-${index}`}>
+                  <BlogsSkeleton showSingle />
+                </div>
+              ))}
             </div>
-            <p>You've reached the end</p>
-          </div>
-        )}
+          )}
+
+          {/* End message */}
+          {!hasMore && PostsData && PostsData.length > 0 && (
+            <div className="text-center py-8 text-muted-foreground">
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-muted/50 mb-3">
+                <FileText className="w-6 h-6" />
+              </div>
+              <p>You've reached the end</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
