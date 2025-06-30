@@ -10,18 +10,9 @@ import { Switch } from "@/components/ui/switch";
 import TiptapEditor from "@/components/editor/TiptapEditor";
 import ImageUpload from "@/components/create-post-sections/ImageUpload";
 import TagInput from "@/components/create-post-sections/TagInput";
-import {
-  Save,
-  Eye,
-  Upload,
-  Sparkles,
-  ArrowLeft,
-  Check,
-  AlertCircle,
-} from "lucide-react";
+import { Save, Eye, Upload, Sparkles, ArrowLeft, Check } from "lucide-react";
 import { useCreatePost } from "@/hooks/useCreatePost";
 import { useEnhanceContent } from "@/hooks/useEnhanceContent";
-import { useCurrentUser } from "@/hooks/useCloudinaryUpload";
 
 interface PostData {
   postTitle: string;
@@ -51,14 +42,16 @@ const CreatePostPage = () => {
     published: false,
   });
 
-  const { mutate: createPost, isPending: isCreating } = useCreatePost();
-  const { mutate: enhanceContent, isPending: isEnhancing } =
-    useEnhanceContent();
-  const { userId } = useCurrentUser();
+  const [enhancementStates, setEnhancementStates] = useState({
+    title: { isEnhancing: false, originalValue: "" },
+    description: { isEnhancing: false, originalValue: "" },
+  });
 
-  const isCloudinaryConfigured =
-    import.meta.env.VITE_CLOUDINARY_CLOUD_NAME &&
-    import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+  const { mutate: createPost, isPending: isCreating } = useCreatePost();
+  const { data, mutate: enhanceContent } = useEnhanceContent();
+
+  // Debug log to see the structure
+  console.log("Enhancement data:", data);
 
   const handleInputChange = (
     field: string,
@@ -70,13 +63,37 @@ const CreatePostPage = () => {
   const handleEnhance = (type: "title" | "description") => {
     const content =
       type === "title" ? postData.postTitle : postData.postDescription;
-    if (!content.trim()) return;
+    const contentStr = String(content || "").trim();
 
-    enhanceContent(type === "title" ? { title: content } : { blog: content }, {
-      onSuccess: (enhanced) => {
+    if (!contentStr) return;
+
+    setEnhancementStates((prev) => ({
+      ...prev,
+      [type]: { isEnhancing: true, originalValue: contentStr },
+    }));
+
+    const payload =
+      type === "title" ? { title: contentStr } : { blog: contentStr };
+
+    enhanceContent(payload, {
+      onSuccess: (response) => {
+        const enhancedContent = response?.data || "";
+
         setPostData((prev) => ({
           ...prev,
-          [type === "title" ? "postTitle" : "postDescription"]: enhanced,
+          [type === "title" ? "postTitle" : "postDescription"]: enhancedContent,
+        }));
+
+        setEnhancementStates((prev) => ({
+          ...prev,
+          [type]: { isEnhancing: false, originalValue: "" },
+        }));
+      },
+      onError: (error) => {
+        console.error(`Enhancement failed for ${type}:`, error);
+        setEnhancementStates((prev) => ({
+          ...prev,
+          [type]: { isEnhancing: false, originalValue: "" },
         }));
       },
     });
@@ -88,24 +105,27 @@ const CreatePostPage = () => {
     const { TITLE_MIN, TITLE_MAX, DESCRIPTION_MIN, DESCRIPTION_MAX, MAX_TAGS } =
       VALIDATION_LIMITS;
 
-    if (!postTitle.trim()) errors.push("Title is required");
-    else if (postTitle.length < TITLE_MIN)
+    // Ensure postTitle is a string before calling trim()
+    const titleStr = String(postTitle || "");
+    if (!titleStr.trim()) errors.push("Title is required");
+    else if (titleStr.length < TITLE_MIN)
       errors.push(`Title must be at least ${TITLE_MIN} characters`);
-    else if (postTitle.length > TITLE_MAX)
+    else if (titleStr.length > TITLE_MAX)
       errors.push(`Title must not exceed ${TITLE_MAX} characters`);
 
-    if (
-      postDescription.length > 0 &&
-      postDescription.length < DESCRIPTION_MIN
-    ) {
+    // Ensure postDescription is a string before checking length
+    const descriptionStr = String(postDescription || "");
+    if (descriptionStr.length > 0 && descriptionStr.length < DESCRIPTION_MIN) {
       errors.push(
         `Description must be at least ${DESCRIPTION_MIN} characters if provided`
       );
-    } else if (postDescription.length > DESCRIPTION_MAX) {
+    } else if (descriptionStr.length > DESCRIPTION_MAX) {
       errors.push(`Description must not exceed ${DESCRIPTION_MAX} characters`);
     }
 
-    if (postTags.length > MAX_TAGS)
+    // Ensure postTags is an array before checking length
+    const tagsArray = Array.isArray(postTags) ? postTags : [];
+    if (tagsArray.length > MAX_TAGS)
       errors.push(`Maximum ${MAX_TAGS} tags allowed`);
 
     return errors;
@@ -135,25 +155,35 @@ const CreatePostPage = () => {
   // Enhanced Button Component
   const EnhanceButton = ({
     onClick,
-    disabled
+    disabled,
+    type,
   }: {
     onClick: () => void;
     disabled: boolean;
     type: "title" | "description";
-  }) => (
-    <Button
-      variant="ghost"
-      size="sm"
-      onClick={onClick}
-      disabled={disabled}
-      className="flex items-center gap-2 rounded-xl transition-all duration-200 hover:scale-105"
-    >
-      <Sparkles className="w-4 h-4" />
-      {isEnhancing ? "Enhancing..." : "Enhance"}
-    </Button>
-  );
+  }) => {
+    const isCurrentlyEnhancing = enhancementStates[type].isEnhancing;
+    const hasContent =
+      type === "title"
+        ? String(postData.postTitle || "").trim().length > 0
+        : String(postData.postDescription || "").trim().length > 0;
 
-  // Header Actions Component
+    return (
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={onClick}
+        disabled={disabled || isCurrentlyEnhancing || !hasContent}
+        className="flex items-center gap-2 rounded-xl transition-all duration-200 hover:scale-105"
+      >
+        <Sparkles
+          className={`w-4 h-4 ${isCurrentlyEnhancing ? "animate-spin" : ""}`}
+        />
+        {isCurrentlyEnhancing ? "Enhancing..." : "Enhance"}
+      </Button>
+    );
+  };
+
   const HeaderActions = ({ isPreview = false }: { isPreview?: boolean }) => (
     <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
       {isPreview ? (
@@ -195,34 +225,6 @@ const CreatePostPage = () => {
       )}
     </div>
   );
-
-  // Cloudinary Warning Component
-  const CloudinaryWarning = () =>
-    !isCloudinaryConfigured && (
-      <div className="p-4 sm:p-6 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl">
-        <div className="flex items-start gap-3 sm:gap-4">
-          <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-1" />
-          <div className="space-y-2 sm:space-y-3">
-            <h3 className="font-semibold text-yellow-800 dark:text-yellow-200 text-sm sm:text-base">
-              Cloudinary Configuration Required
-            </h3>
-            <p className="text-xs sm:text-sm text-yellow-700 dark:text-yellow-300">
-              To upload images directly to Cloudinary, please add the following
-              to your .env file:
-            </p>
-            <div className="p-3 sm:p-4 bg-yellow-100 dark:bg-yellow-800/30 rounded-lg text-xs sm:text-sm font-mono text-yellow-800 dark:text-yellow-200 overflow-x-auto">
-              VITE_CLOUDINARY_CLOUD_NAME=your_cloud_name
-              <br />
-              VITE_CLOUDINARY_UPLOAD_PRESET=your_upload_preset
-            </div>
-            <p className="text-xs sm:text-sm text-yellow-600 dark:text-yellow-400">
-              You can still use image URLs without this configuration.
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-
   if (showPreview) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
@@ -295,7 +297,7 @@ const CreatePostPage = () => {
                     <div
                       className="prose prose-sm sm:prose lg:prose-lg max-w-none mb-6 sm:mb-8 leading-relaxed"
                       dangerouslySetInnerHTML={{
-                        __html: postData.postDescription,
+                        __html: String(postData.postDescription || ""),
                       }}
                     />
                   )}
@@ -333,8 +335,6 @@ const CreatePostPage = () => {
             transition={{ duration: 0.6 }}
             className="space-y-6 sm:space-y-8"
           >
-            <CloudinaryWarning />
-
             {/* Header */}
             <div className="flex flex-col gap-4 sm:gap-6">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -361,7 +361,10 @@ const CreatePostPage = () => {
                         <Upload className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
                         Banner Image
                       </div>
-                      <Badge variant="outline" className="rounded-xl w-fit text-xs sm:text-sm">
+                      <Badge
+                        variant="outline"
+                        className="rounded-xl w-fit text-xs sm:text-sm"
+                      >
                         16:9 Ratio
                       </Badge>
                     </CardTitle>
@@ -391,28 +394,40 @@ const CreatePostPage = () => {
                         </Label>
                         <EnhanceButton
                           onClick={() => handleEnhance("title")}
-                          disabled={isEnhancing || !postData.postTitle.trim()}
+                          disabled={enhancementStates.title.isEnhancing}
                           type="title"
                         />
                       </div>
-                      <Input
-                        id="title"
-                        placeholder="Enter your post title..."
-                        value={postData.postTitle}
-                        onChange={(e) =>
-                          handleInputChange("postTitle", e.target.value)
-                        }
-                        className="text-base sm:text-lg lg:text-xl font-semibold rounded-xl py-3 sm:py-4 px-3 sm:px-4 min-h-[48px] sm:min-h-[56px] lg:min-h-[60px]"
-                        maxLength={VALIDATION_LIMITS.TITLE_MAX}
-                      />
+                      <div className="relative">
+                        <Input
+                          id="title"
+                          placeholder="Enter your post title..."
+                          value={postData.postTitle}
+                          onChange={(e) =>
+                            handleInputChange("postTitle", e.target.value)
+                          }
+                          className={`text-base sm:text-lg lg:text-xl font-semibold rounded-xl py-3 sm:py-4 px-3 sm:px-4 min-h-[48px] sm:min-h-[56px] lg:min-h-[60px] transition-all duration-200 ${
+                            enhancementStates.title.isEnhancing
+                              ? "bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800"
+                              : ""
+                          }`}
+                          maxLength={VALIDATION_LIMITS.TITLE_MAX}
+                          disabled={enhancementStates.title.isEnhancing}
+                        />
+                        {enhancementStates.title.isEnhancing && (
+                          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                            <div className="w-4 h-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+                          </div>
+                        )}
+                      </div>
                       <p
                         className={`text-xs sm:text-sm ${getCharacterCountColor(
-                          postData.postTitle.length,
+                          String(postData.postTitle || "").length,
                           VALIDATION_LIMITS.TITLE_MAX
                         )}`}
                       >
-                        {postData.postTitle.length}/{VALIDATION_LIMITS.TITLE_MAX}{" "}
-                        characters
+                        {String(postData.postTitle || "").length}/
+                        {VALIDATION_LIMITS.TITLE_MAX} characters
                       </p>
                     </div>
                   </CardContent>
@@ -427,20 +442,65 @@ const CreatePostPage = () => {
                       </CardTitle>
                       <EnhanceButton
                         onClick={() => handleEnhance("description")}
-                        disabled={isEnhancing || !postData.postDescription.trim()}
+                        disabled={enhancementStates.description.isEnhancing}
                         type="description"
                       />
                     </div>
                   </CardHeader>
                   <CardContent className="p-4 sm:p-6 pt-0">
-                    <div className="min-h-[300px] sm:min-h-[400px] lg:min-h-[500px]">
-                      <TiptapEditor
-                        content={postData.postDescription}
-                        onChange={(content) =>
-                          handleInputChange("postDescription", content)
-                        }
-                        maxLength={VALIDATION_LIMITS.DESCRIPTION_MAX}
-                      />
+                    <div className="space-y-3 sm:space-y-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3">
+                        <Label
+                          htmlFor="description"
+                          className="font-semibold text-sm sm:text-base lg:text-lg"
+                        >
+                          Post Description
+                        </Label>
+                        <EnhanceButton
+                          onClick={() => handleEnhance("description")}
+                          disabled={enhancementStates.description.isEnhancing}
+                          type="description"
+                        />
+                      </div>
+
+                      <div className="relative">
+                        <div
+                          className={`min-h-[300px] sm:min-h-[400px] lg:min-h-[500px] transition-all duration-200 relative ${
+                            enhancementStates.description.isEnhancing
+                              ? "bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-xl"
+                              : ""
+                          }`}
+                        >
+                          {enhancementStates.description.isEnhancing ? (
+                            <div className="absolute inset-0 bg-blue-50/50 dark:bg-blue-950/20 rounded-xl flex items-center justify-center">
+                              <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
+                                <div className="w-5 h-5 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+                                <span className="text-sm font-medium ">
+                                  Enhancing content...
+                                </span>
+                              </div>
+                            </div>
+                          ) : (
+                            <TiptapEditor
+                              content={postData.postDescription}
+                              onChange={(content) =>
+                                handleInputChange("postDescription", content)
+                              }
+                              maxLength={VALIDATION_LIMITS.DESCRIPTION_MAX}
+                              
+                            />
+                          )}
+                        </div>
+                        <p
+                          className={`text-xs sm:text-sm ${getCharacterCountColor(
+                            String(postData.postDescription || "").length,
+                            VALIDATION_LIMITS.DESCRIPTION_MAX
+                          )}`}
+                        >
+                          {String(postData.postDescription || "").length}/
+                          {VALIDATION_LIMITS.DESCRIPTION_MAX} characters
+                        </p>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -489,7 +549,9 @@ const CreatePostPage = () => {
                 {/* Tags */}
                 <Card className="bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl transition-all duration-300 hover:shadow-md hover:border-0 lg:hover:border">
                   <CardHeader className="p-4 sm:p-6 pb-2 sm:pb-4">
-                    <CardTitle className="text-sm sm:text-base lg:text-lg">Tags</CardTitle>
+                    <CardTitle className="text-sm sm:text-base lg:text-lg">
+                      Tags
+                    </CardTitle>
                   </CardHeader>
                   <CardContent className="p-4 sm:p-6 pt-0">
                     <TagInput
@@ -511,17 +573,19 @@ const CreatePostPage = () => {
                     {[
                       {
                         label: "Title length",
-                        current: postData.postTitle.length,
+                        current: String(postData.postTitle || "").length,
                         max: VALIDATION_LIMITS.TITLE_MAX,
                       },
                       {
                         label: "Content length",
-                        current: postData.postDescription.length,
+                        current: String(postData.postDescription || "").length,
                         max: VALIDATION_LIMITS.DESCRIPTION_MAX,
                       },
                       {
                         label: "Tags",
-                        current: postData.postTags.length,
+                        current: Array.isArray(postData.postTags)
+                          ? postData.postTags.length
+                          : 0,
                         max: VALIDATION_LIMITS.MAX_TAGS,
                       },
                     ].map(({ label, current, max }) => (

@@ -13,11 +13,14 @@ import {
   Instagram,
   FileText,
 } from "lucide-react";
-import { useUserData } from "@/hooks/useUserData";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { IPost } from "../../../../types/dist";
-export default function UserProfile() {
-  const { data: userData, isPending, isError } = useUserData();
+import { useLocation } from "react-router-dom";
+import { useSearchedUserData } from "@/hooks/useSearchedUserData";
+
+export default function SearchedUserPage() {
+  const {state} = useLocation();
+  const { data: userData, isPending, isError } = useSearchedUserData(state?.userId);
   if (isPending) {
     return (
       <div className="min-h-screen bg-background">

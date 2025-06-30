@@ -7,12 +7,12 @@ const enhanceContent = async (
   content: TEnhancePostData
 ): Promise<IEnhancedPostDataResponse> => {
   try {
-    const response = await FEEDNEST_BACKEND_API.post("/v1/enhance", content, {
+    const response = await FEEDNEST_BACKEND_API.patch("/v1/enhance", content, {
       withCredentials: true,
       headers: {
         "Content-Type": "application/json",
       },
-    });
+    });    
     return response.data;
   } catch (error) {
     const errorMessage =

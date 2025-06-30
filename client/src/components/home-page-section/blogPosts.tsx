@@ -112,7 +112,7 @@ const BlogPosts = () => {
     <Card
       className="bg-card cursor-pointer dark:bg-black dark:lg:bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl hover:shadow-md transition-all duration-300 py-0"
       onClick={() =>
-        navigate(`/post/${post.postTitle}`, { state: { postTitle: post.postTitle } })
+        navigate(`/post/${post.postTitle}`, { state: { postId: post.id } })
       }
     >
       <CardContent className="py-3 border-b max-[375px]:px-0 lg:border-0">

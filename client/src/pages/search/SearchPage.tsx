@@ -111,7 +111,12 @@ const SearchPage = () => {
   );
 
   const PostCard = ({ post }: { post: ISearchData }) => (
-    <Card className="bg-card dark:bg-black dark:lg:bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl hover:shadow-md transition-all duration-300 py-0">
+    <Card
+      className="bg-card dark:bg-black dark:lg:bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl hover:shadow-md transition-all duration-300 py-0"
+      onClick={() =>
+        navigate(`/post/${post.postTitle}`, { state: { postId: post.id } })
+      }
+    >
       <CardContent className="py-6 border-b max-[375px]:px-0 lg:border-0">
         <div className="flex items-center space-x-3 mb-4">
           <Avatar className="size-10 rounded-full border border-border flex items-center justify-center cursor-pointer">
@@ -198,7 +203,11 @@ const SearchPage = () => {
   );
 
   const UserCard = ({ user }: { user: ISearchData }) => (
-    <Card className="bg-card dark:bg-black dark:lg:bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl hover:shadow-md transition-all duration-300 py-0">
+    <Card className="bg-card dark:bg-black dark:lg:bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl hover:shadow-md transition-all duration-300 py-0" onClick={() =>
+                        navigate(`/user/${user.creator.userName}`, {
+                          state: { userId: user.creator.id },
+                        }
+                      )}>
       <CardContent className="py-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">

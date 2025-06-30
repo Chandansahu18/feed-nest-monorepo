@@ -4,14 +4,12 @@ import type { TCloudinaryUploadOptions, TUploadError, TUploadResult } from '@/ut
 import { useUserData } from './useUserData';
 import { useState } from 'react';
 
-// Configuration validation
 const validateCloudinaryConfig = (): boolean => {
   const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
   const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
   return !!(cloudName && uploadPreset);
 };
 
-// Enhanced file upload hook
 export const useCloudinaryUpload = () => {
   return useMutation<TUploadResult, TUploadError, { file: File; options: TCloudinaryUploadOptions }>({
 
@@ -36,8 +34,6 @@ export const useCloudinaryUpload = () => {
     },
   });
 };
-
-// Enhanced URL upload hook
 export const useCloudinaryUrlUpload = () => {
   return useMutation<TUploadResult, TUploadError, { url: string; options: TCloudinaryUploadOptions }>({
     mutationFn: async ({ url, options }) => {
@@ -62,7 +58,6 @@ export const useCloudinaryUrlUpload = () => {
   });
 };
 
-// Batch upload hook for multiple files
 export const useCloudinaryBatchUpload = () => {
   return useMutation<TUploadResult[], TUploadError, { files: File[]; options: Omit<TCloudinaryUploadOptions, 'fileName'> }>({
 
