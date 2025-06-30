@@ -29,3 +29,4 @@ export const useSearchData = (searchedTerm: string) => {
     isPending,
   };
 };
+

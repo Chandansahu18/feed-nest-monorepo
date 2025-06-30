@@ -14,6 +14,7 @@ const validateCloudinaryConfig = (): boolean => {
 // Enhanced file upload hook
 export const useCloudinaryUpload = () => {
   return useMutation<TUploadResult, TUploadError, { file: File; options: TCloudinaryUploadOptions }>({
+
     mutationFn: async ({ file, options }) => {
       if (!validateCloudinaryConfig()) {
         throw new Error('Cloudinary configuration missing. Please check your environment variables.');
@@ -64,6 +65,7 @@ export const useCloudinaryUrlUpload = () => {
 // Batch upload hook for multiple files
 export const useCloudinaryBatchUpload = () => {
   return useMutation<TUploadResult[], TUploadError, { files: File[]; options: Omit<TCloudinaryUploadOptions, 'fileName'> }>({
+
     mutationFn: async ({ files, options }) => {
       if (!validateCloudinaryConfig()) {
         throw new Error('Cloudinary configuration missing. Please check your environment variables.');

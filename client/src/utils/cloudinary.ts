@@ -6,6 +6,7 @@ const IMAGE_HOSTS = ['cloudinary', 'imgur', 'unsplash', 'pexels', 'pixabay'];
 const SIZE_LIMITS = {
   banner: 5 * 1024 * 1024,
   post: 3 * 1024 * 1024,  
+
 };
 
 // Environment validation
@@ -271,6 +272,7 @@ export const batchUploadToCloudinary = async (
 
 export const deleteFromCloudinary = async (publicId: string): Promise<void> => {
   console.log('🗑️ Delete request for:', publicId);
+
 
   throw new Error('Delete functionality requires server-side implementation');
 };

@@ -23,25 +23,27 @@ const BookmarkedPostsPage = () => {
   const [removingBookmark, setRemovingBookmark] = useState<string | null>(null);
   const [filteredPosts, setFilteredPosts] = useState<ISavedPostData[]>([]);
 
-  // Initialize filtered posts with bookmarked data
   useEffect(() => {
-    setFilteredPosts(BookmarkedPost?.data || []);
+    if (!BookmarkedPost?.data) {
+      setFilteredPosts([]);
+    } else if (Array.isArray(BookmarkedPost?.data)) {
+      setFilteredPosts(BookmarkedPost?.data);
+    }
   }, [BookmarkedPost?.data]);
 
   const handleRemoveBookmark = async (postId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     if (!userData?.data?.id) return navigate("/");
 
-    // Optimistic UI update
     setFilteredPosts((prev) => prev.filter((post) => post.post.id !== postId));
     setRemovingBookmark(postId);
-
-    try {
-      await BookmarkPost({ postId, userId: userData.data.id });
-    } catch {
-      // Revert on error
-      setFilteredPosts(BookmarkedPost?.data || []);
+    BookmarkPost({ postId, userId: userData.data.id });
+    if (!BookmarkedPost?.data) {
+      setFilteredPosts([]);
+    } else if (Array.isArray(BookmarkedPost?.data)) {
+      setFilteredPosts(BookmarkedPost?.data);
     }
+
     setRemovingBookmark(null);
   };
 

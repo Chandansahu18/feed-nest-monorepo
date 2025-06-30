@@ -26,7 +26,7 @@ app.use(express.json({limit:'10mb'}));
 
 app.use('/', authLimiter, authRouter);
 app.use('/', userDataAccessLimiter, restrictToAuthorisedUser, userRouter);
-app.use('/', postDataAccessLimiter, restrictToAuthorisedUser, postRouter);
+app.use('/', restrictToAuthorisedUser, postRouter);
 
 app.listen(port, async () => {
   console.log('Server started at port:', port);

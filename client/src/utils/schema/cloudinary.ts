@@ -28,7 +28,6 @@ const uploadOptions = z.object({
   }),
   fileName: z.string().optional()
 });
-
 // Error response schema
 const cloudinaryError = z.object({
   error: z.object({
@@ -51,6 +50,7 @@ const uploadError = z.object({
 
 // Batch upload result schema
 const batchUploadResult = z.array(uploadResult);
+
 
 // Image validation schema
 const imageValidation = z.object({
@@ -75,3 +75,4 @@ export type TBatchUploadResult = z.infer<typeof batchUploadResult>;
 export type TImageValidation = z.infer<typeof imageValidation>;
 export type TImageDataForDB = z.infer<typeof imageDataForDB>;
   
+
