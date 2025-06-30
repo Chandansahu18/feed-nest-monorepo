@@ -135,8 +135,7 @@ const CreatePostPage = () => {
   // Enhanced Button Component
   const EnhanceButton = ({
     onClick,
-    disabled,
-    type,
+    disabled
   }: {
     onClick: () => void;
     disabled: boolean;
@@ -376,12 +375,6 @@ const CreatePostPage = () => {
                       imageType="banner"
                       fileName="banner-image"
                     />
-                    {isCloudinaryConfigured && (
-                      <p className="text-xs sm:text-sm text-muted-foreground mt-3 sm:mt-4 p-3 sm:p-4 bg-muted/50 rounded-xl">
-                        Images are automatically uploaded to: postImageFiles/
-                        {userId}/postBannerImage/
-                      </p>
-                    )}
                   </CardContent>
                 </Card>
 
@@ -449,11 +442,6 @@ const CreatePostPage = () => {
                         maxLength={VALIDATION_LIMITS.DESCRIPTION_MAX}
                       />
                     </div>
-                    {isCloudinaryConfigured && (
-                      <p className="text-xs sm:text-sm text-muted-foreground mt-3 sm:mt-4 p-3 sm:p-4 bg-muted/50 rounded-xl">
-                        Post images will be uploaded to: postImageFiles/{userId}/
-                      </p>
-                    )}
                   </CardContent>
                 </Card>
               </div>

@@ -9,14 +9,14 @@ const handleSearchData = async (searchedTerm: string): Promise<ISearchDataRespon
       withCredentials: true,
     });  
     return response.data;
-  } catch (error) {
+  } catch (error) {   
     const errorMessage = error instanceof Error ? error.message : 'Something went wrong'
     throw new Error(errorMessage);
   }
 };
 export const useSearchData = (searchedTerm: string) => {
   const { data, error, isPending } = useQuery({
-    queryKey: ["search"],
+    queryKey: ["search",searchedTerm],
     queryFn: () => handleSearchData(searchedTerm),
     retry: false,
     refetchOnWindowFocus:false,

@@ -12,7 +12,6 @@ const handleUserLogout = async (): Promise<IGenericMessageResponse> => {
         withCredentials: true,
       }
     );
-    console.log(response.data);
     return response.data;
   } catch (error) {
     const errorMessage =

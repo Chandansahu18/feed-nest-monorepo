@@ -8,6 +8,7 @@ const Footer = () => {
   const { data } = useUserData();
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const isLandingPage = pathname === "/"
   const isUserLoggedIn = data?.data;
   const [activeTab, setActiveTab] = useState("Discover");
 
@@ -42,7 +43,7 @@ const Footer = () => {
 
   return (
     <>
-      {isUserLoggedIn ? (
+      {isUserLoggedIn || !isLandingPage ? (
         <footer className="bg-background border-t h-14 fixed flex justify-around items-center bottom-0 w-full z-10 sm:hidden">
           <Button variant={"ghost"} onClick={handlePressDiscover}>
             <Newspaper

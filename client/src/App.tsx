@@ -23,16 +23,16 @@ const router = createBrowserRouter(
   createRoutesFromElements(
     <>
       <Route path="/" element={<RootLayout />}>
-          <Route index={true} element={<PublicRouteAccess><LandingPageWrapper /></PublicRouteAccess>} />
-          <Route path="/auth" element={<PublicRouteAccess><AuthPageWrapper /></PublicRouteAccess>} />
-          <Route path="/home" element={<PublicRouteAccess><HomePageWrapper /></PublicRouteAccess>} />
-          <Route path="/search" element={<SearchPageWrapper />} />
-          <Route path="/:postTitle" element={<PostPageWrapper />} />
-          <Route path="/:username" element={<UserProfilePageWrapper />} />
-          <Route path="/create" element={<ProtectedRouteAccess><CreatePostPageWrapper /></ProtectedRouteAccess>} />
-          <Route path="/settings" element={<ProtectedRouteAccess><AccountSettingsPageWrapper /></ProtectedRouteAccess>} />
-          <Route path="/bookmarks" element={<ProtectedRouteAccess><BookmarkedPostsPageWrapper /></ProtectedRouteAccess>} />
-          <Route path="/bookmarks/:postId" element={<ProtectedRouteAccess><BookmarkedPostPageWrapper /></ProtectedRouteAccess>} />
+          <Route index element={<PublicRouteAccess><LandingPageWrapper /></PublicRouteAccess>} />
+          <Route path="auth" element={<PublicRouteAccess><AuthPageWrapper /></PublicRouteAccess>} />
+          <Route path="home" element={<PublicRouteAccess><HomePageWrapper /></PublicRouteAccess>} />
+          <Route path="search" element={<SearchPageWrapper />} />
+          <Route path="post/:postTitle" element={<PostPageWrapper />} />
+          <Route path="user/:username" element={<UserProfilePageWrapper />} />
+          <Route path="create" element={<ProtectedRouteAccess><CreatePostPageWrapper /></ProtectedRouteAccess>} />
+          <Route path="settings" element={<ProtectedRouteAccess><AccountSettingsPageWrapper /></ProtectedRouteAccess>} />
+          <Route path="bookmarks" element={<ProtectedRouteAccess><BookmarkedPostsPageWrapper /></ProtectedRouteAccess>} />
+          <Route path="bookmarks/:postTitle" element={<ProtectedRouteAccess><BookmarkedPostPageWrapper /></ProtectedRouteAccess>} />
       </Route>
       <Route path="*" element={<NotFoundPageWrapper />} />
     </>

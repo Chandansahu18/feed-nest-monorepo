@@ -33,6 +33,7 @@ const Header = () => {
   const { mutate: userLogout, isPending: logoutPending } = useUserLogout();
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
   const isLandingPage = pathname === "/";
+  const isSearchPage = pathname === "/search";
   const isUserLoggedIn = data?.data;
   const handleSignOut = () => {
     userLogout();
@@ -86,22 +87,24 @@ const Header = () => {
           <div className="h-full lg:w-2/4 sm:w-80 flex justify-end items-center">
             {!isLandingPage ? (
               <div className="hidden sm:flex sm:w-12 lg:w-56 h-full items-center justify-center">
-                <div
-                  className="h-10 w-52 flex items-center justify-center rounded-xl lg:outline-1 outline-gray-300 hover:outline-2 hover:outline-gray-200 dark:outline-gray-700"
-                  onClick={() => navigate("/search")}
-                >
-                  <div className="hidden lg:flex justify-end items-center h-10 w-40 cursor-pointer">
-                    <h1 className="text-sm font-medium text-gray-500">
-                      Search
-                    </h1>
-                  </div>
+                {isSearchPage ? null : (
                   <div
-                    className="size-10 flex justify-center items-center"
+                    className="h-10 w-52 flex items-center justify-center rounded-xl lg:outline-1 outline-gray-300 hover:outline-2 hover:outline-gray-200 dark:outline-gray-700"
                     onClick={() => navigate("/search")}
                   >
-                    <Search className="size-5 cursor-pointer" color="gray" />
+                    <div className="hidden lg:flex justify-end items-center h-10 w-40 cursor-pointer">
+                      <h1 className="text-sm font-medium text-gray-500">
+                        Search
+                      </h1>
+                    </div>
+                    <div
+                      className="size-10 flex justify-center items-center"
+                      onClick={() => navigate("/search")}
+                    >
+                      <Search className="size-5 cursor-pointer" color="gray" />
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             ) : null}
 
@@ -150,7 +153,10 @@ const Header = () => {
                     <div
                       className="flex gap-1 px-2 py-3 rounded-xl hover:bg-accent"
                       onClick={() =>
-                        navigate(`/${isUserLoggedIn.userName}`,{state:{userName:isUserLoggedIn.userName}})
+                        navigate(`/user/${isUserLoggedIn.userName}`, {
+                          state: { userName: isUserLoggedIn.userName },
+                        }
+                      )
                       }
                     >
                       <div className="size-12 mr-2 rounded-full">

@@ -13,10 +13,8 @@ const enhanceContent = async (
         "Content-Type": "application/json",
       },
     });
-    console.log(response.data);
     return response.data;
   } catch (error) {
-    console.log(error);
     const errorMessage =
       error instanceof Error ? error.message : "Something went wrong";
     throw new Error(errorMessage);
