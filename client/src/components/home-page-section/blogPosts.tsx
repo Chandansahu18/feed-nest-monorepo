@@ -117,8 +117,8 @@ const BlogPosts = () => {
     >
       <CardContent className="py-3 border-b max-[375px]:px-0 lg:border-0">
         <div className="flex items-center space-x-3 mb-3">
-          <Avatar className="size-10 rounded-full border border-border flex items-center justify-center">
-            <AvatarImage src={post.creator.avatar ?? undefined} alt="avatar" />
+          <Avatar className="size-10 border border-border flex items-center justify-center">
+            <AvatarImage src={post.creator.avatar ?? undefined} alt="avatar"/>
             <AvatarFallback className="text-sm font-bold text-foreground">
               {post.creator.name.charAt(0).toUpperCase()}
             </AvatarFallback>

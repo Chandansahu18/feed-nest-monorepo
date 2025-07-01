@@ -79,12 +79,12 @@ export default function UserProfile() {
   return (
     <div className="min-h-screen bg-background">
       <motion.div
-        className="relative h-48 w-full bg-blue-600 overflow-hidden"
+        className="relative h-80 w-full bg-blue-600 overflow-hidden"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
       >
-        <div className="absolute inset-0 bg-black/20" />
+       <img src={userData?.data?.profileBanner || undefined} alt="banner" className="h-full w-full object-cover" />
       </motion.div>
 
       <div className="relative -mt-16 mb-10">
@@ -135,7 +135,7 @@ export default function UserProfile() {
                     asChild
                   >
                     <a
-                      href={`https://github.com/${user.githubHandle}`}
+                      href={`${user.githubHandle}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -151,7 +151,7 @@ export default function UserProfile() {
                     asChild
                   >
                     <a
-                      href={`https://linkedin.com/in/${user.linkedInHandle}`}
+                      href={`${user.linkedInHandle}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -167,7 +167,7 @@ export default function UserProfile() {
                     asChild
                   >
                     <a
-                      href={`https://instagram.com/${user.linkedInHandle}`}
+                      href={`${user.twitterHandle}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >

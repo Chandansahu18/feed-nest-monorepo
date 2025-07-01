@@ -53,8 +53,8 @@ export interface IPost {
   postDescription: string | null;
   postBannerImage: string | null;
   postTags: string[];
-  postComments:IPostCommentOrReply[];
-  postLikes:IPostLikes[];
+  postComments?:IPostCommentOrReply[];
+  postLikes?:IPostLikes[];
   published: boolean;
   createdAt: Date;
   updatedAt: Date;
