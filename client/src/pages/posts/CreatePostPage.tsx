@@ -225,6 +225,7 @@ const CreatePostPage = () => {
       )}
     </div>
   );
+
   if (showPreview) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
@@ -436,16 +437,9 @@ const CreatePostPage = () => {
                 {/* Content Editor */}
                 <Card className="bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl transition-all duration-300 hover:shadow-md hover:border-0 lg:hover:border">
                   <CardHeader className="p-4 sm:p-6 pb-2 sm:pb-4">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3">
-                      <CardTitle className="text-base sm:text-lg lg:text-xl">
-                        Content
-                      </CardTitle>
-                      <EnhanceButton
-                        onClick={() => handleEnhance("description")}
-                        disabled={enhancementStates.description.isEnhancing}
-                        type="description"
-                      />
-                    </div>
+                    <CardTitle className="text-base sm:text-lg lg:text-xl">
+                      Content
+                    </CardTitle>
                   </CardHeader>
                   <CardContent className="p-4 sm:p-6 pt-0">
                     <div className="space-y-3 sm:space-y-4">
@@ -487,7 +481,6 @@ const CreatePostPage = () => {
                                 handleInputChange("postDescription", content)
                               }
                               maxLength={VALIDATION_LIMITS.DESCRIPTION_MAX}
-                              
                             />
                           )}
                         </div>

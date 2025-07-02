@@ -23,7 +23,7 @@ const cloudinaryUploadResponse = z.object({
 // Upload options schema
 const uploadOptions = z.object({
   userId: z.string().min(1, 'User ID is required'),
-  imageType: z.enum(['banner', 'post'], {
+  imageType: z.enum(['banner', 'post','avatar'], {
     errorMap: () => ({ message: 'Image type must be either "banner" or "post" or "avatar"' })
   }),
   fileName: z.string().optional()

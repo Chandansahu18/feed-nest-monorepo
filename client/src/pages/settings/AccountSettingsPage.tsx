@@ -11,7 +11,7 @@ import {
   Twitter,
   Github,
   Save,
-  Upload,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,7 +36,6 @@ import type { TUserDataUpdate } from "@/utils/schema/userData";
 import { Badge } from "@/components/ui/badge";
 import ImageUpload from "@/components/create-post-sections/ImageUpload";
 
-
 const AccountSettingsPage = () => {
   const navigate = useNavigate();
   const { data: userData, isPending: userDataPending } = useUserData();
@@ -57,7 +56,7 @@ const AccountSettingsPage = () => {
     githubHandle: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
- 
+
   useEffect(() => {
     if (userData) {
       setFormData({
@@ -208,29 +207,59 @@ const AccountSettingsPage = () => {
                   </div>
                 </div>
 
-                {/* Avatar */}
-                <div className="space-y-2">
-                  <Label>Profile Picture</Label>
-                  <div className="flex items-center space-x-4">
-                    <ImageUpload
-                      value={formData.avatar ?? ""}
-                      onChange={(url) => handleInputChange("avatar", url)}
-                      fileName="profile-avatar"
-                    />
-                    <div className="space-y-1">
-                      <p className="text-sm font-medium">
-                        Click to change profile picture
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        JPG, PNG. Max size 2MB.
-                      </p>
-                    </div>
-                  </div>
-                </div>
+{/* Avatar - Made Circular */}
+<div className="space-y-2">
+  <Label>Profile Picture</Label>
+  <div className="flex items-center space-x-4">
+    <div className="relative">
+      {formData.avatar ? (
+        // Show avatar with remove button when image exists
+        <div className="relative w-20 h-20">
+          <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-border">
+            <img
+              src={formData.avatar}
+              alt="Profile picture"
+              className="w-full h-full object-cover"
+            />
+          </div>
+          {/* Remove button positioned outside the circular container */}
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => handleInputChange("avatar", "")}
+            className="absolute -top-1 -right-1 h-6 w-6 p-0 rounded-full shadow-lg"
+            title="Remove profile picture"
+          >
+            <X className="w-3 h-3" />
+          </Button>
+        </div>
+      ) : (
+        // Show upload area when no image - fixed to fit inside circle
+        <div className="relative w-20 h-20 rounded-full border-2 border-border">
+          <div className="absolute inset-0 rounded-full border-2 border-dashed border-muted-foreground/25 flex items-center justify-center m-1">
+            <ImageUpload
+              value={formData.avatar ?? ""}
+              onChange={(url) => handleInputChange("avatar", url)}
+              fileName="profile-avatar"
+              imageType="post"
+            />
+          </div>
+        </div>
+      )}
+    </div>
+    <div className="space-y-1">
+      <p className="text-sm font-medium">
+        Click to change profile picture
+      </p>
+      <p className="text-xs text-muted-foreground">
+        JPG, PNG. Max size 2MB. Square images work best.
+      </p>
+    </div>
+  </div>
+</div>
               </CardContent>
             </Card>
 
-            {/* Rest of the form remains the same */}
             {/* Basic Information */}
             <Card className="rounded-2xl">
               <CardHeader>
