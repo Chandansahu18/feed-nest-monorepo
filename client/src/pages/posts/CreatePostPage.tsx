@@ -60,6 +60,32 @@ const CreatePostPage = () => {
     setPostData((prev) => ({ ...prev, [field]: value }));
   };
 
+  // Enhanced image upload handler to properly handle Cloudinary response
+  const handleImageUpload = (response: any) => {
+    console.log("Image upload response:", response);
+
+    // Extract URL from different possible response formats
+    let imageUrl = "";
+
+    if (typeof response === "string") {
+      imageUrl = response;
+    } else if (response?.secure_url) {
+      imageUrl = response.secure_url;
+    } else if (response?.url) {
+      imageUrl = response.url;
+    } else if (response?.data?.secure_url) {
+      imageUrl = response.data.secure_url;
+    } else if (response?.data?.url) {
+      imageUrl = response.data.url;
+    }
+
+    console.log("Extracted image URL:", imageUrl);
+
+    if (imageUrl) {
+      handleInputChange("postBannerImage", imageUrl);
+    }
+  };
+
   const handleEnhance = (type: "title" | "description") => {
     const content =
       type === "title" ? postData.postTitle : postData.postDescription;
@@ -373,9 +399,7 @@ const CreatePostPage = () => {
                   <CardContent className="p-4 sm:p-6 pt-0">
                     <ImageUpload
                       value={postData.postBannerImage}
-                      onChange={(url) =>
-                        handleInputChange("postBannerImage", url)
-                      }
+                      onChange={handleImageUpload}
                       imageType="banner"
                       fileName="banner-image"
                     />

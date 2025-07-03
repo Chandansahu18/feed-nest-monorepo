@@ -156,7 +156,7 @@ const BookmarkedPostsPage = () => {
                     <div className="flex items-center space-x-3 mb-4">
                       <Avatar className="size-10 rounded-full border border-border flex items-center justify-center cursor-pointer">
                         <AvatarImage
-                          src={post.post.creator.avatar ?? undefined}
+                          src={post.post.creator.avatar}
                           alt="avatar-image"
                         />
                         <AvatarFallback className="text-sm font-bold text-foreground">
