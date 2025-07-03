@@ -1,7 +1,7 @@
-import { usePostData } from "@/hooks/usePostData";
-import { useLocation } from "react-router-dom";
-import { FEEDNEST_BACKEND_API } from "@/utils/apiClient";
 import { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { usePostData } from "@/hooks/usePostData";
+import { FEEDNEST_BACKEND_API } from "@/utils/apiClient";
 import {
   Heart,
   Bookmark,
@@ -9,22 +9,101 @@ import {
   Share2,
   Clock,
   User,
+  ArrowLeft,
 } from "lucide-react";
 import { usePostCommentsData } from "@/hooks/usePostComments";
 
+// Markdown rendering component
+const MarkdownRenderer = ({ content }: { content: string }) => {
+  if (!content) return null;
+
+  // Simple markdown parser for basic formatting
+  const parseMarkdown = (text: string) => {
+    // Handle headings
+    text = text.replace(
+      /^### (.*$)/gm,
+      '<h3 class="text-xl font-semibold mb-4 mt-6">$1</h3>'
+    );
+    text = text.replace(
+      /^## (.*$)/gm,
+      '<h2 class="text-2xl font-semibold mb-4 mt-8">$1</h2>'
+    );
+    text = text.replace(
+      /^# (.*$)/gm,
+      '<h1 class="text-3xl font-bold mb-6 mt-8">$1</h1>'
+    );
+
+    // Handle bold and italic
+    text = text.replace(
+      /\*\*(.*?)\*\*/g,
+      '<strong class="font-semibold">$1</strong>'
+    );
+    text = text.replace(/\*(.*?)\*/g, '<em class="italic">$1</em>');
+
+    // Handle code blocks
+    text = text.replace(
+      /```([\s\S]*?)```/g,
+      '<pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto my-4"><code class="text-sm">$1</code></pre>'
+    );
+
+    // Handle inline code
+    text = text.replace(
+      /`(.*?)`/g,
+      '<code class="bg-gray-100 px-2 py-1 rounded text-sm font-mono">$1</code>'
+    );
+
+    // Handle links
+    text = text.replace(
+      /\[([^\]]+)\]\(([^\)]+)\)/g,
+      '<a href="$2" class="text-blue-600 hover:text-blue-800 underline" target="_blank" rel="noopener noreferrer">$1</a>'
+    );
+
+    // Handle line breaks and paragraphs
+    text = text.replace(/\n\n/g, '</p><p class="mb-4">');
+    text = text.replace(/\n/g, "<br>");
+
+    // Handle lists
+    text = text.replace(/^\* (.*$)/gm, '<li class="mb-2">$1</li>');
+    text = text.replace(/^- (.*$)/gm, '<li class="mb-2">$1</li>');
+    text = text.replace(
+      /(<li class="mb-2">.*<\/li>)/s,
+      '<ul class="list-disc pl-6 mb-4">$1</ul>'
+    );
+
+    // Handle numbered lists
+    text = text.replace(/^\d+\. (.*$)/gm, '<li class="mb-2">$1</li>');
+
+    // Handle blockquotes
+    text = text.replace(
+      /^> (.*$)/gm,
+      '<blockquote class="border-l-4 border-gray-300 pl-4 italic text-gray-700 my-4">$1</blockquote>'
+    );
+
+    return text;
+  };
+
+  const processedContent = parseMarkdown(content);
+
+  return (
+    <div
+      className="markdown-content prose prose-sm sm:prose-base lg:prose-lg xl:prose-xl max-w-none"
+      dangerouslySetInnerHTML={{
+        __html: `<p class="mb-4">${processedContent}</p>`,
+      }}
+    />
+  );
+};
+
 const PostPage = () => {
+  const navigate = useNavigate();
   const { state } = useLocation();
   const { data: PostData, error, isPending } = usePostData(state.postId);
-  const {data:postComments} = usePostCommentsData(state.postId);
-  console.log(PostData);
-  console.log(postComments);
-  
+  const { data: postComments } = usePostCommentsData(state.postId);
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [showComments, setShowComments] = useState(true);
   const [newComment, setNewComment] = useState("");
-  const [comments, setComments] = useState();
 
   const handleLike = () => {
     setIsLiked(!isLiked);
@@ -45,23 +124,6 @@ const PostPage = () => {
       navigator.clipboard.writeText(window.location.href);
     }
   };
-
-  // const handleCommentSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-  //   e.preventDefault();
-  //   if (!newComment.trim()) return;
-
-  //   const comment = {
-  //     id: Date.now(),
-  //     author: postComments?.data,
-  //     avatar: postComments?.data?.creator.avatar,
-  //     content: newComment,
-  //     createdAt: postComments?.data?.createdAt,
-  //     likes: postComments?.data?.postLikes,
-  //   };
-
-  //   setComments(comment);
-  //   setNewComment("");
-  // };
 
   if (isPending) {
     return (
@@ -96,6 +158,13 @@ const PostPage = () => {
             Error loading post
           </h2>
           <p className="text-sm sm:text-base">{error.message}</p>
+          <button
+            onClick={() => navigate(-1)}
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center mx-auto"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Go Back
+          </button>
         </div>
       </div>
     );
@@ -111,6 +180,13 @@ const PostPage = () => {
           <p className="text-gray-600 text-sm sm:text-base">
             The post you're looking for doesn't exist.
           </p>
+          <button
+            onClick={() => navigate(-1)}
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center mx-auto"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Go Back
+          </button>
         </div>
       </div>
     );
@@ -162,7 +238,6 @@ const PostPage = () => {
                         ? new Date(PostData.data.createdAt).toLocaleDateString()
                         : null}
                     </span>
-                   
                   </div>
                 </div>
               </div>
@@ -206,7 +281,6 @@ const PostPage = () => {
                         ? new Date(PostData.data.createdAt).toLocaleDateString()
                         : "Date not available"}
                     </span>
-                    <span className="hidden sm:inline">4 min read</span>
                   </div>
                 </div>
               </div>
@@ -240,7 +314,8 @@ const PostPage = () => {
               >
                 <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6" />
                 <span className="font-medium">
-                  {postComments?.data?.postComments?.length} Comment{postComments?.data?.postComments?.length !== 1 ? "s" : ""}
+                  {postComments?.data?.length} Comment
+                  {postComments?.data?.length !== 1 ? "s" : ""}
                 </span>
               </button>
             </div>
@@ -270,51 +345,16 @@ const PostPage = () => {
             </div>
           </div>
 
-          {/* Post Content */}
-          <div className="prose prose-sm sm:prose-base lg:prose-lg xl:prose-xl max-w-none mb-8 sm:mb-12 lg:mb-16">
-            <div className="mb-6 sm:mb-8 lg:mb-10">
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6 text-gray-900">
-                Introduction
-              </h2>
-              <p className="text-gray-700 leading-relaxed mb-4 sm:mb-6 text-sm sm:text-base md:text-lg">
-                {PostData.data?.postDescription ||
-                  "Working with arrays is at the heart of JavaScript development, whether you're managing UI state in React or handling data on the server. Yet many developers focus on appending items to the end of an array and overlook the importance of efficiently adding elements to the front. Why does inserting an item at index 0 matter, and how can you do it cleanly and performantly?"}
-              </p>
-              <p className="text-gray-700 leading-relaxed text-sm sm:text-base md:text-lg">
-                The simplest answer is to use methods like{" "}
-                <code className="bg-gray-100 px-2 py-1 rounded text-xs sm:text-sm md:text-base font-mono text-purple-600">
-                  unshift
-                </code>{" "}
-                or the modern spread syntax. Understanding these techniques not
-                only prevents unintended side effects but also helps you choose
-                the right approach for your use case—keeping your code readable
-                and your app snappy.
-              </p>
-            </div>
-
-            {/* Example code block */}
-            <div className="mb-6 sm:mb-8 lg:mb-10">
-              <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-4 sm:mb-6 text-gray-900">
-                Using unshift
-              </h3>
-              <div className="bg-gray-900 rounded-lg p-4 sm:p-6 overflow-x-auto">
-                <pre className="text-xs sm:text-sm md:text-base text-gray-100">
-                  <code>
-                    {`const fruits = ['apple', 'banana'];
-const newLength = fruits.unshift('orange');
-console.log(fruits); // ['orange', 'apple', 'banana']
-console.log(newLength); // 3`}
-                  </code>
-                </pre>
-              </div>
-              <p className="text-xs sm:text-sm md:text-base text-gray-600 mt-3 sm:mt-4">
-                <strong>Tip:</strong> Because{" "}
-                <code className="bg-gray-100 px-1.5 py-1 rounded text-xs sm:text-sm font-mono">
-                  unshift
-                </code>{" "}
-                modifies the existing array, avoid this in contexts where
-                immutability is important.
-              </p>
+          {/* Post Content with Markdown Rendering */}
+          <div className="mb-8 sm:mb-12 lg:mb-16">
+            <div className="mb-6 sm:mb-8 lg:mb-10 text-gray-700 leading-relaxed text-sm sm:text-base md:text-lg">
+              {PostData.data?.postDescription ? (
+                <MarkdownRenderer content={PostData.data.postDescription} />
+              ) : (
+                <p className="text-gray-500 italic">
+                  No content available for this post.
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -327,14 +367,18 @@ console.log(newLength); // 3`}
             <div className="max-w-3xl mx-auto">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-6 mb-6 sm:mb-8">
                 <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold text-gray-900">
-                  Top comments ({postComments?.data?.postComments?.length ?? 0})
+                  Top comments ({postComments?.data?.length ?? 0})
                 </h3>
-               
               </div>
 
               {/* Add Comment Form */}
               <form
-                onSubmit={handleCommentSubmit}
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (!newComment.trim()) return;
+                  // Handle comment submission here
+                  setNewComment("");
+                }}
                 className="mb-8 sm:mb-10 lg:mb-12"
               >
                 <div className="flex gap-3 sm:gap-4">
@@ -366,61 +410,24 @@ console.log(newLength); // 3`}
               <div className="space-y-6 sm:space-y-8">
                 {postComments?.data?.map((comment) => (
                   <div key={comment.id} className="flex gap-3 sm:gap-4">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-gray-400 to-gray-600 flex items-center justify-center flex-shrink-0">
-                        <img
-                          src={comment.avatar}
-                          alt={comment.author}
-                          className="w-full h-full object-cover rounded-full"
-                        />
-                    </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start sm:items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
-                        <span className="font-medium text-gray-900 text-base sm:text-lg truncate">
-                          {comment.author}
-                        </span>
                         <span className="text-xs sm:text-sm md:text-base text-gray-500 flex-shrink-0">
-                          • {comment.createdAt}
+                          {new Date(comment.createdAt).toLocaleDateString()}
                         </span>
-                        <button className="ml-auto text-gray-400 hover:text-gray-600 flex-shrink-0 p-1">
-                          <svg
-                            className="w-5 h-5 sm:w-6 sm:h-6"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
-                            />
-                          </svg>
-                        </button>
                       </div>
                       <p className="text-gray-700 mb-3 sm:mb-4 text-sm sm:text-base md:text-lg break-words">
-                        {comment.content}
+                        {comment.comment}
                       </p>
                       <div className="flex items-center gap-4 sm:gap-6">
                         <button className="flex items-center gap-1 text-xs sm:text-sm md:text-base text-gray-600 hover:text-red-500 transition-colors">
                           <Heart className="w-4 h-4 sm:w-5 sm:h-5" />
-                          <span>
-                            {comment.likes > 0 ? comment.likes : "Like"}
-                          </span>
-                        </button>
-                        <button className="text-xs sm:text-sm md:text-base text-gray-600 hover:text-blue-500 transition-colors">
-                          Reply
+                          <span>Like</span>
                         </button>
                       </div>
                     </div>
                   </div>
                 ))}
-              </div>
-
-              {/* Footer */}
-              <div className="mt-10 sm:mt-12 pt-6 sm:pt-8 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-sm sm:text-base text-gray-500">
-                <button className="hover:text-gray-700">Code of Conduct</button>
-                <span className="hidden sm:inline">•</span>
-                <button className="hover:text-gray-700">Report abuse</button>
               </div>
             </div>
           </div>
@@ -449,7 +456,8 @@ console.log(newLength); // 3`}
         >
           <MessageCircle className="w-5 h-5" />
           <span className="text-xs mt-1">
-            {postComments?.data?.postComments?.length} {postComments?.data?.postComments?.length === 1 ? "Comment" : "Comments"}
+            {postComments?.data?.length}{" "}
+            {postComments?.data?.length === 1 ? "Comment" : "Comments"}
           </span>
         </button>
 

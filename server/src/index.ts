@@ -25,7 +25,7 @@ app.set("views", path.resolve("./dist/views"));
 app.use(express.json({limit:'10mb'}));
 
 app.use('/', authLimiter, authRouter);
-app.use('/', userDataAccessLimiter, restrictToAuthorisedUser, userRouter);
+app.use('/', restrictToAuthorisedUser, userRouter);
 app.use('/', restrictToAuthorisedUser, postRouter);
 
 app.listen(port, async () => {

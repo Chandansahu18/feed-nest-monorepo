@@ -1,865 +1,453 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { usePostData } from "@/hooks/usePostData";
+import { FEEDNEST_BACKEND_API } from "@/utils/apiClient";
 import {
-  ArrowLeft,
   Heart,
-  MessageCircle,
   Bookmark,
-  BookmarkX,
+  MessageCircle,
   Share2,
-  Calendar,
-  User,
-  Tag,
-  Eye,
-  MoreHorizontal,
-  Edit,
-  Trash2,
-  Flag,
   Clock,
-  ExternalLink
+  User,
+  ArrowLeft,
+  BookmarkX,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Skeleton } from "@/components/ui/skeleton";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useUserData } from "@/hooks/useUserData";
+import { usePostCommentsData } from "@/hooks/usePostComments";
 
-interface BookmarkedPostData {
-  id: string;
-  postTitle: string;
-  postDescription: string;
-  postBannerImage?: string;
-  postTags: string[];
-  published: boolean;
-  createdAt: string;
-  updatedAt: string;
-  bookmarkedAt: string;
-  creator: {
-    id: string;
-    name: string;
-    userName: string;
-    avatar?: string;
-    bio?: string;
-    location?: string;
-  };
-  postLikes: any[];
-  postComments: Comment[];
-  isLiked: boolean;
-  viewCount: number;
-  readTime: number;
-}
+// Markdown rendering component
+const MarkdownRenderer = ({ content }:{content:string}) => {
+  if (!content) return null;
 
-interface Comment {
-  id: string;
-  comment: string;
-  createdAt: string;
-  user: {
-    id: string;
-    name: string;
-    userName: string;
-    avatar?: string;
+  // Simple markdown parser for basic formatting
+  const parseMarkdown = (text:string) => {
+    // Handle headings
+    text = text.replace(/^### (.*$)/gm, '<h3 class="text-xl font-semibold mb-4 mt-6">$1</h3>');
+    text = text.replace(/^## (.*$)/gm, '<h2 class="text-2xl font-semibold mb-4 mt-8">$1</h2>');
+    text = text.replace(/^# (.*$)/gm, '<h1 class="text-3xl font-bold mb-6 mt-8">$1</h1>');
+    
+    // Handle bold and italic
+    text = text.replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold">$1</strong>');
+    text = text.replace(/\*(.*?)\*/g, '<em class="italic">$1</em>');
+    
+    // Handle code blocks
+    text = text.replace(/```([\s\S]*?)```/g, '<pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto my-4"><code class="text-sm">$1</code></pre>');
+    
+    // Handle inline code
+    text = text.replace(/`(.*?)`/g, '<code class="bg-gray-100 px-2 py-1 rounded text-sm font-mono">$1</code>');
+    
+    // Handle links
+    text = text.replace(/\[([^\]]+)\]\(([^\)]+)\)/g, '<a href="$2" class="text-blue-600 hover:text-blue-800 underline" target="_blank" rel="noopener noreferrer">$1</a>');
+    
+    // Handle line breaks and paragraphs
+    text = text.replace(/\n\n/g, '</p><p class="mb-4">');
+    text = text.replace(/\n/g, '<br>');
+    
+    // Handle lists
+    text = text.replace(/^\* (.*$)/gm, '<li class="mb-2">$1</li>');
+    text = text.replace(/^- (.*$)/gm, '<li class="mb-2">$1</li>');
+    text = text.replace(/(<li class="mb-2">.*<\/li>)/s, '<ul class="list-disc pl-6 mb-4">$1</ul>');
+    
+    // Handle numbered lists
+    text = text.replace(/^\d+\. (.*$)/gm, '<li class="mb-2">$1</li>');
+    
+    // Handle blockquotes
+    text = text.replace(/^> (.*$)/gm, '<blockquote class="border-l-4 border-gray-300 pl-4 italic text-gray-700 my-4">$1</blockquote>');
+    
+    return text;
   };
-}
+
+  const processedContent = parseMarkdown(content);
+  
+  return (
+    <div 
+      className="markdown-content prose prose-sm sm:prose-base lg:prose-lg xl:prose-xl max-w-none"
+      dangerouslySetInnerHTML={{ __html: `<p class="mb-4">${processedContent}</p>` }}
+    />
+  );
+};
 
 const BookmarkedPost = () => {
-  const { postId } = useParams();
   const navigate = useNavigate();
-  const { data: currentUserData } = useUserData();
-  const [postData, setPostData] = useState<BookmarkedPostData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [isLiked, setIsLiked] = useState(false);
-  const [isBookmarked, setIsBookmarked] = useState(true); // Always true for bookmarked posts
-  const [likesCount, setLikesCount] = useState(0);
-  const [removingBookmark, setRemovingBookmark] = useState(false);
-
-  useEffect(() => {
-    const fetchBookmarkedPost = async () => {
-      setLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Mock bookmarked post data
-      const mockPost: BookmarkedPostData = {
-        id: postId || "1",
-        postTitle: "Mastering CSS Grid and Flexbox for Modern Layouts",
-        postDescription: `
-          <div class="post-content">
-            <h2>Introduction to Modern CSS Layout</h2>
-            <p>CSS Grid and Flexbox have revolutionized how we approach web layouts. These powerful layout systems provide developers with unprecedented control over positioning, alignment, and responsive design. In this comprehensive guide, we'll explore both technologies and learn when and how to use them effectively.</p>
-            
-            <blockquote>
-              <p>"CSS Grid and Flexbox are not competing layout methods. They complement each other perfectly." - Rachel Andrew, CSS Expert</p>
-            </blockquote>
-
-            <h3>Understanding CSS Flexbox</h3>
-            <p>Flexbox, or the Flexible Box Layout, is designed for one-dimensional layouts. It excels at distributing space and aligning items within a container, whether horizontally or vertically.</p>
-            
-            <h4>Key Flexbox Concepts:</h4>
-            <ul>
-              <li><strong>Flex Container:</strong> The parent element with <code>display: flex</code></li>
-              <li><strong>Flex Items:</strong> Direct children of the flex container</li>
-              <li><strong>Main Axis:</strong> The primary axis along which flex items are laid out</li>
-              <li><strong>Cross Axis:</strong> The axis perpendicular to the main axis</li>
-            </ul>
-
-            <h4>Essential Flexbox Properties:</h4>
-            <pre><code>.flex-container {
-  display: flex;
-  justify-content: space-between; /* Main axis alignment */
-  align-items: center; /* Cross axis alignment */
-  flex-wrap: wrap; /* Allow items to wrap */
-  gap: 1rem; /* Space between items */
-}
-
-.flex-item {
-  flex: 1; /* Grow and shrink equally */
-  flex-basis: 200px; /* Initial size */
-}</code></pre>
-
-            <h3>Mastering CSS Grid</h3>
-            <p>CSS Grid is a two-dimensional layout system that allows you to work with both rows and columns simultaneously. It's perfect for creating complex layouts with precise control.</p>
-
-            <h4>Grid Fundamentals:</h4>
-            <pre><code>.grid-container {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 3 equal columns */
-  grid-template-rows: auto 1fr auto; /* Header, content, footer */
-  grid-gap: 20px; /* Space between grid items */
-  min-height: 100vh;
-}
-
-.header {
-  grid-column: 1 / -1; /* Span all columns */
-}
-
-.sidebar {
-  grid-row: 2; /* Second row */
-}
-
-.main-content {
-  grid-column: 2 / -1; /* Span from column 2 to end */
-}</code></pre>
-
-            <h4>Advanced Grid Techniques:</h4>
-            <ul>
-              <li><strong>Grid Areas:</strong> Named regions for semantic layouts</li>
-              <li><strong>Auto-placement:</strong> Let the browser position items automatically</li>
-              <li><strong>Subgrid:</strong> Inherit grid lines from parent containers</li>
-              <li><strong>Implicit grids:</strong> Automatically created rows and columns</li>
-            </ul>
-
-            <h3>Responsive Design with Grid and Flexbox</h3>
-            <p>Both Grid and Flexbox offer powerful responsive capabilities without requiring media queries in many cases.</p>
-
-            <h4>Responsive Grid Example:</h4>
-            <pre><code>.responsive-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
-}
-
-/* Cards automatically wrap to new rows as needed */
-.card {
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}</code></pre>
-
-            <h4>Responsive Flexbox Navigation:</h4>
-            <pre><code>.navigation {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.nav-links {
-  display: flex;
-  gap: 2rem;
-  flex-wrap: wrap;
-}
-
-@media (max-width: 768px) {
-  .navigation {
-    flex-direction: column;
-    text-align: center;
-  }
-}</code></pre>
-
-            <h3>When to Use Grid vs Flexbox</h3>
-            
-            <h4>Use Flexbox for:</h4>
-            <ul>
-              <li>Navigation bars and menus</li>
-              <li>Centering content vertically and horizontally</li>
-              <li>Distributing space between items</li>
-              <li>One-dimensional layouts (either rows or columns)</li>
-              <li>Component-level layouts</li>
-            </ul>
-
-            <h4>Use Grid for:</h4>
-            <ul>
-              <li>Page-level layouts</li>
-              <li>Two-dimensional layouts (rows and columns)</li>
-              <li>Complex, overlapping designs</li>
-              <li>When you need precise control over placement</li>
-              <li>Creating responsive layouts without media queries</li>
-            </ul>
-
-            <h3>Practical Examples</h3>
-            
-            <h4>Holy Grail Layout with Grid:</h4>
-            <pre><code>.holy-grail {
-  display: grid;
-  grid-template-areas: 
-    "header header header"
-    "nav main aside"
-    "footer footer footer";
-  grid-template-rows: auto 1fr auto;
-  grid-template-columns: 200px 1fr 200px;
-  min-height: 100vh;
-}
-
-.header { grid-area: header; }
-.nav { grid-area: nav; }
-.main { grid-area: main; }
-.aside { grid-area: aside; }
-.footer { grid-area: footer; }</code></pre>
-
-            <h4>Card Layout with Flexbox:</h4>
-            <pre><code>.card-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2rem;
-  justify-content: center;
-}
-
-.card {
-  flex: 0 1 300px; /* Don't grow, can shrink, base width 300px */
-  display: flex;
-  flex-direction: column;
-}
-
-.card-content {
-  flex: 1; /* Take up remaining space */
-}
-
-.card-actions {
-  margin-top: auto; /* Push to bottom */
-}</code></pre>
-
-            <h3>Browser Support and Fallbacks</h3>
-            <p>Both Grid and Flexbox have excellent modern browser support. However, for older browsers, consider these strategies:</p>
-
-            <ul>
-              <li><strong>Progressive Enhancement:</strong> Start with basic layouts, enhance with Grid/Flexbox</li>
-              <li><strong>Feature Queries:</strong> Use <code>@supports</code> to detect Grid/Flexbox support</li>
-              <li><strong>Graceful Degradation:</strong> Provide fallbacks using floats or inline-block</li>
-            </ul>
-
-            <h4>Feature Query Example:</h4>
-            <pre><code>/* Fallback layout */
-.item {
-  float: left;
-  width: 33.333%;
-}
-
-/* Enhanced layout for Grid-supporting browsers */
-@supports (display: grid) {
-  .container {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-  }
+  const { state } = useLocation();
+  console.log(state);
   
-  .item {
-    float: none;
-    width: auto;
-  }
-}</code></pre>
-
-            <h3>Performance Considerations</h3>
-            <p>Both Grid and Flexbox are highly optimized by modern browsers, but keep these tips in mind:</p>
-
-            <ul>
-              <li>Avoid unnecessary nesting of flex/grid containers</li>
-              <li>Use <code>will-change</code> sparingly for animated layouts</li>
-              <li>Consider <code>content-visibility</code> for large grids</li>
-              <li>Test performance on lower-end devices</li>
-            </ul>
-
-            <h3>Conclusion</h3>
-            <p>CSS Grid and Flexbox are powerful tools that, when used together, can handle virtually any layout challenge. Grid excels at page-level, two-dimensional layouts, while Flexbox is perfect for component-level, one-dimensional arrangements.</p>
-            
-            <p>The key is understanding when to use each technology and how they can work together to create responsive, maintainable layouts. Start experimenting with both, and you'll quickly discover how they can transform your approach to CSS layout.</p>
-
-            <p>Remember: there's no "wrong" choice between Grid and Flexbox – often, the best solution uses both technologies where they each shine brightest.</p>
-          </div>
-        `,
-        postBannerImage: "https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?auto=compress&cs=tinysrgb&w=1200",
-        postTags: ["CSS", "Grid", "Flexbox", "Layout", "Responsive Design", "Frontend"],
-        published: true,
-        createdAt: "2024-01-10T09:15:00Z",
-        updatedAt: "2024-01-10T09:15:00Z",
-        bookmarkedAt: "2024-01-16T14:30:00Z",
-        creator: {
-          id: "user456",
-          name: "Maria Rodriguez",
-          userName: "mariacss",
-          avatar: "https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=400",
-          bio: "CSS specialist and frontend architect. Passionate about creating beautiful, accessible web experiences. Author of 'Modern CSS Layouts'.",
-          location: "Barcelona, Spain"
-        },
-        postLikes: Array.from({ length: 89 }, (_, i) => ({ id: `like-${i}` })),
-        postComments: [
-          {
-            id: "1",
-            comment: "This is exactly what I needed! The Grid vs Flexbox comparison is so helpful. I've been struggling with when to use which, and this clears it up perfectly.",
-            createdAt: "2024-01-10T11:30:00Z",
-            user: {
-              id: "user789",
-              name: "David Kim",
-              userName: "davidjs",
-              avatar: "https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=400"
-            }
-          },
-          {
-            id: "2",
-            comment: "The Holy Grail layout example is brilliant! I've been using floats for years and this Grid approach is so much cleaner. Thanks for the detailed explanation!",
-            createdAt: "2024-01-10T13:45:00Z",
-            user: {
-              id: "user101",
-              name: "Sarah Chen",
-              userName: "sarahdev",
-              avatar: "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=400"
-            }
-          }
-        ],
-        isLiked: true,
-        viewCount: 1456,
-        readTime: 8
-      };
-      
-      setPostData(mockPost);
-      setIsLiked(mockPost.isLiked);
-      setLikesCount(mockPost.postLikes.length);
-      setLoading(false);
-    };
-
-    fetchBookmarkedPost();
-  }, [postId]);
-
-  const formatDate = (dateString: string) => {
-    const now = new Date();
-    const postDate = new Date(dateString);
-    const diffInHours = Math.floor((now.getTime() - postDate.getTime()) / (1000 * 60 * 60));
-    
-    if (diffInHours < 1) {
-      return 'Just now';
-    } else if (diffInHours < 24) {
-      return `${diffInHours}h ago`;
-    } else if (diffInHours < 168) {
-      return `${Math.floor(diffInHours / 24)}d ago`;
-    } else {
-      return postDate.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric'
-      });
-    }
-  };
-
-  const formatNumber = (num: number) => {
-    if (num >= 1000000) {
-      return (num / 1000000).toFixed(1) + 'M';
-    } else if (num >= 1000) {
-      return (num / 1000).toFixed(1) + 'K';
-    }
-    return num.toString();
-  };
+  const { data: PostData, error, isPending } = usePostData(state.postId);
+  const { data: postComments } = usePostCommentsData(state.postId);
+  const [isLiked, setIsLiked] = useState(false);
+  const [isSaved, setIsSaved] = useState(true);
+  const [likeCount, setLikeCount] = useState(0);
+  const [showComments, setShowComments] = useState(true);
+  const [newComment, setNewComment] = useState("");
+  const [removingBookmark, setRemovingBookmark] = useState(false);
 
   const handleLike = () => {
     setIsLiked(!isLiked);
-    setLikesCount(prev => isLiked ? prev - 1 : prev + 1);
+    setLikeCount((prev) => (isLiked ? prev - 1 : prev + 1));
   };
 
   const handleRemoveBookmark = async () => {
     setRemovingBookmark(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    setIsBookmarked(false);
+    setIsSaved(false);
     setRemovingBookmark(false);
-    
-    // Navigate back to bookmarks list after removal
-    navigate('/bookmarks');
+    navigate("/home");
   };
 
-  const handleShare = async () => {
-    if (navigator.share && postData) {
-      try {
-        await navigator.share({
-          title: postData.postTitle,
-          text: postData.postDescription.substring(0, 100) + '...',
-          url: window.location.href
-        });
-      } catch (err) {
-        // Fallback to clipboard
-        navigator.clipboard.writeText(window.location.href);
-      }
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: PostData?.data?.postTitle,
+        url: window.location.href,
+      });
     } else {
       navigator.clipboard.writeText(window.location.href);
-      // You could show a toast notification here
     }
   };
 
-  const isOwnPost = currentUserData?.data?.id === postData?.creator.id;
-
-  const PostSkeleton = () => (
-    <div className="space-y-6">
-      <Skeleton className="h-8 w-3/4" />
-      <div className="flex items-center space-x-3">
-        <Skeleton className="size-12 rounded-full" />
-        <div className="space-y-2">
-          <Skeleton className="h-4 w-32" />
-          <Skeleton className="h-3 w-24" />
-        </div>
-      </div>
-      <div className="flex flex-wrap gap-2">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <Skeleton key={i} className="h-6 w-16 rounded-full" />
-        ))}
-      </div>
-      <Skeleton className="h-64 w-full rounded-xl" />
-      <div className="space-y-3">
-        {Array.from({ length: 12 }).map((_, i) => (
-          <Skeleton key={i} className="h-4 w-full" />
-        ))}
-      </div>
-    </div>
-  );
-
-  if (loading) {
+  if (isPending) {
     return (
-      <div className="pb-16 mt-20 sm:mt-16 sm:p-8 min-h-screen w-full flex justify-center px-4 mx-auto xl:w-7xl sm:px-6 lg:w-3xl" style={{ minWidth: "320px" }}>
-        <div className="max-[768px]:w-full md:w-2xl lg:w-3xl">
-          <PostSkeleton />
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 lg:py-12">
+        <div className="animate-pulse space-y-6 sm:space-y-8">
+          <div className="h-48 sm:h-64 md:h-80 bg-gray-200 rounded-lg"></div>
+          <div className="max-w-3xl mx-auto space-y-4 sm:space-y-6">
+            <div className="h-8 sm:h-10 bg-gray-200 rounded w-3/4"></div>
+            <div className="flex items-center gap-4 sm:gap-6">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gray-300"></div>
+              <div className="space-y-3">
+                <div className="h-4 sm:h-5 bg-gray-200 rounded w-24 sm:w-32"></div>
+                <div className="h-3 sm:h-4 bg-gray-200 rounded w-32 sm:w-40"></div>
+              </div>
+            </div>
+            <div className="space-y-4 sm:space-y-5">
+              <div className="h-4 sm:h-5 bg-gray-200 rounded"></div>
+              <div className="h-4 sm:h-5 bg-gray-200 rounded w-5/6"></div>
+              <div className="h-4 sm:h-5 bg-gray-200 rounded w-4/6"></div>
+            </div>
+          </div>
         </div>
       </div>
     );
   }
 
-  if (!postData) {
+  if (error) {
     return (
-      <div className="pb-16 mt-20 sm:mt-16 sm:p-8 min-h-screen w-full flex justify-center px-4 mx-auto xl:w-7xl sm:px-6 lg:w-3xl" style={{ minWidth: "320px" }}>
-        <div className="max-[768px]:w-full md:w-2xl lg:w-3xl text-center py-16">
-          <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-muted flex items-center justify-center">
-            <ExternalLink className="w-12 h-12 text-muted-foreground" />
-          </div>
-          <h2 className="text-2xl font-bold mb-4">Bookmarked post not found</h2>
-          <p className="text-muted-foreground mb-6">The bookmarked post you're looking for doesn't exist or has been removed.</p>
-          <Button onClick={() => navigate('/bookmarks')} className="rounded-xl">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+        <div className="text-red-500 text-center">
+          <h2 className="text-xl sm:text-2xl font-semibold mb-3">
+            Error loading post
+          </h2>
+          <p className="text-sm sm:text-base">{error.message}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!PostData) {
+    return (
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+        <div className="text-center">
+          <h2 className="text-xl sm:text-2xl font-semibold mb-3">
+            Bookmarked post not found
+          </h2>
+          <p className="text-gray-600 text-sm sm:text-base">
+            The bookmarked post you're looking for doesn't exist or has been removed.
+          </p>
+          <button
+            onClick={() => navigate("/bookmarks")}
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center mx-auto"
+          >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Bookmarks
-          </Button>
+          </button>
         </div>
       </div>
     );
   }
+
+  const hasBannerImage = PostData?.data?.postBannerImage;
 
   return (
-    <div className="pb-16 mt-20 sm:mt-16 sm:p-8 min-h-screen w-full flex justify-center px-4 mx-auto xl:w-7xl sm:px-6 lg:w-3xl" style={{ minWidth: "320px" }}>
-      <div className="max-[768px]:w-full md:w-2xl lg:w-3xl">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="space-y-6"
-        >
-          {/* Back Button */}
-          <Button
-            variant="ghost"
-            onClick={() => navigate('/bookmarks')}
-            className="mb-4 rounded-xl hover:bg-accent transition-all duration-200 hover:scale-105"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Bookmarks
-          </Button>
-
-          {/* Bookmark Status Banner */}
-          <Card className="mx-4 sm:mx-0 lg:mx-0 bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800 rounded-2xl">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-full">
-                    <Bookmark className="w-4 h-4 text-blue-600 dark:text-blue-400 fill-current" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-blue-900 dark:text-blue-100">Bookmarked Post</p>
-                    <p className="text-sm text-blue-700 dark:text-blue-300">
-                      Saved on {formatDate(postData.bookmarkedAt)}
-                    </p>
-                  </div>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleRemoveBookmark}
-                  disabled={removingBookmark}
-                  className="text-blue-700 dark:text-blue-300 hover:text-red-600 dark:hover:text-red-400 rounded-xl transition-all duration-200 hover:scale-105"
-                >
-                  {removingBookmark ? (
-                    <div className="w-4 h-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                  ) : (
-                    <BookmarkX className="w-4 h-4" />
-                  )}
-                  <span className="ml-2 hidden sm:inline">
-                    {removingBookmark ? 'Removing...' : 'Remove'}
-                  </span>
-                </Button>
+    <div className="min-h-screen bg-gray-50">
+      {/* Bookmark Status Banner */}
+      <div className="bg-blue-50 border-b border-blue-200">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-100 rounded-full">
+                <Bookmark className="w-4 h-4 text-blue-600 fill-current" />
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Post Content */}
-          <Card className="mx-4 sm:mx-0 lg:mx-0 bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl transition-all duration-300 hover:shadow-md hover:border-0 lg:hover:border overflow-hidden">
-            <CardContent className="p-6 sm:p-8 lg:p-12">
-              {/* Post Header */}
-              <div className="flex items-start justify-between mb-6">
-                <div className="flex items-center space-x-4 flex-1">
-                  <Avatar 
-                    className="size-12 sm:size-14 cursor-pointer ring-2 ring-transparent hover:ring-primary/20 transition-all duration-200"
-                    onClick={() => navigate(`/${postData.creator.userName}`)}
-                  >
-                    <AvatarImage src={postData.creator.avatar} alt="Author avatar" />
-                    <AvatarFallback className="text-sm font-bold">
-                      {postData.creator.name.split(' ').map(n => n[0]).join('')}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <h3 
-                      className="font-semibold text-base sm:text-lg cursor-pointer hover:text-primary transition-colors truncate"
-                      onClick={() => navigate(`/${postData.creator.userName}`)}
-                    >
-                      {postData.creator.name}
-                    </h3>
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-sm text-muted-foreground">
-                      <span className="truncate">@{postData.creator.userName}</span>
-                      <span className="hidden sm:inline">•</span>
-                      <div className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        <span>{formatDate(postData.createdAt)}</span>
-                      </div>
-                      <span className="hidden sm:inline">•</span>
-                      <div className="flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        <span>{postData.readTime} min read</span>
-                      </div>
-                    </div>
-                    {postData.creator.location && (
-                      <p className="text-xs text-muted-foreground mt-1 truncate">
-                        📍 {postData.creator.location}
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Post Actions Menu */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="rounded-xl hover:bg-accent transition-all duration-200 hover:scale-105">
-                      <MoreHorizontal className="w-4 h-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
-                    {isOwnPost ? (
-                      <>
-                        <DropdownMenuItem className="cursor-pointer">
-                          <Edit className="w-4 h-4 mr-2" />
-                          Edit Post
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="cursor-pointer text-destructive">
-                          <Trash2 className="w-4 h-4 mr-2" />
-                          Delete Post
-                        </DropdownMenuItem>
-                      </>
-                    ) : (
-                      <>
-                        <DropdownMenuItem 
-                          className="cursor-pointer"
-                          onClick={() => navigate(`/${postData.creator.userName}`)}
-                        >
-                          <User className="w-4 h-4 mr-2" />
-                          View Profile
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem 
-                          className="cursor-pointer text-red-600"
-                          onClick={handleRemoveBookmark}
-                        >
-                          <BookmarkX className="w-4 h-4 mr-2" />
-                          Remove Bookmark
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="cursor-pointer text-destructive">
-                          <Flag className="w-4 h-4 mr-2" />
-                          Report Post
-                        </DropdownMenuItem>
-                      </>
-                    )}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+              <div>
+                <p className="font-medium text-blue-900">Bookmarked Post</p>
+                <p className="text-sm text-blue-700">
+                  Saved on {new Date().toLocaleDateString()}
+                </p>
               </div>
+            </div>
+            <button
+              onClick={handleRemoveBookmark}
+              disabled={removingBookmark}
+              className="text-blue-700 hover:text-red-600 rounded-lg px-3 py-1 text-sm flex items-center gap-1 transition-colors"
+            >
+              {removingBookmark ? (
+                <div className="w-4 h-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+              ) : (
+                <BookmarkX className="w-4 h-4" />
+              )}
+              <span className="ml-1">Remove</span>
+            </button>
+          </div>
+        </div>
+      </div>
 
-              {/* Post Title */}
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-6 leading-tight">
-                {postData.postTitle}
+      {/* Banner Image Section */}
+      {hasBannerImage && (
+        <div className="w-full h-64 sm:h-80 md:h-96 lg:h-[28rem] bg-gradient-to-r from-purple-600 to-blue-600 relative overflow-hidden">
+          <img
+            src={`${PostData.data?.postBannerImage}`}
+            alt={PostData.data?.postTitle}
+            className="w-full h-full object-cover"
+          />
+
+          {/* Title overlay */}
+          <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8 lg:p-12 text-white">
+            <div className="max-w-4xl mx-auto">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 md:mb-6 leading-tight">
+                {PostData.data?.postTitle}
               </h1>
 
-              {/* Post Meta Info */}
-              <div className="flex flex-wrap items-center gap-4 mb-6 text-sm text-muted-foreground">
-                <div className="flex items-center gap-1">
-                  <Eye className="w-4 h-4" />
-                  <span>{formatNumber(postData.viewCount)} views</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Heart className="w-4 h-4" />
-                  <span>{formatNumber(likesCount)} likes</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <MessageCircle className="w-4 h-4" />
-                  <span>{postData.postComments.length} comments</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Bookmark className="w-4 h-4 text-blue-600 fill-current" />
-                  <span className="text-blue-600 font-medium">Bookmarked</span>
-                </div>
-              </div>
-
-              {/* Post Tags */}
-              {postData.postTags.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-8">
-                  {postData.postTags.map((tag) => (
-                    <Badge 
-                      key={tag} 
-                      variant="secondary" 
-                      className="rounded-full cursor-pointer hover:bg-accent transition-all duration-200 hover:scale-105"
-                      onClick={() => navigate(`/search?q=${encodeURIComponent(tag)}`)}
-                    >
-                      <Tag className="w-3 h-3 mr-1" />
-                      {tag}
-                    </Badge>
-                  ))}
-                </div>
-              )}
-
-              {/* Banner Image */}
-              {postData.postBannerImage && (
-                <div className="mb-8">
-                  <div className="relative overflow-hidden rounded-xl shadow-lg" style={{ aspectRatio: '16/9' }}>
+              {/* Author info */}
+              <div className="flex items-center gap-3 sm:gap-4 md:gap-6">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full bg-white bg-opacity-20 backdrop-blur-sm overflow-hidden border-2 border-white border-opacity-30 flex-shrink-0">
+                  {PostData.data?.creator.avatar ? (
                     <img
-                      src={postData.postBannerImage}
-                      alt="Post banner"
-                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                      src={`${PostData.data?.creator.avatar}`}
+                      alt={PostData.data?.creator.name}
+                      className="w-full h-full object-cover"
                     />
-                  </div>
-                </div>
-              )}
-
-              {/* Post Content */}
-              <div 
-                className="prose prose-sm sm:prose lg:prose-lg xl:prose-xl max-w-none mb-8 leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: postData.postDescription }}
-                style={{
-                  lineHeight: '1.7',
-                  fontSize: '16px'
-                }}
-              />
-
-              {/* Post Actions */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pt-8 border-t gap-4">
-                <div className="flex gap-4 sm:gap-6">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleLike}
-                    className={`flex items-center gap-2 rounded-xl transition-all duration-200 hover:scale-105 ${
-                      isLiked ? 'text-red-500 hover:text-red-600' : 'text-muted-foreground hover:text-red-500'
-                    }`}
-                  >
-                    <Heart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
-                    <span className="font-medium">{formatNumber(likesCount)}</span>
-                    <span className="hidden sm:inline text-sm">
-                      {likesCount === 1 ? 'like' : 'likes'}
-                    </span>
-                  </Button>
-
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="flex items-center gap-2 rounded-xl transition-all duration-200 hover:scale-105 text-muted-foreground hover:text-blue-500"
-                    onClick={() => {
-                      const commentsSection = document.getElementById('comments-section');
-                      commentsSection?.scrollIntoView({ behavior: 'smooth' });
-                    }}
-                  >
-                    <MessageCircle className="w-5 h-5" />
-                    <span className="font-medium">{postData.postComments.length}</span>
-                    <span className="hidden sm:inline text-sm">
-                      {postData.postComments.length === 1 ? 'comment' : 'comments'}
-                    </span>
-                  </Button>
-
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="flex items-center gap-2 rounded-xl transition-all duration-200 hover:scale-105 text-muted-foreground hover:text-foreground"
-                  >
-                    <Eye className="w-5 h-5" />
-                    <span className="font-medium">{formatNumber(postData.viewCount)}</span>
-                    <span className="hidden sm:inline text-sm">views</span>
-                  </Button>
-                </div>
-
-                <div className="flex gap-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={handleRemoveBookmark}
-                    disabled={removingBookmark}
-                    className="rounded-xl transition-all duration-200 hover:scale-110 text-blue-600 hover:text-red-600"
-                  >
-                    {removingBookmark ? (
-                      <div className="w-5 h-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                    ) : (
-                      <BookmarkX className="w-5 h-5" />
-                    )}
-                  </Button>
-
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={handleShare}
-                    className="rounded-xl transition-all duration-200 hover:scale-110 text-muted-foreground hover:text-foreground"
-                  >
-                    <Share2 className="w-5 h-5" />
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Author Info Card */}
-          <Card className="mx-4 sm:mx-0 lg:mx-0 bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl transition-all duration-300 hover:shadow-md hover:border-0 lg:hover:border">
-            <CardContent className="p-6">
-              <h3 className="text-lg font-semibold mb-4">About the Author</h3>
-              <div className="flex items-start space-x-4">
-                <Avatar 
-                  className="size-16 cursor-pointer ring-2 ring-transparent hover:ring-primary/20 transition-all duration-200"
-                  onClick={() => navigate(`/${postData.creator.userName}`)}
-                >
-                  <AvatarImage src={postData.creator.avatar} alt="Author avatar" />
-                  <AvatarFallback className="text-lg font-bold">
-                    {postData.creator.name.split(' ').map(n => n[0]).join('')}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1 min-w-0">
-                  <h4 
-                    className="font-semibold text-lg cursor-pointer hover:text-primary transition-colors"
-                    onClick={() => navigate(`/${postData.creator.userName}`)}
-                  >
-                    {postData.creator.name}
-                  </h4>
-                  <p className="text-sm text-muted-foreground mb-2">@{postData.creator.userName}</p>
-                  {postData.creator.bio && (
-                    <p className="text-sm leading-relaxed mb-4">{postData.creator.bio}</p>
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <User className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-white" />
+                    </div>
                   )}
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="rounded-xl transition-all duration-200 hover:scale-105"
-                    onClick={() => navigate(`/${postData.creator.userName}`)}
-                  >
-                    View Profile
-                  </Button>
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="font-semibold text-base sm:text-lg md:text-xl truncate">
+                    {PostData.data?.creator.name}
+                  </p>
+                  <div className="flex items-center gap-2 sm:gap-3 md:gap-4 text-xs sm:text-sm md:text-base opacity-90">
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5" />
+                      {PostData.data?.createdAt
+                        ? new Date(PostData.data.createdAt).toLocaleDateString()
+                        : null}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
+        </div>
+      )}
 
-          {/* Comments Section */}
-          <Card 
-            id="comments-section"
-            className="mx-4 sm:mx-0 lg:mx-0 bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl transition-all duration-300 hover:shadow-md hover:border-0 lg:hover:border"
-          >
-            <CardContent className="p-6">
-              <h3 className="text-lg font-semibold mb-6">
-                Comments ({postData.postComments.length})
-              </h3>
-              
-              {postData.postComments.length === 0 ? (
-                <div className="text-center py-12">
-                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
-                    <MessageCircle className="w-8 h-8 text-muted-foreground" />
+      {/* Main Content */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 lg:py-12">
+        <div className="max-w-3xl mx-auto">
+          {/* Title and Author for non-banner version */}
+          {!hasBannerImage && (
+            <>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-6 sm:mb-8 md:mb-10 leading-tight text-gray-900">
+                {PostData.data?.postTitle}
+              </h1>
+
+              <div className="flex items-center gap-4 sm:gap-6 mb-6 sm:mb-8 md:mb-10 pb-6 sm:pb-8 border-b border-gray-200">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
+                  {PostData.data?.creator.avatar ? (
+                    <img
+                      src={`${FEEDNEST_BACKEND_API}${PostData.data?.creator.avatar}`}
+                      alt={PostData.data?.creator.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-400 to-purple-500">
+                      <User className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-white" />
+                    </div>
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="font-semibold text-lg sm:text-xl md:text-2xl text-gray-900 truncate">
+                    {PostData.data?.creator.name}
+                  </p>
+                  <div className="flex items-center gap-2 sm:gap-3 md:gap-4 text-sm sm:text-base text-gray-600">
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
+                      {PostData.data?.createdAt
+                        ? new Date(PostData.data.createdAt).toLocaleDateString()
+                        : "Date not available"}
+                    </span>
+                    <span className="hidden sm:inline">4 min read</span>
                   </div>
-                  <h4 className="font-medium mb-2">No comments yet</h4>
-                  <p className="text-muted-foreground text-sm">Be the first to share your thoughts!</p>
                 </div>
+              </div>
+            </>
+          )}
+
+          {/* Action Buttons */}
+          <div className="flex items-center justify-between mb-6 sm:mb-8 md:mb-10 py-3 sm:py-4 border-y border-gray-200">
+            <div className="flex items-center gap-4 sm:gap-6 md:gap-8">
+              <button
+                onClick={handleLike}
+                className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full transition-all duration-200 text-sm sm:text-base ${
+                  isLiked
+                    ? "text-red-500 bg-red-50 hover:bg-red-100"
+                    : "text-gray-600 hover:text-red-500 hover:bg-gray-100"
+                }`}
+              >
+                <Heart
+                  className={`w-5 h-5 sm:w-6 sm:h-6 ${
+                    isLiked ? "fill-current" : ""
+                  }`}
+                />
+                <span className="font-medium">
+                  {likeCount > 0 ? likeCount : "Like"}
+                </span>
+              </button>
+
+              <button
+                onClick={() => setShowComments(!showComments)}
+                className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full text-gray-600 hover:text-blue-500 hover:bg-gray-100 transition-all duration-200 text-sm sm:text-base"
+              >
+                <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6" />
+                <span className="font-medium">
+                  {postComments?.data?.length} Comment{postComments?.data?.length !== 1 ? "s" : ""}
+                </span>
+              </button>
+            </div>
+
+            <div className="flex items-center gap-2 sm:gap-3">
+              <button
+                onClick={handleRemoveBookmark}
+                disabled={removingBookmark}
+                className={`p-2 sm:p-3 rounded-full transition-all duration-200 ${
+                  removingBookmark
+                    ? "text-gray-400"
+                    : "text-blue-500 hover:text-red-500 hover:bg-blue-100"
+                }`}
+              >
+                {removingBookmark ? (
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                ) : (
+                  <BookmarkX className="w-5 h-5 sm:w-6 sm:h-6" />
+                )}
+              </button>
+
+              <button
+                onClick={handleShare}
+                className="p-2 sm:p-3 rounded-full text-gray-600 hover:text-green-500 hover:bg-gray-100 transition-all duration-200"
+              >
+                <Share2 className="w-5 h-5 sm:w-6 sm:h-6" />
+              </button>
+            </div>
+          </div>
+
+          {/* Post Content with Markdown Rendering */}
+          <div className="mb-8 sm:mb-12 lg:mb-16">
+            <div className="mb-6 sm:mb-8 lg:mb-10 text-gray-700 leading-relaxed text-sm sm:text-base md:text-lg">
+              {PostData.data?.postDescription ? (
+                <MarkdownRenderer content={PostData.data.postDescription} />
+              ) : PostData.data?.postDescription ? (
+                <MarkdownRenderer content={PostData.data.postDescription} />
               ) : (
-                <div className="space-y-6">
-                  {postData.postComments.map((comment, index) => (
-                    <motion.div 
-                      key={comment.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: index * 0.1 }}
-                      className="flex space-x-3 p-4 rounded-xl hover:bg-muted/50 transition-colors duration-200"
-                    >
-                      <Avatar 
-                        className="size-10 cursor-pointer ring-2 ring-transparent hover:ring-primary/20 transition-all duration-200"
-                        onClick={() => navigate(`/${comment.user.userName}`)}
-                      >
-                        <AvatarImage src={comment.user.avatar} alt="Commenter avatar" />
-                        <AvatarFallback className="text-xs font-bold">
-                          {comment.user.name.split(' ').map(n => n[0]).join('')}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-2">
-                          <h4 
-                            className="font-medium text-sm cursor-pointer hover:text-primary transition-colors"
-                            onClick={() => navigate(`/${comment.user.userName}`)}
-                          >
-                            {comment.user.name}
-                          </h4>
-                          <span className="text-xs text-muted-foreground">
-                            @{comment.user.userName}
-                          </span>
-                          <span className="hidden sm:inline text-xs text-muted-foreground">•</span>
-                          <span className="text-xs text-muted-foreground">
-                            {formatDate(comment.createdAt)}
-                          </span>
-                        </div>
-                        <p className="text-sm leading-relaxed">{comment.comment}</p>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
+                <p className="text-gray-500 italic">No content available for this post.</p>
               )}
-            </CardContent>
-          </Card>
-        </motion.div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Comments Section */}
+      {showComments && (
+        <div className="bg-white border-t border-gray-200">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 lg:py-12">
+            <div className="max-w-3xl mx-auto">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-6 mb-6 sm:mb-8">
+                <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold text-gray-900">
+                  Top comments ({postComments?.data?.length ?? 0})
+                </h3>
+              </div>
+
+              {/* Comments List */}
+              <div className="space-y-6 sm:space-y-8">
+                {postComments?.data?.map((comment) => (
+                  <div key={comment.id} className="flex gap-3 sm:gap-4">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-gray-400 to-gray-600 flex items-center justify-center flex-shrink-0">
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start sm:items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                        <span className="text-xs sm:text-sm md:text-base text-gray-500 flex-shrink-0">
+                          • {new Date(comment.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <p className="text-gray-700 mb-3 sm:mb-4 text-sm sm:text-base md:text-lg break-words">
+                        {comment.comment}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Mobile Bottom Navigation */}
+      <div className="fixed md:hidden bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3 flex items-center justify-around shadow-lg">
+        <button
+          onClick={handleLike}
+          className={`flex flex-col items-center justify-center p-2 rounded-full transition-all duration-200 ${
+            isLiked ? "text-red-500" : "text-gray-600 hover:text-red-500"
+          }`}
+        >
+          <Heart className={`w-5 h-5 ${isLiked ? "fill-current" : ""}`} />
+          <span className="text-xs mt-1">
+            {likeCount > 0 ? likeCount : "Like"}
+          </span>
+        </button>
+
+        <button
+          onClick={() => setShowComments(!showComments)}
+          className={`flex flex-col items-center justify-center p-2 rounded-full transition-all duration-200 ${
+            showComments ? "text-blue-500" : "text-gray-600 hover:text-blue-500"
+          }`}
+        >
+          <MessageCircle className="w-5 h-5" />
+          <span className="text-xs mt-1">
+            {postComments?.data?.length} {postComments?.data?.length === 1 ? "Comment" : "Comments"}
+          </span>
+        </button>
+
+        <button
+          onClick={handleRemoveBookmark}
+          disabled={removingBookmark}
+          className={`flex flex-col items-center justify-center p-2 rounded-full transition-all duration-200 ${
+            removingBookmark
+              ? "text-gray-400"
+              : "text-blue-500 hover:text-red-500"
+          }`}
+        >
+          {removingBookmark ? (
+            <div className="w-5 h-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+          ) : (
+            <BookmarkX className="w-5 h-5" />
+          )}
+          <span className="text-xs mt-1">Remove</span>
+        </button>
+
+        <button
+          onClick={handleShare}
+          className="flex flex-col items-center justify-center p-2 rounded-full text-gray-600 hover:text-green-500 transition-all duration-200"
+        >
+          <Share2 className="w-5 h-5" />
+          <span className="text-xs mt-1">Share</span>
+        </button>
       </div>
     </div>
   );

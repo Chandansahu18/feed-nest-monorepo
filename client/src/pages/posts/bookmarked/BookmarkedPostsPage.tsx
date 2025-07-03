@@ -54,8 +54,8 @@ const BookmarkedPostsPage = () => {
     setRemovingBookmark(null);
   };
 
-  const handleBookmarkedPost = (postId: string) => {
-    navigate(`/bookmarks/${postId}`);
+  const handleBookmarkedPost = (postTitle:string,postId: string) => {
+    navigate(`/bookmarks/${postTitle}`,{state:{postId:postId}});
   };
 
   const BookmarksSkeleton = () => (
@@ -151,7 +151,7 @@ const BookmarkedPostsPage = () => {
                 <Card className="bg-card dark:bg-black dark:lg:bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl hover:shadow-md transition-shadow py-0 cursor-pointer group">
                   <CardContent
                     className="py-6 border-b max-[375px]:px-0 lg:border-0"
-                    onClick={() => handleBookmarkedPost(post.post.id)}
+                    onClick={() => handleBookmarkedPost(post.post.postTitle,post.post.id)}
                   >
                     <div className="flex items-center space-x-3 mb-4">
                       <Avatar className="size-10 rounded-full border border-border flex items-center justify-center cursor-pointer">

@@ -296,11 +296,6 @@ const BlogPosts = () => {
       <div className="w-32 h-32 mb-6 flex items-center justify-center bg-muted/50 rounded-full">
         <FileText className="w-16 h-16 text-muted-foreground" />
       </div>
-      <h3 className="text-xl font-semibold text-foreground mb-2">
-        {activeTab === "Bookmarks"
-          ? "No bookmarked posts"
-          : "No blog posts yet"}
-      </h3>
       <p className="text-muted-foreground max-w-md mb-6">
         {activeTab === "Discover"
           ? "Be the first to discover amazing content! Check back later for new posts."
@@ -337,7 +332,6 @@ const BlogPosts = () => {
           <div className="flex space-x-2">
             <TabButton tab="Discover" icon={Newspaper} label="Discover" />
             <TabButton tab="Following" icon={Users} label="Following" />
-            <TabButton tab="Bookmarks" icon={Bookmark} label="Bookmarks" />
           </div>
         </div>
       </div>
