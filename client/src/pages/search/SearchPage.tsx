@@ -4,8 +4,6 @@ import {
   Search,
   Users,
   FileText,
-  Filter,
-  SortAsc,
   Heart,
   MessageCircle,
   Bookmark,
@@ -74,10 +72,9 @@ const SearchPage = () => {
       clearTimeout(debounceTimer.current);
     }
 
-    // Set new timer (500ms delay)
     debounceTimer.current = setTimeout(() => {
       debouncedSearch(value);
-    }, 500);
+    }, 1000);
   };
 
   useEffect(() => {
@@ -203,11 +200,14 @@ const SearchPage = () => {
   );
 
   const UserCard = ({ user }: { user: ISearchData }) => (
-    <Card className="bg-card dark:bg-black dark:lg:bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl hover:shadow-md transition-all duration-300 py-0" onClick={() =>
-                        navigate(`/user/${user.creator.userName}`, {
-                          state: { userId: user.creator.id },
-                        }
-                      )}>
+    <Card
+      className="bg-card dark:bg-black dark:lg:bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl hover:shadow-md transition-all duration-300 py-0"
+      onClick={() =>
+        navigate(`/user/${user.creator.userName}`, {
+          state: { userId: user.creator.id },
+        })
+      }
+    >
       <CardContent className="py-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
@@ -278,15 +278,6 @@ const SearchPage = () => {
                 </Button>
               </div>
             </form>
-
-            <div className="flex space-x-2">
-              <Button variant="ghost" size="icon" className="rounded-xl">
-                <Filter className="size-5" />
-              </Button>
-              <Button variant="ghost" size="icon" className="rounded-xl">
-                <SortAsc className="size-5" />
-              </Button>
-            </div>
           </div>
           <div className="flex space-x-2 overflow-x-auto">
             {tabs.map((tab) => (

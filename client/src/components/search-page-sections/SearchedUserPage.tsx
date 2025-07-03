@@ -19,8 +19,12 @@ import { useLocation } from "react-router-dom";
 import { useSearchedUserData } from "@/hooks/useSearchedUserData";
 
 export default function SearchedUserPage() {
-  const {state} = useLocation();
-  const { data: userData, isPending, isError } = useSearchedUserData(state?.userId);
+  const { state } = useLocation();
+  const {
+    data: userData,
+    isPending,
+    isError,
+  } = useSearchedUserData(state?.userId);
   if (isPending) {
     return (
       <div className="min-h-screen bg-background">
@@ -82,12 +86,16 @@ export default function SearchedUserPage() {
   return (
     <div className="min-h-screen bg-background">
       <motion.div
-        className="relative h-48 w-full bg-blue-600 overflow-hidden"
+        className="relative  h-80 w-full bg-blue-600 overflow-hidden"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
       >
-        <div className="absolute inset-0 bg-black/20" />
+        <img
+          src={userData?.data?.profileBanner || undefined}
+          alt="banner"
+          className="h-full w-full object-cover"
+        />
       </motion.div>
 
       <div className="relative -mt-16 mb-10">

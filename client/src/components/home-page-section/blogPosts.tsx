@@ -1,8 +1,6 @@
 import {
-  Bookmark,
   Newspaper,
   Users,
-  Ellipsis,
   Heart,
   MessageCircle,
   FileText,

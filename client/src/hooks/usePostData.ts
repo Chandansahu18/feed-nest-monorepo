@@ -18,7 +18,7 @@ const fetchPost = async (postId: string): Promise<IPostDataResponse> => {
 
 export const usePostData = (postId:string) => {
   const {data, isPending, error} = useQuery({
-    queryKey: ["post"],
+    queryKey: ["post",postId],
     queryFn: () => fetchPost(postId),
     retry: false,
     refetchOnWindowFocus: false,
