@@ -1,10 +1,4 @@
-import {
-  Newspaper,
-  Users,
-  Heart,
-  MessageCircle,
-  FileText,
-} from "lucide-react";
+import { Newspaper, Users, Heart, MessageCircle, FileText, Bookmark } from "lucide-react";
 import { Button } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { Card, CardContent } from "../ui/card";
@@ -12,17 +6,27 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { usePostsData } from "@/hooks/usePostsData";
 import BlogsSkeleton from "./blogsSkeleton";
 import { useNavigate } from "react-router-dom";
-import type { IPostData } from "../../../../types/dist";
+import type { IPostData, ISavedPostData } from "../../../../types/dist";
+import { Badge } from "../ui/badge";
+import { cn } from "@/lib/utils";
+import { useGetBookmarkedPosts } from "@/hooks/useGetBookmarkedPosts";
+import { usePostBookmark } from "@/hooks/usePostBookmark";
+import { useUserData } from "@/hooks/useUserData";
 
 const BlogPosts = () => {
   const [activeTab, setActiveTab] = useState("Discover");
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
-
+    const { data: userData } = useUserData();
+      const { mutate: BookmarkPost } = usePostBookmark();
   const { posts, hasMore, isLoading, fetchNextPage, isFetchingNextPage } =
     usePostsData();
-
+  const { data: BookmarkedPost } = useGetBookmarkedPosts({
+    userId: userData?.data?.id!,
+  });
+  const [removingBookmark, setRemovingBookmark] = useState<string | null>(null);
+  const [filteredPosts, setFilteredPosts] = useState<ISavedPostData[]>([]);
 
   const handleScroll = useCallback(() => {
     const container = containerRef.current;
@@ -30,7 +34,7 @@ const BlogPosts = () => {
 
     // Get the scroll position and container dimensions
     const { scrollTop, scrollHeight, clientHeight } = container;
-    
+
     // Calculate if we're near the bottom (within 100px)
     const isNearBottom = scrollTop + clientHeight >= scrollHeight - 100;
 
@@ -48,7 +52,7 @@ const BlogPosts = () => {
 
     // Add the scroll event listener
     container.addEventListener("scroll", handleScroll, { passive: true });
-    
+
     return () => {
       container.removeEventListener("scroll", handleScroll);
     };
@@ -60,6 +64,21 @@ const BlogPosts = () => {
       fetchNextPage();
     }
   }, [isLoading, isFetchingNextPage, posts, hasMore, fetchNextPage]);
+
+  const handleRemoveBookmark = async (postId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!userData?.data?.id) return navigate("/");
+    setFilteredPosts((prev) => prev.filter((post) => post.post.id !== postId));
+    setRemovingBookmark(postId);
+    BookmarkPost({ postId, userId: userData.data.id });
+    if (!BookmarkedPost?.data) {
+      setFilteredPosts([]);
+    } else if (Array.isArray(BookmarkedPost?.data)) {
+      setFilteredPosts(BookmarkedPost?.data);
+    }
+
+    setRemovingBookmark(null);
+  };
 
   const TabButton = ({
     tab,
@@ -107,71 +126,116 @@ const BlogPosts = () => {
   );
 
   const PostCard = ({ post }: { post: IPostData }) => (
-    <Card
-      className="bg-card cursor-pointer dark:bg-black dark:lg:bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl hover:shadow-md transition-all duration-300 py-0"
-      onClick={() =>
-        navigate(`/post/${post.postTitle}`, { state: { postId: post.id } })
-      }
-    >
-      <CardContent className="py-3 border-b max-[375px]:px-0 lg:border-0">
-        <div className="flex items-center space-x-3 mb-3">
-          <Avatar className="size-10 border border-border flex items-center justify-center">
-            <AvatarImage src={post.creator.avatar ?? undefined} alt="avatar"/>
+    <Card className="bg-card dark:bg-black dark:lg:bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl hover:shadow-md transition-shadow py-0 cursor-pointer group">
+      <CardContent
+        className="py-6 border-b max-[375px]:px-0 lg:border-0"
+        onClick={() =>
+          navigate(`/post/${post.postTitle}`, { state: { postId: post.id } })
+        }
+      >
+        <div className="flex items-center space-x-3 mb-4">
+          <Avatar className="size-10 rounded-full border border-border flex items-center justify-center cursor-pointer">
+            <AvatarImage
+              src={post.creator.avatar ?? undefined}
+              alt="avatar-image"
+            />
             <AvatarFallback className="text-sm font-bold text-foreground">
               {post.creator.name.charAt(0).toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <div>
             <p className="font-semibold text-foreground">{post.creator.name}</p>
-            <span className="text-sm text-muted-foreground">
-              {new Date(post.createdAt).toLocaleDateString()}
-            </span>
+            <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+              <span>{new Date(post.createdAt).toLocaleDateString()}</span>
+            </div>
           </div>
         </div>
-
         <div
           className={
-            post.postBannerImage ? "md:flex md:h-28 md:justify-between" : ""
+            post.postBannerImage
+              ? "md:flex md:h-28 flex-col md:flex-row md:w-[625px] lg:w-2xl lg:justify-between xl:w-[715px]"
+              : "md:flex flex-col md:w-[625px] lg:w-2xl xl:w-[715px]"
           }
         >
           <div
-            className={post.postBannerImage ? "flex-1 mb-2 md:mr-4" : "mb-2"}
+            className={
+              post.postBannerImage ? "h-full md:w-md xl:w-[500px] mb-2" : "mb-2"
+            }
           >
-            <h2 className="md:text-xl text-base font-bold text-foreground line-clamp-2 hover:text-primary transition-colors duration-200">
+            <h2 className="md:text-xl text-base font-bold text-foreground line-clamp-2 hover:text-primary cursor-pointer group-hover:text-primary transition-colors">
               {post.postTitle}
             </h2>
             <p className="text-muted-foreground line-clamp-2">
               {post.postDescription}
             </p>
+            <div className="flex flex-wrap gap-1 mt-2">
+              {post.postTags.slice(0, 3).map((tag) => (
+                <Badge
+                  key={tag}
+                  variant="secondary"
+                  className="text-xs rounded-full"
+                >
+                  {tag}
+                </Badge>
+              ))}
+              {post.postTags.length > 3 && (
+                <Badge variant="outline" className="text-xs rounded-full">
+                  +{post.postTags.length - 3}
+                </Badge>
+              )}
+            </div>
           </div>
-
           {post.postBannerImage && (
-            <div className="md:w-44 h-36 md:h-full bg-muted rounded-xl overflow-hidden flex-shrink-0">
+            <div className="md:w-44 h-36 md:h-full bg-muted rounded-xl overflow-hidden">
               <img
-                src={post.postBannerImage}
-                alt="Post banner"
-                className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-                loading="lazy"
+                src={post.postBannerImage ?? undefined}
+                alt="post-image"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               />
             </div>
           )}
         </div>
-
-        <div className="flex items-center justify-between mt-2">
-          <div className="flex gap-4">
-            <StatItem
-              icon={Heart}
-              count={post.postLikes.length}
-              label="like"
-              hoverColor="hover:text-red-500"
-            />
-            <StatItem
-              icon={MessageCircle}
-              count={post.postComments.length}
-              label="comment"
-              hoverColor="hover:text-blue-500"
-            />
+        <div className="flex items-center h-6 justify-between mt-3">
+          <div className="flex gap-4 mx-1">
+            <div className="flex gap-1 items-center">
+              <Heart
+                className={cn(
+                  "size-5",
+                  post.postLikes.length > 0
+                    ? "text-red-500 fill-current"
+                    : "text-muted-foreground"
+                )}
+              />
+              <h1 className="text-sm font-medium text-muted-foreground">
+                {post.postLikes.length}
+              </h1>
+              <h1 className="hidden lg:flex text-sm font-medium text-muted-foreground">
+                {post.postLikes.length > 1 ? "likes" : "like"}
+              </h1>
+            </div>
+            <div className="flex gap-1 items-center">
+              <MessageCircle className="size-5 text-muted-foreground" />
+              <h1 className="text-sm font-medium text-muted-foreground">
+                {post.postComments.length}
+              </h1>
+              <h1 className="hidden lg:flex text-sm font-medium text-muted-foreground">
+                {post.postComments.length > 1 ? "comments" : "comment"}
+              </h1>
+            </div>
           </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-muted-foreground hover:text-destructive"
+            onClick={(e) => handleRemoveBookmark(post.id, e)}
+            disabled={removingBookmark === post.id}
+          >
+            {removingBookmark === post.id ? (
+              <div className="w-5 h-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+            ) : (
+              <Bookmark className="size-5 text-blue-600 fill-blue-600" />
+            )}
+          </Button>
         </div>
       </CardContent>
     </Card>
