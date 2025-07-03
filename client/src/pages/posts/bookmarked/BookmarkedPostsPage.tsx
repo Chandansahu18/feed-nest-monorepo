@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,34 +16,41 @@ import { usePostBookmark } from "@/hooks/usePostBookmark";
 const BookmarkedPostsPage = () => {
   const navigate = useNavigate();
   const { data: userData } = useUserData();
-  const { mutate: BookmarkPost } = usePostBookmark();
-  const { data: BookmarkedPost, isPending } = useGetBookmarkedPosts({
+  const { mutate: bookmarkPost } = usePostBookmark();
+  const { data: bookmarkedPostsData, isPending } = useGetBookmarkedPosts({
     userId: userData?.data?.id!,
   });
   const [removingBookmark, setRemovingBookmark] = useState<string | null>(null);
-  const [filteredPosts, setFilteredPosts] = useState<ISavedPostData[]>([]);
+  const [localBookmarkedPosts, setLocalBookmarkedPosts] = useState<Set<string>>(
+    new Set()
+  );
 
+  // Get bookmarked post IDs from API data
+  const bookmarkedPostIds = useMemo(() => {
+    if (!bookmarkedPostsData?.data) return new Set<string>();
+    const posts = Array.isArray(bookmarkedPostsData.data)
+      ? bookmarkedPostsData.data
+      : [bookmarkedPostsData.data];
+    return new Set(posts.map((bp) => bp.post.id));
+  }, [bookmarkedPostsData]);
+
+  // Update local state when API data changes
   useEffect(() => {
-    if (!BookmarkedPost?.data) {
-      setFilteredPosts([]);
-    } else if (Array.isArray(BookmarkedPost?.data)) {
-      setFilteredPosts(BookmarkedPost?.data);
-    }
-  }, [BookmarkedPost?.data]);
+    setLocalBookmarkedPosts(bookmarkedPostIds);
+  }, [bookmarkedPostIds]);
 
   const handleRemoveBookmark = async (postId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     if (!userData?.data?.id) return navigate("/");
 
-    setFilteredPosts((prev) => prev.filter((post) => post.post.id !== postId));
     setRemovingBookmark(postId);
-    BookmarkPost({ postId, userId: userData.data.id });
-    if (!BookmarkedPost?.data) {
-      setFilteredPosts([]);
-    } else if (Array.isArray(BookmarkedPost?.data)) {
-      setFilteredPosts(BookmarkedPost?.data);
-    }
+    setLocalBookmarkedPosts((prev) => {
+      const newSet = new Set(prev);
+      newSet.delete(postId);
+      return newSet;
+    });
 
+    await bookmarkPost({ postId, userId: userData.data.id });
     setRemovingBookmark(null);
   };
 
@@ -98,6 +105,15 @@ const BookmarkedPostsPage = () => {
     );
   }
 
+  // Filter posts to only show those that are locally bookmarked
+  const filteredPosts = useMemo(() => {
+    if (!bookmarkedPostsData?.data) return [];
+    const posts = Array.isArray(bookmarkedPostsData.data)
+      ? bookmarkedPostsData.data
+      : [bookmarkedPostsData.data];
+    return posts.filter((post) => localBookmarkedPosts.has(post.post.id));
+  }, [bookmarkedPostsData, localBookmarkedPosts]);
+
   return (
     <div className="pb-16 mt-20 sm:mt-16 sm:p-8 min-h-screen w-full flex justify-center px-4 mx-auto xl:w-7xl sm:px-6 lg:w-3xl">
       <div
@@ -140,16 +156,16 @@ const BookmarkedPostsPage = () => {
                     <div className="flex items-center space-x-3 mb-4">
                       <Avatar className="size-10 rounded-full border border-border flex items-center justify-center cursor-pointer">
                         <AvatarImage
-                          src={userData?.data?.avatar ?? undefined}
+                          src={post.post.creator.avatar ?? undefined}
                           alt="avatar-image"
                         />
                         <AvatarFallback className="text-sm font-bold text-foreground">
-                          {userData?.data?.name[0]}
+                          {post.post.creator.name[0]}
                         </AvatarFallback>
                       </Avatar>
                       <div>
                         <p className="font-semibold text-foreground">
-                          {userData?.data?.name}
+                          {post.post.creator.name}
                         </p>
                         <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                           <span>
