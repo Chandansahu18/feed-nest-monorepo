@@ -20,10 +20,12 @@ const setCookiesAndResponse = (
   res: Response<IUserCreatedDataResponse>,
   email: string,
   message: string,
-  refreshToken?: string
-) => {
+  refreshToken?: string,
+): void => {
   const accessToken = generateToken(email, accessTokenExpiryTime);
-  const refreshTokenToUse = refreshToken || generateToken(email, refreshTokenExpiryTime);
+  const refreshTokenToUse =
+    refreshToken || generateToken(email, refreshTokenExpiryTime);
+
   res
     .cookie('access_token', accessToken, {
       httpOnly: true,
@@ -37,7 +39,7 @@ const setCookiesAndResponse = (
       sameSite: nodeEnv === 'production' ? 'none' : 'lax',
       maxAge: refreshTokenExpiryTime,
     })
-    .status(204)
+    .status(200)
     .json({
       success: true,
       message,
@@ -58,8 +60,8 @@ const createUser = async (userData: {
   userName?: string;
   hashedPassword?: string;
   isEmailVerified?: boolean;
-}) => {
-  return prisma.user.create({ data: userData });
+}): Promise<void> => {
+  await prisma.user.create({ data: userData });
 };
 
 const handleUserAuth = async (
@@ -69,78 +71,116 @@ const handleUserAuth = async (
   try {
     const { isAuthWithGoogle } = req.query;
     const validUserData = validateUserData.safeParse(req.body);
-    
-    if (!validUserData.data) {
-      const errors = validUserData.error?.issues;
+
+    if (!validUserData.success) {
+      const errors = validUserData.error.issues;
       const errorMessage =
-        errors && errors.length === 1
+        errors.length === 1
           ? errors[0].message
-          : errors?.map((err) => err.message).join(' & ');
-      throw new Error(errorMessage);
+          : errors.map((err) => err.message).join(' & ');
+      res.status(400).json({
+        success: false,
+        message: errorMessage,
+      });
+      return;
     }
 
     const { email, name, userName, password } = validUserData.data;
-    
-    const doUserExist = await prisma.user.findFirst({
-      where: {
-        email,
-      },
-    });
+    const existingUser = await prisma.user.findFirst({ where: { email } });
 
-    // User Auth with Google first time
-    if (!doUserExist && isAuthWithGoogle === 'true') {
-      const refreshToken = generateToken(email, refreshTokenExpiryTime);
-      await createUser({ name, email, isEmailVerified: true, refreshToken });
-      setCookiesAndResponse(res, email, 'user signed in successfully');
-    } else if (!doUserExist || !doUserExist.isEmailVerified) {
-      const hashedPassword = await generateHash(password as string);
-      if (!doUserExist) {
-        await createUser({ name, email, userName, hashedPassword });
+    // Handle Google Auth
+    if (isAuthWithGoogle === 'true') {
+      if (!existingUser) {
+        // First-time Google sign-in
+        const refreshToken = generateToken(email, refreshTokenExpiryTime);
+        await createUser({
+          name,
+          email,
+          isEmailVerified: true,
+          refreshToken,
+        });
+        setCookiesAndResponse(res, email, 'User signed in successfully');
+        return;
+      } else {
+        // Existing Google user
+        const refreshToken = generateToken(email, refreshTokenExpiryTime);
+        await prisma.user.update({
+          where: { email },
+          data: { refreshToken },
+        });
+        setCookiesAndResponse(
+          res,
+          email,
+          'User signed in successfully',
+          refreshToken,
+        );
+        return;
       }
+    }
+
+    // Handle Email/Password Auth
+    if (!password) {
+      res.status(400).json({
+        success: false,
+        message: 'Password is required',
+      });
+      return;
+    }
+
+    if (!existingUser) {
+      // New user registration
+      const hashedPassword = await generateHash(password);
+      await createUser({
+        name,
+        email,
+        userName,
+        hashedPassword,
+      });
       await sendVerificationEmail(email);
       res.status(200).json({
         success: true,
         message: 'Email verification link has been sent to your mail',
       });
-    } else {
-      // Google authenticated user setting password for first time email sign in.
-      if (!doUserExist.hashedPassword) {
-        const hashedPassword = await generateHash(password as string);
-        await prisma.user.update({
-          where: {
-            email,
-          },
-          data: {
-            hashedPassword,
-          },
-        });
-        setCookiesAndResponse(res, email, 'User signed in successfully');
-      } else {
-        if (isAuthWithGoogle === 'true') {
-          const refreshToken = generateToken(email, refreshTokenExpiryTime);
-          await prisma.user.update({
-            where: { email },
-            data: { refreshToken },
-          });
-          setCookiesAndResponse(res, email, 'User signed in successfully', refreshToken);
-        } else {
-          const isPasswordValid = await compareHash(
-            password as string,
-            doUserExist.hashedPassword,
-          );
-
-          if (!isPasswordValid) {
-            res.status(400).json({
-              success: false,
-              message: 'Incorrect password',
-            });
-          } else {
-            setCookiesAndResponse(res, email, 'User signed in successfully');
-          }
-        }
-      }
+      return;
     }
+
+    if (!existingUser.isEmailVerified) {
+      // Resend verification email for unverified users
+      await sendVerificationEmail(email);
+      res.status(200).json({
+        success: true,
+        message: 'Email verification link has been resent to your mail',
+      });
+      return;
+    }
+
+    if (!existingUser.hashedPassword) {
+      // Google user adding password for first time
+      const hashedPassword = await generateHash(password);
+      await prisma.user.update({
+        where: { email },
+        data: { hashedPassword },
+      });
+      setCookiesAndResponse(res, email, 'User signed in successfully');
+      return;
+    }
+
+    // Regular login with email/password
+    const isPasswordValid = await compareHash(
+      password,
+      existingUser.hashedPassword,
+    );
+    if (!isPasswordValid) {
+      res.status(400).json({
+        success: false,
+        message: 'Incorrect password',
+      });
+      return;
+    }
+
+    setCookiesAndResponse(res, email, 'User signed in successfully');
   } catch (error: unknown) {
+    console.error('Authentication error:', error);
     const errorMessage =
       error instanceof Error
         ? error.message
@@ -152,4 +192,5 @@ const handleUserAuth = async (
     });
   }
 };
+
 export default handleUserAuth;

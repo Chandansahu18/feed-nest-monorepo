@@ -107,7 +107,7 @@ const CommandList = forwardRef<CommandListRef, CommandListProps>(({ items, comma
             description: 'Upload an image',
             icon: <Image className="w-4 h-4" />,
             command: (editor: any) => {
-              editor.chain().focus().setImage({ src: response.secure_url }).run();
+              editor.chain().focus().setImage({ src: response.url }).run();
             }
           });
         },

@@ -61,7 +61,7 @@ const EditorToolbar = ({ editor }: EditorToolbarProps) => {
       },
       {
         onSuccess: (response) => {
-          editor.chain().focus().setImage({ src: response.secure_url }).run();
+          editor.chain().focus().setImage({ src: response.url }).run();
         },
         onError: (error) => {
           console.error('Failed to upload image:', error);
@@ -96,8 +96,8 @@ const EditorToolbar = ({ editor }: EditorToolbarProps) => {
             },
             {
               onSuccess: (response) => {
-                console.log('✅ Toolbar URL upload successful:', response.secure_url);
-                editor.chain().focus().setImage({ src: response.secure_url }).run();
+                console.log('✅ Toolbar URL upload successful:', response.url);
+                editor.chain().focus().setImage({ src: response.url }).run();
               },
               onError: (error) => {
                 console.error('❌ Toolbar URL upload failed, using original URL:', error);

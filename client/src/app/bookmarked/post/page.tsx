@@ -1,4 +1,4 @@
-import BookmarkedPostPage from '@/pages/posts/bookmarked/BookmarkedPost';
+import BookmarkedPostPage from '@/pages/bookmarked-posts/BookmarkedPost';
 
 const BookmarkedPostPageWrapper = () => {
   return (

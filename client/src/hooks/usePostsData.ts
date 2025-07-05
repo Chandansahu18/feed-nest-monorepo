@@ -1,56 +1,46 @@
-import { FEEDNEST_BACKEND_API } from "@/utils/apiClient"
-import { keepPreviousData, useQuery } from "@tanstack/react-query"
-import { useRef } from "react"
-import type { IPostData, IPostsDataResponse } from "../../../types/dist";
+import { FEEDNEST_BACKEND_API } from "@/utils/apiClient";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import type { IPostsDataResponse } from "../../../types/dist";
 
-const handleAllPosts = async (cursor?: string): Promise<IPostsDataResponse> => {
-   try {
-     const response = await FEEDNEST_BACKEND_API.get('/v1/posts', {
-        params: { cursor },
-        withCredentials: true,
-    })
-    return response.data
-   } catch (error) {      
-     const errorMessage = error instanceof Error ? error.message : 'Something went wrong'
+const fetchPosts = async (cursor?: string): Promise<IPostsDataResponse> => {
+  try {
+    const response = await FEEDNEST_BACKEND_API.get("/v1/posts", {
+      params: { cursor },
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Something went wrong";
     throw new Error(errorMessage);
-   }
-}
+  }
+};
 
-export const usePostsData = (cursor?: string) => {
-    const allPosts = useRef<IPostData[]>([])
-    const canFetch = useRef(true)
-    
-    const query = useQuery({
-        queryKey: ['posts', cursor],
-        queryFn: () => handleAllPosts(cursor),
-        retry: false,
-        refetchOnWindowFocus: false,
-        refetchOnMount: false,
-        placeholderData: keepPreviousData,
-        enabled: canFetch.current
-    })
+export const usePostsData = () => {
+  const query = useInfiniteQuery({
+    queryKey: ["posts"],
+    queryFn: ({ pageParam }) => fetchPosts(pageParam),
+    initialPageParam: undefined,
+    getNextPageParam: (lastPage: IPostsDataResponse) => {
+      if (!lastPage.success || !lastPage.data?.length) return undefined;
+      return lastPage.data[lastPage.data.length - 1].id;
+    },
+    retry: false,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+  });
 
-    if (query?.data?.data) {
-        if (query?.data?.data?.length === 0) {
-            canFetch.current = false
-        } else {
-            if (!cursor) {
-                allPosts.current = query?.data?.data
-            } else {
-                const existingIds = allPosts.current.map(post => post.id)
-                const newPosts = query?.data?.data?.filter((post: IPostData) => 
-                    !existingIds.includes(post.id)
-                )
-                allPosts.current = [...allPosts.current, ...newPosts]
-            }
-        }
-    }
+  const posts =
+    query.data?.pages.flatMap((page: IPostsDataResponse) => page.data ?? []) ??
+    [];
 
-    return {
-      ...query,
-      data: allPosts.current,
-      hasMore: canFetch.current,
-      isPending: query.isPending,
-      error: query.error
-    }
-}
+  return {
+    ...query,
+    posts,
+    hasMore: query.hasNextPage,
+    isLoading: query.isPending,
+    error: query.error,
+    fetchNextPage: query.fetchNextPage,
+    isFetchingNextPage: query.isFetchingNextPage,
+  };
+};

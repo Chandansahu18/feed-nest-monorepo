@@ -44,6 +44,8 @@ export interface IPost {
     postDescription: string | null;
     postBannerImage: string | null;
     postTags: string[];
+    postComments?: IPostCommentOrReply[];
+    postLikes?: IPostLikes[];
     published: boolean;
     createdAt: Date;
     updatedAt: Date;
@@ -122,17 +124,14 @@ export interface ISavedPost {
     userId: string;
 }
 export interface ISavedPostData extends ISavedPost {
-    post: IPost;
+    post: IPostData;
 }
 export interface ISavedPostsDataResponse {
     success: boolean;
     message: string;
     data?: ISavedPostData[] | ISavedPostData | null;
 }
-export interface ISearchData extends IPost {
-    creator: IUser;
-    postComments: IPostCommentOrReply[];
-    postLikes: IPostLikes[];
+export interface ISearchData extends IPostData {
 }
 export interface ISearchDataResponse {
     success: boolean;
