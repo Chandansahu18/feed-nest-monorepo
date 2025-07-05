@@ -10,7 +10,7 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useGetBookmarkedPosts } from "@/hooks/useGetBookmarkedPosts";
 import { useUserData } from "@/hooks/useUserData";
-import type { ISavedPostData } from "../../../../../types/dist";
+import type { ISavedPostData } from "../../../../types/dist";
 import { usePostBookmark } from "@/hooks/usePostBookmark";
 
 const BookmarkedPostsPage = () => {

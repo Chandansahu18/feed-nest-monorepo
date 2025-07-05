@@ -15,7 +15,6 @@ import EditorToolbar from './EditorToolbar';
 import SlashCommands from './SlashCommands';
 import { useCloudinaryUpload, useCloudinaryUrlUpload, useCurrentUser } from '@/hooks/useCloudinaryUpload';
 import { isImageUrl } from '@/utils/cloudinary';
-import './editor.css';
 import {common, createLowlight} from 'lowlight'
 
 const lowlight = createLowlight(common)
@@ -73,14 +72,14 @@ const TiptapEditor = ({ content, onChange, maxLength = 5000 }: TiptapEditorProps
                 },
                 {
                   onSuccess: (response) => {
-                    console.log('✅ Auto URL upload successful:', response.secure_url);
+                    console.log('✅ Auto URL upload successful:', response.url);
                     // Replace with Cloudinary URL
                     setTimeout(() => {
                       if (editor) {
                         const { from, to } = editor.state.selection;
                         editor.chain()
                           .deleteRange({ from, to })
-                          .setImage({ src: response.secure_url })
+                          .setImage({ src: response.url })
                           .run();
                       }
                     }, 0);
@@ -168,7 +167,7 @@ const TiptapEditor = ({ content, onChange, maxLength = 5000 }: TiptapEditorProps
               },
               {
                 onSuccess: (response) => {
-                  editor?.chain().focus().setImage({ src: response.secure_url }).run();
+                  editor?.chain().focus().setImage({ src: response.url }).run();
                 },
                 onError: (error) => {
                   console.error('Failed to upload pasted image:', error);
@@ -201,8 +200,8 @@ const TiptapEditor = ({ content, onChange, maxLength = 5000 }: TiptapEditorProps
               },
               {
                 onSuccess: (response) => {
-                  console.log('✅ Pasted URL upload successful:', response.secure_url);
-                  editor?.chain().focus().setImage({ src: response.secure_url }).run();
+                  console.log('✅ Pasted URL upload successful:', response.url);
+                  editor?.chain().focus().setImage({ src: response.url }).run();
                 },
                 onError: (error) => {
                   console.error('❌ Pasted URL upload failed, using original URL:', error);
@@ -245,11 +244,11 @@ const TiptapEditor = ({ content, onChange, maxLength = 5000 }: TiptapEditorProps
                     .focus()
                     .insertContentAt(pos.pos, {
                       type: 'image',
-                      attrs: { src: response.secure_url }
+                      attrs: { src: response.url }
                     })
                     .run();
                 } else {
-                  editor?.chain().focus().setImage({ src: response.secure_url }).run();
+                  editor?.chain().focus().setImage({ src: response.url }).run();
                 }
               },
               onError: (error) => {

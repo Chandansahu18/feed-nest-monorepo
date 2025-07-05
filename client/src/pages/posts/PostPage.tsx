@@ -12,87 +12,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { usePostCommentsData } from "@/hooks/usePostComments";
-
-// Markdown rendering component
-const MarkdownRenderer = ({ content }: { content: string }) => {
-  if (!content) return null;
-
-  // Simple markdown parser for basic formatting
-  const parseMarkdown = (text: string) => {
-    // Handle headings
-    text = text.replace(
-      /^### (.*$)/gm,
-      '<h3 class="text-xl font-semibold mb-4 mt-6">$1</h3>'
-    );
-    text = text.replace(
-      /^## (.*$)/gm,
-      '<h2 class="text-2xl font-semibold mb-4 mt-8">$1</h2>'
-    );
-    text = text.replace(
-      /^# (.*$)/gm,
-      '<h1 class="text-3xl font-bold mb-6 mt-8">$1</h1>'
-    );
-
-    // Handle bold and italic
-    text = text.replace(
-      /\*\*(.*?)\*\*/g,
-      '<strong class="font-semibold">$1</strong>'
-    );
-    text = text.replace(/\*(.*?)\*/g, '<em class="italic">$1</em>');
-
-    // Handle code blocks
-    text = text.replace(
-      /```([\s\S]*?)```/g,
-      '<pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto my-4"><code class="text-sm">$1</code></pre>'
-    );
-
-    // Handle inline code
-    text = text.replace(
-      /`(.*?)`/g,
-      '<code class="bg-gray-100 px-2 py-1 rounded text-sm font-mono">$1</code>'
-    );
-
-    // Handle links
-    text = text.replace(
-      /\[([^\]]+)\]\(([^\)]+)\)/g,
-      '<a href="$2" class="text-blue-600 hover:text-blue-800 underline" target="_blank" rel="noopener noreferrer">$1</a>'
-    );
-
-    // Handle line breaks and paragraphs
-    text = text.replace(/\n\n/g, '</p><p class="mb-4">');
-    text = text.replace(/\n/g, "<br>");
-
-    // Handle lists
-    text = text.replace(/^\* (.*$)/gm, '<li class="mb-2">$1</li>');
-    text = text.replace(/^- (.*$)/gm, '<li class="mb-2">$1</li>');
-    text = text.replace(
-      /(<li class="mb-2">.*<\/li>)/s,
-      '<ul class="list-disc pl-6 mb-4">$1</ul>'
-    );
-
-    // Handle numbered lists
-    text = text.replace(/^\d+\. (.*$)/gm, '<li class="mb-2">$1</li>');
-
-    // Handle blockquotes
-    text = text.replace(
-      /^> (.*$)/gm,
-      '<blockquote class="border-l-4 border-gray-300 pl-4 italic text-gray-700 my-4">$1</blockquote>'
-    );
-
-    return text;
-  };
-
-  const processedContent = parseMarkdown(content);
-
-  return (
-    <div
-      className="markdown-content prose prose-sm sm:prose-base lg:prose-lg xl:prose-xl max-w-none"
-      dangerouslySetInnerHTML={{
-        __html: `<p class="mb-4">${processedContent}</p>`,
-      }}
-    />
-  );
-};
+import { MarkdownRenderer } from "@/components/post-page-sections/MarkDown";
 
 const PostPage = () => {
   const navigate = useNavigate();
@@ -196,7 +116,6 @@ const PostPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Banner Image Section */}
       {hasBannerImage && (
         <div className="w-full h-64 sm:h-80 md:h-96 lg:h-[28rem] bg-gradient-to-r from-purple-600 to-blue-600 relative overflow-hidden">
           <img
@@ -205,14 +124,12 @@ const PostPage = () => {
             className="w-full h-full object-cover"
           />
 
-          {/* Title overlay */}
           <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8 lg:p-12 text-white">
             <div className="max-w-4xl mx-auto">
               <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 md:mb-6 leading-tight">
                 {PostData.data?.postTitle}
               </h1>
 
-              {/* Author info */}
               <div className="flex items-center gap-3 sm:gap-4 md:gap-6">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full bg-white bg-opacity-20 backdrop-blur-sm overflow-hidden border-2 border-white border-opacity-30 flex-shrink-0">
                   {PostData.data?.creator.avatar ? (
@@ -246,10 +163,8 @@ const PostPage = () => {
         </div>
       )}
 
-      {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 lg:py-12">
         <div className="max-w-3xl mx-auto">
-          {/* Title and Author for non-banner version */}
           {!hasBannerImage && (
             <>
               <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-6 sm:mb-8 md:mb-10 leading-tight text-gray-900">
@@ -287,7 +202,6 @@ const PostPage = () => {
             </>
           )}
 
-          {/* Action Buttons */}
           <div className="flex items-center justify-between mb-6 sm:mb-8 md:mb-10 py-3 sm:py-4 border-y border-gray-200">
             <div className="flex items-center gap-4 sm:gap-6 md:gap-8">
               <button
@@ -345,7 +259,6 @@ const PostPage = () => {
             </div>
           </div>
 
-          {/* Post Content with Markdown Rendering */}
           <div className="mb-8 sm:mb-12 lg:mb-16">
             <div className="mb-6 sm:mb-8 lg:mb-10 text-gray-700 leading-relaxed text-sm sm:text-base md:text-lg">
               {PostData.data?.postDescription ? (
@@ -359,8 +272,6 @@ const PostPage = () => {
           </div>
         </div>
       </div>
-
-      {/* Comments Section */}
       {showComments && (
         <div className="bg-white border-t border-gray-200">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 lg:py-12">
@@ -371,12 +282,10 @@ const PostPage = () => {
                 </h3>
               </div>
 
-              {/* Add Comment Form */}
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
                   if (!newComment.trim()) return;
-                  // Handle comment submission here
                   setNewComment("");
                 }}
                 className="mb-8 sm:mb-10 lg:mb-12"
@@ -406,7 +315,6 @@ const PostPage = () => {
                 </div>
               </form>
 
-              {/* Comments List */}
               <div className="space-y-6 sm:space-y-8">
                 {postComments?.data?.map((comment) => (
                   <div key={comment.id} className="flex gap-3 sm:gap-4">
@@ -433,52 +341,6 @@ const PostPage = () => {
           </div>
         </div>
       )}
-
-      {/* Mobile Bottom Navigation */}
-      <div className="fixed md:hidden bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3 flex items-center justify-around shadow-lg">
-        <button
-          onClick={handleLike}
-          className={`flex flex-col items-center justify-center p-2 rounded-full transition-all duration-200 ${
-            isLiked ? "text-red-500" : "text-gray-600 hover:text-red-500"
-          }`}
-        >
-          <Heart className={`w-5 h-5 ${isLiked ? "fill-current" : ""}`} />
-          <span className="text-xs mt-1">
-            {likeCount > 0 ? likeCount : "Like"}
-          </span>
-        </button>
-
-        <button
-          onClick={() => setShowComments(!showComments)}
-          className={`flex flex-col items-center justify-center p-2 rounded-full transition-all duration-200 ${
-            showComments ? "text-blue-500" : "text-gray-600 hover:text-blue-500"
-          }`}
-        >
-          <MessageCircle className="w-5 h-5" />
-          <span className="text-xs mt-1">
-            {postComments?.data?.length}{" "}
-            {postComments?.data?.length === 1 ? "Comment" : "Comments"}
-          </span>
-        </button>
-
-        <button
-          onClick={handleSave}
-          className={`flex flex-col items-center justify-center p-2 rounded-full transition-all duration-200 ${
-            isSaved ? "text-blue-500" : "text-gray-600 hover:text-blue-500"
-          }`}
-        >
-          <Bookmark className={`w-5 h-5 ${isSaved ? "fill-current" : ""}`} />
-          <span className="text-xs mt-1">Save</span>
-        </button>
-
-        <button
-          onClick={handleShare}
-          className="flex flex-col items-center justify-center p-2 rounded-full text-gray-600 hover:text-green-500 transition-all duration-200"
-        >
-          <Share2 className="w-5 h-5" />
-          <span className="text-xs mt-1">Share</span>
-        </button>
-      </div>
     </div>
   );
 };

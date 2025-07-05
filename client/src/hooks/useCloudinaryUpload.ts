@@ -1,8 +1,12 @@
-import { useMutation } from '@tanstack/react-query';
-import { uploadToCloudinary, uploadUrlToCloudinary } from '@/utils/cloudinary';
-import type { TCloudinaryUploadOptions, TUploadError, TUploadResult } from '@/utils/schema/cloudinary';
-import { useUserData } from './useUserData';
-import { useState } from 'react';
+import { useMutation } from "@tanstack/react-query";
+import { uploadToCloudinary, uploadUrlToCloudinary } from "@/utils/cloudinary";
+import type {
+  TCloudinaryUploadOptions,
+  TUploadError,
+  TUploadResult,
+} from "@/utils/schema/cloudinary";
+import { useUserData } from "./useUserData";
+import { useState } from "react";
 
 const validateCloudinaryConfig = (): boolean => {
   const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
@@ -11,91 +15,98 @@ const validateCloudinaryConfig = (): boolean => {
 };
 
 export const useCloudinaryUpload = () => {
-  return useMutation<TUploadResult, TUploadError, { file: File; options: TCloudinaryUploadOptions }>({
-
+  return useMutation<
+    TUploadResult,
+    TUploadError,
+    { file: File; options: TCloudinaryUploadOptions }
+  >({
     mutationFn: async ({ file, options }) => {
       if (!validateCloudinaryConfig()) {
-        throw new Error('Cloudinary configuration missing. Please check your environment variables.');
+        throw new Error(
+          "Cloudinary configuration missing. Please check your environment variables."
+        );
       }
 
       const response = await uploadToCloudinary(file, options);
-      
+
       return {
         url: response.secure_url,
         publicId: response.public_id,
-        originalFilename: response.original_filename
+        originalFilename: response.original_filename,
       };
     },
     onError: (error) => {
-      console.error('❌ File upload failed:', error.message);
-    },
-    onSuccess: (data) => {
-      console.log('✅ File upload successful:', data.url);
+      console.error("File upload failed:", error.message);
     },
   });
 };
+
 export const useCloudinaryUrlUpload = () => {
-  return useMutation<TUploadResult, TUploadError, { url: string; options: TCloudinaryUploadOptions }>({
+  return useMutation<
+    TUploadResult,
+    TUploadError,
+    { url: string; options: TCloudinaryUploadOptions }
+  >({
     mutationFn: async ({ url, options }) => {
       if (!validateCloudinaryConfig()) {
-        throw new Error('Cloudinary configuration missing. Please check your environment variables.');
+        throw new Error(
+          "Cloudinary configuration missing. Please check your environment variables."
+        );
       }
 
       const response = await uploadUrlToCloudinary(url, options);
-      
+
       return {
         url: response.secure_url,
         publicId: response.public_id,
-        originalFilename: response.original_filename
+        originalFilename: response.original_filename,
       };
     },
     onError: (error) => {
-      console.error('❌ URL upload failed:', error.message);
-    },
-    onSuccess: (data) => {
-      console.log('✅ URL upload successful:', data.url);
+      console.error("URL upload failed:", error.message);
     },
   });
 };
 
 export const useCloudinaryBatchUpload = () => {
-  return useMutation<TUploadResult[], TUploadError, { files: File[]; options: Omit<TCloudinaryUploadOptions, 'fileName'> }>({
-
+  return useMutation<
+    TUploadResult[],
+    TUploadError,
+    { files: File[]; options: Omit<TCloudinaryUploadOptions, "fileName"> }
+  >({
     mutationFn: async ({ files, options }) => {
       if (!validateCloudinaryConfig()) {
-        throw new Error('Cloudinary configuration missing. Please check your environment variables.');
+        throw new Error(
+          "Cloudinary configuration missing. Please check your environment variables."
+        );
       }
 
-      const uploadPromises = files.map((file, index) => 
+      const uploadPromises = files.map((file, index) =>
         uploadToCloudinary(file, {
           ...options,
-          fileName: `batch-${Date.now()}-${index}`
+          fileName: `batch-${Date.now()}-${index}`,
         })
       );
 
       const responses = await Promise.all(uploadPromises);
-      
-      return responses.map(response => ({
+
+      return responses.map((response) => ({
         url: response.secure_url,
         publicId: response.public_id,
-        originalFilename: response.original_filename
+        originalFilename: response.original_filename,
       }));
     },
     onError: (error) => {
-      console.error('❌ Batch upload failed:', error.message);
-    },
-    onSuccess: (data) => {
-      console.log('✅ Batch upload successful:', data.length, 'files uploaded');
+      console.error("Batch upload failed:", error.message);
     },
   });
 };
 
-// Hook for getting current user with proper error handling
 export const useCurrentUser = () => {
   const { data: userData, error, isPending } = useUserData();
-  
+
   return {
-    userId: userData?.data?.id || 'anonymous',
+    userId: userData?.data?.id || "anonymous",
     userName: userData?.data?.userName || null,
     isAuthenticated: !!userData?.data,
     isLoading: isPending,
@@ -103,7 +114,6 @@ export const useCurrentUser = () => {
   };
 };
 
-// Specialized hooks for different image types
 export const useBannerImageUpload = () => {
   const { userId } = useCurrentUser();
   const fileUpload = useCloudinaryUpload();
@@ -114,9 +124,9 @@ export const useBannerImageUpload = () => {
       file,
       options: {
         userId,
-        imageType: 'banner',
-        fileName: fileName || `banner-${Date.now()}`
-      }
+        imageType: "banner",
+        fileName: fileName || `banner-${Date.now()}`,
+      },
     });
   };
 
@@ -125,9 +135,9 @@ export const useBannerImageUpload = () => {
       url,
       options: {
         userId,
-        imageType: 'banner',
-        fileName: fileName || `banner-url-${Date.now()}`
-      }
+        imageType: "banner",
+        fileName: fileName || `banner-url-${Date.now()}`,
+      },
     });
   };
 
@@ -149,9 +159,9 @@ export const usePostImageUpload = () => {
       file,
       options: {
         userId,
-        imageType: 'post',
-        fileName: fileName || `post-${Date.now()}`
-      }
+        imageType: "post",
+        fileName: fileName || `post-${Date.now()}`,
+      },
     });
   };
 
@@ -160,9 +170,9 @@ export const usePostImageUpload = () => {
       url,
       options: {
         userId,
-        imageType: 'post',
-        fileName: fileName || `post-url-${Date.now()}`
-      }
+        imageType: "post",
+        fileName: fileName || `post-url-${Date.now()}`,
+      },
     });
   };
 
@@ -174,9 +184,8 @@ export const usePostImageUpload = () => {
   };
 };
 
-// Hook for managing image URLs for database storage
 export const useImageUrlManager = () => {
-  const [bannerImageUrl, setBannerImageUrl] = useState <string>('');
+  const [bannerImageUrl, setBannerImageUrl] = useState<string>("");
   const [postImageUrls, setPostImageUrls] = useState<string[]>([]);
 
   const addBannerImage = (url: string) => {
@@ -184,27 +193,26 @@ export const useImageUrlManager = () => {
   };
 
   const removeBannerImage = () => {
-    setBannerImageUrl('');
+    setBannerImageUrl("");
   };
 
   const addPostImage = (url: string) => {
-    setPostImageUrls(prev => [...prev, url]);
+    setPostImageUrls((prev) => [...prev, url]);
   };
 
   const removePostImage = (url: string) => {
-    setPostImageUrls(prev => prev.filter(imageUrl => imageUrl !== url));
+    setPostImageUrls((prev) => prev.filter((imageUrl) => imageUrl !== url));
   };
 
   const clearAllImages = () => {
-    setBannerImageUrl('');
+    setBannerImageUrl("");
     setPostImageUrls([]);
   };
 
-  // Return URLs in format ready for database storage
   const getImageDataForDB = () => ({
     bannerImage: bannerImageUrl || null,
     postImages: postImageUrls.length > 0 ? postImageUrls : [],
-    hasImages: !!(bannerImageUrl || postImageUrls.length > 0)
+    hasImages: !!(bannerImageUrl || postImageUrls.length > 0),
   });
 
   return {
@@ -219,34 +227,32 @@ export const useImageUrlManager = () => {
   };
 };
 
-// Utility hook for image validation
 export const useImageValidation = () => {
-  const validateFile = (file: File, imageType: 'banner' | 'post' = 'post') => {
+  const validateFile = (file: File, imageType: "banner" | "post" = "post") => {
     const errors: string[] = [];
-    
-    // File type validation
-    if (!file.type.startsWith('image/')) {
-      errors.push('File must be an image');
+
+    if (!file.type.startsWith("image/")) {
+      errors.push("File must be an image");
     }
 
-    // File size validation
     const maxSizes = {
-      banner: 5 * 1024 * 1024, // 5MB for banners
-      post: 3 * 1024 * 1024,   // 3MB for post images
+      banner: 5 * 1024 * 1024,
+      post: 3 * 1024 * 1024,
     };
 
     if (file.size > maxSizes[imageType]) {
-      errors.push(`File size must be less than ${maxSizes[imageType] / 1024 / 1024}MB`);
+      errors.push(
+        `File size must be less than ${maxSizes[imageType] / 1024 / 1024}MB`
+      );
     }
 
-    // File name validation
     if (file.name.length > 100) {
-      errors.push('File name is too long');
+      errors.push("File name is too long");
     }
 
     return {
       isValid: errors.length === 0,
-      errors
+      errors,
     };
   };
 
@@ -256,22 +262,21 @@ export const useImageValidation = () => {
     try {
       new URL(url);
     } catch {
-      errors.push('Invalid URL format');
+      errors.push("Invalid URL format");
     }
 
-    // Check for common image extensions
-    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
-    const hasImageExtension = imageExtensions.some(ext => 
+    const imageExtensions = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"];
+    const hasImageExtension = imageExtensions.some((ext) =>
       url.toLowerCase().includes(ext)
     );
 
     if (!hasImageExtension) {
-      errors.push('URL does not appear to be an image');
+      errors.push("URL does not appear to be an image");
     }
 
     return {
       isValid: errors.length === 0,
-      errors
+      errors,
     };
   };
 

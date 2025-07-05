@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import TiptapEditor from "@/components/editor/TiptapEditor";
+import TiptapEditor from "@/components/create-post-sections/editor/TiptapEditor";
 import ImageUpload from "@/components/create-post-sections/ImageUpload";
 import TagInput from "@/components/create-post-sections/TagInput";
 import { Save, Eye, Upload, Sparkles, ArrowLeft, Check } from "lucide-react";
@@ -48,10 +48,7 @@ const CreatePostPage = () => {
   });
 
   const { mutate: createPost, isPending: isCreating } = useCreatePost();
-  const { data, mutate: enhanceContent } = useEnhanceContent();
-
-  // Debug log to see the structure
-  console.log("Enhancement data:", data);
+  const { mutate: enhanceContent } = useEnhanceContent();
 
   const handleInputChange = (
     field: string,
@@ -60,11 +57,8 @@ const CreatePostPage = () => {
     setPostData((prev) => ({ ...prev, [field]: value }));
   };
 
-  // Enhanced image upload handler to properly handle Cloudinary response
   const handleImageUpload = (response: any) => {
-    console.log("Image upload response:", response);
 
-    // Extract URL from different possible response formats
     let imageUrl = "";
 
     if (typeof response === "string") {
@@ -78,8 +72,6 @@ const CreatePostPage = () => {
     } else if (response?.data?.url) {
       imageUrl = response.data.url;
     }
-
-    console.log("Extracted image URL:", imageUrl);
 
     if (imageUrl) {
       handleInputChange("postBannerImage", imageUrl);
@@ -131,7 +123,6 @@ const CreatePostPage = () => {
     const { TITLE_MIN, TITLE_MAX, DESCRIPTION_MIN, DESCRIPTION_MAX, MAX_TAGS } =
       VALIDATION_LIMITS;
 
-    // Ensure postTitle is a string before calling trim()
     const titleStr = String(postTitle || "");
     if (!titleStr.trim()) errors.push("Title is required");
     else if (titleStr.length < TITLE_MIN)
@@ -139,7 +130,6 @@ const CreatePostPage = () => {
     else if (titleStr.length > TITLE_MAX)
       errors.push(`Title must not exceed ${TITLE_MAX} characters`);
 
-    // Ensure postDescription is a string before checking length
     const descriptionStr = String(postDescription || "");
     if (descriptionStr.length > 0 && descriptionStr.length < DESCRIPTION_MIN) {
       errors.push(
@@ -148,8 +138,6 @@ const CreatePostPage = () => {
     } else if (descriptionStr.length > DESCRIPTION_MAX) {
       errors.push(`Description must not exceed ${DESCRIPTION_MAX} characters`);
     }
-
-    // Ensure postTags is an array before checking length
     const tagsArray = Array.isArray(postTags) ? postTags : [];
     if (tagsArray.length > MAX_TAGS)
       errors.push(`Maximum ${MAX_TAGS} tags allowed`);
@@ -178,7 +166,6 @@ const CreatePostPage = () => {
     return "text-muted-foreground";
   };
 
-  // Enhanced Button Component
   const EnhanceButton = ({
     onClick,
     disabled,
@@ -255,7 +242,6 @@ const CreatePostPage = () => {
   if (showPreview) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
-        {/* Fixed container that respects header/footer */}
         <div className="pt-20 pb-20 sm:pb-8 px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto">
             <motion.div
@@ -264,7 +250,6 @@ const CreatePostPage = () => {
               transition={{ duration: 0.6 }}
               className="space-y-6 sm:space-y-8"
             >
-              {/* Preview Header */}
               <div className="flex flex-col gap-4 sm:gap-6">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div className="space-y-2">
@@ -283,8 +268,6 @@ const CreatePostPage = () => {
                   <HeaderActions isPreview />
                 </div>
               </div>
-
-              {/* Preview Content */}
               <Card className="bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl">
                 <CardContent className="p-4 sm:p-6 lg:p-8 xl:p-12">
                   {postData.postBannerImage && (
@@ -353,7 +336,6 @@ const CreatePostPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
-      {/* Fixed container that respects header/footer */}
       <div className="pt-20 pb-20 sm:pb-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto" style={{ minWidth: "320px" }}>
           <motion.div
@@ -362,7 +344,6 @@ const CreatePostPage = () => {
             transition={{ duration: 0.6 }}
             className="space-y-6 sm:space-y-8"
           >
-            {/* Header */}
             <div className="flex flex-col gap-4 sm:gap-6">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div className="space-y-2">
@@ -378,9 +359,7 @@ const CreatePostPage = () => {
             </div>
 
             <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 lg:gap-8">
-              {/* Main Content */}
               <div className="xl:col-span-3 space-y-6 lg:space-y-8">
-                {/* Banner Image */}
                 <Card className="bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl transition-all duration-300 hover:shadow-md hover:border-0 lg:hover:border">
                   <CardHeader className="p-4 sm:p-6 pb-2 sm:pb-4">
                     <CardTitle className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 text-base sm:text-lg lg:text-xl">
@@ -405,8 +384,6 @@ const CreatePostPage = () => {
                     />
                   </CardContent>
                 </Card>
-
-                {/* Title */}
                 <Card className="bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl transition-all duration-300 hover:shadow-md hover:border-0 lg:hover:border">
                   <CardContent className="p-4 sm:p-6 lg:p-8">
                     <div className="space-y-3 sm:space-y-4">
@@ -457,8 +434,6 @@ const CreatePostPage = () => {
                     </div>
                   </CardContent>
                 </Card>
-
-                {/* Content Editor */}
                 <Card className="bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl transition-all duration-300 hover:shadow-md hover:border-0 lg:hover:border">
                   <CardHeader className="p-4 sm:p-6 pb-2 sm:pb-4">
                     <CardTitle className="text-base sm:text-lg lg:text-xl">
@@ -522,10 +497,7 @@ const CreatePostPage = () => {
                   </CardContent>
                 </Card>
               </div>
-
-              {/* Sidebar */}
               <div className="xl:col-span-1 space-y-6">
-                {/* Publish Settings */}
                 <Card className="bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl transition-all duration-300 hover:shadow-md hover:border-0 lg:hover:border">
                   <CardHeader className="p-4 sm:p-6 pb-2 sm:pb-4">
                     <CardTitle className="text-sm sm:text-base lg:text-lg">
@@ -562,8 +534,6 @@ const CreatePostPage = () => {
                     )}
                   </CardContent>
                 </Card>
-
-                {/* Tags */}
                 <Card className="bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl transition-all duration-300 hover:shadow-md hover:border-0 lg:hover:border">
                   <CardHeader className="p-4 sm:p-6 pb-2 sm:pb-4">
                     <CardTitle className="text-sm sm:text-base lg:text-lg">
@@ -578,8 +548,6 @@ const CreatePostPage = () => {
                     />
                   </CardContent>
                 </Card>
-
-                {/* Post Stats */}
                 <Card className="bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl transition-all duration-300 hover:shadow-md hover:border-0 lg:hover:border">
                   <CardHeader className="p-4 sm:p-6 pb-2 sm:pb-4">
                     <CardTitle className="text-sm sm:text-base lg:text-lg">
@@ -630,7 +598,6 @@ const CreatePostPage = () => {
               </div>
             </div>
 
-            {/* Mobile Save Button */}
             <div className="xl:hidden">
               <Button
                 onClick={handleSavePost}

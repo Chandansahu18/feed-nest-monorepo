@@ -35,13 +35,14 @@ import { useUserDataUpdate } from "@/hooks/useUserDataUpdate";
 import type { TUserDataUpdate } from "@/utils/schema/userData";
 import { Badge } from "@/components/ui/badge";
 import ImageUpload from "@/components/create-post-sections/ImageUpload";
+import { useUserAccountDelete } from "@/hooks/useUserAccountDelete";
 
 const AccountSettingsPage = () => {
   const navigate = useNavigate();
   const { data: userData, isPending: userDataPending } = useUserData();
   const { mutate: updateUser, isPending: updateUserPending } =
     useUserDataUpdate();
-
+ const {mutate:DeleteAccount} = useUserAccountDelete();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [formData, setFormData] = useState<TUserDataUpdate>({
     name: "",
@@ -82,11 +83,9 @@ const AccountSettingsPage = () => {
   };
 
   const handleDeleteAccount = () => {
-    // Simulate account deletion
-    setTimeout(() => {
-      setDeleteDialogOpen(false);
-      // Add actual delete logic here
-    }, 2000);
+   DeleteAccount();
+   console.log("account deleted successfully");
+   
   };
 
   const validateForm = (): boolean => {

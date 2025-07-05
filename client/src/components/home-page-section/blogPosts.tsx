@@ -38,7 +38,6 @@ const BlogPosts = () => {
     userId: userData?.data?.id!,
   });
 
-  // Get bookmarked post IDs from API data
   const bookmarkedPostIds = useMemo(() => {
     if (!BookmarkedPost?.data) return new Set<string>();
     const bookmarkedPosts = Array.isArray(BookmarkedPost.data)
@@ -47,13 +46,11 @@ const BlogPosts = () => {
     return new Set(bookmarkedPosts.map((bp) => bp.post.id));
   }, [BookmarkedPost]);
 
-  // Update local state when API data changes
   useEffect(
     () => setLocalBookmarkedPosts(bookmarkedPostIds),
     [bookmarkedPostIds]
   );
 
-  // Filter posts based on active tab
   const filteredPosts = useMemo(
     () =>
       activeTab === "Bookmarks"
@@ -62,7 +59,6 @@ const BlogPosts = () => {
     [posts, activeTab, localBookmarkedPosts]
   );
 
-  // Scroll handler for infinite scroll
   const handleScroll = useCallback(() => {
     const container = containerRef.current;
     if (!container || !hasMore || isLoading || isFetchingNextPage) return;
@@ -78,7 +74,6 @@ const BlogPosts = () => {
     }
   }, [posts?.length, hasMore, isLoading, isFetchingNextPage, fetchNextPage]);
 
-  // Setup scroll listener
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -86,14 +81,12 @@ const BlogPosts = () => {
     return () => container.removeEventListener("scroll", handleScroll);
   }, [handleScroll]);
 
-  // Initial fetch if no posts
   useEffect(() => {
     if (!isLoading && !isFetchingNextPage && posts?.length === 0 && hasMore) {
       fetchNextPage();
     }
   }, [isLoading, isFetchingNextPage, posts, hasMore, fetchNextPage]);
 
-  // Handle bookmark toggle
   const handleBookmark = async (postId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     if (!userData?.data?.id) return navigate("/");
@@ -109,7 +102,6 @@ const BlogPosts = () => {
     setRemovingBookmark(null);
   };
 
-  // Clean markdown content
   const cleanMarkdownContent = (content: string | null) => {
     if (!content) return "";
     return content
@@ -132,7 +124,6 @@ const BlogPosts = () => {
       .trim();
   };
 
-  // Tab button component
   const TabButton = ({
     tab,
     icon: Icon,
@@ -156,7 +147,7 @@ const BlogPosts = () => {
     </Button>
   );
 
-  // Post card component
+
   const PostCard = ({ post }: { post: IPostData }) => {
     const isBookmarked = localBookmarkedPosts.has(post.id);
 
@@ -290,7 +281,6 @@ const BlogPosts = () => {
     );
   };
 
-  // Empty state component
   const EmptyState = () => (
     <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
       <div className="w-32 h-32 mb-6 flex items-center justify-center bg-muted/50 rounded-full">
@@ -315,7 +305,6 @@ const BlogPosts = () => {
     </div>
   );
 
-  // End of feed component
   const EndOfFeed = () => (
     <div className="text-center py-4 text-muted-foreground">
       <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-muted/50 mb-2">
