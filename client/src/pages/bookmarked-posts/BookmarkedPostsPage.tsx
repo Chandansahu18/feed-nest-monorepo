@@ -25,7 +25,6 @@ const BookmarkedPostsPage = () => {
     new Set()
   );
 
-  // Get bookmarked post IDs from API data
   const bookmarkedPostIds = useMemo(() => {
     if (!bookmarkedPostsData?.data) return new Set<string>();
     const posts = Array.isArray(bookmarkedPostsData.data)
@@ -34,10 +33,31 @@ const BookmarkedPostsPage = () => {
     return new Set(posts.map((bp) => bp.post.id));
   }, [bookmarkedPostsData]);
 
-  // Update local state when API data changes
   useEffect(() => {
     setLocalBookmarkedPosts(bookmarkedPostIds);
   }, [bookmarkedPostIds]);
+
+  const cleanMarkdownContent = (content: string | null) => {
+    if (!content) return "";
+    return content
+      .replace(/<[^>]*>/g, "")
+      .replace(/^#{1,6}\s+/gm, "")
+      .replace(/\*\*([^*]+)\*\*/g, "$1")
+      .replace(/\*([^*]+)\*/g, "$1")
+      .replace(/__([^_]+)__/g, "$1")
+      .replace(/_([^_]+)_/g, "$1")
+      .replace(/```[\s\S]*?```/g, "")
+      .replace(/`([^`]+)`/g, "$1")
+      .replace(/!\[([^\]]*)\]\([^)]+\)/g, "$1")
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+      .replace(/^>\s*/gm, "")
+      .replace(/^-{3,}$/gm, "")
+      .replace(/^\s*[-*+]\s+/gm, "")
+      .replace(/^\s*\d+\.\s+/gm, "")
+      .replace(/\n{3,}/g, "\n\n")
+      .replace(/^\s+|\s+$/g, "")
+      .trim();
+  };
 
   const handleRemoveBookmark = async (postId: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -50,7 +70,7 @@ const BookmarkedPostsPage = () => {
       return newSet;
     });
 
-    await bookmarkPost({ postId, userId: userData.data.id });
+    bookmarkPost({ postId, userId: userData.data.id });
     setRemovingBookmark(null);
   };
 
@@ -105,7 +125,6 @@ const BookmarkedPostsPage = () => {
     );
   }
 
-  // Filter posts to only show those that are locally bookmarked
   const filteredPosts = useMemo(() => {
     if (!bookmarkedPostsData?.data) return [];
     const posts = Array.isArray(bookmarkedPostsData.data)
@@ -192,7 +211,7 @@ const BookmarkedPostsPage = () => {
                           {post.post.postTitle}
                         </h2>
                         <p className="text-muted-foreground line-clamp-2">
-                          {post.post.postDescription}
+                          {cleanMarkdownContent(post.post.postDescription)}
                         </p>
                         <div className="flex flex-wrap gap-1 mt-2">
                           {post.post.postTags.slice(0, 3).map((tag) => (

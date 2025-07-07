@@ -8,7 +8,6 @@ import {
   Link,
   Image as ImageIcon,
   Crop,
-  Cloud,
   Loader2,
   AlertCircle,
 } from "lucide-react";
@@ -23,7 +22,7 @@ import { isImageUrl } from "@/utils/cloudinary";
 interface ImageUploadProps {
   value: string;
   onChange: (url: string) => void;
-  imageType?: "banner" | "post";
+  imageType?: "banner" | "post" | "avatar";
   fileName?: string;
 }
 
@@ -43,6 +42,7 @@ const ImageUpload = ({
 
   const { mutate: uploadToCloudinary, isPending: isFileUploading } =
     useCloudinaryUpload();
+   
   const { mutate: uploadUrlToCloudinary, isPending: isUrlUploading } =
     useCloudinaryUrlUpload();
   const { userId } = useCurrentUser();
@@ -57,17 +57,15 @@ const ImageUpload = ({
       return;
     }
 
-    // Basic URL validation
     try {
       new URL(imageUrl);
 
-      // Check if Cloudinary is configured
       const isCloudinaryConfigured =
         import.meta.env.VITE_CLOUDINARY_CLOUD_NAME &&
         import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
       if (isCloudinaryConfigured && isImageUrl(imageUrl)) {
-         uploadUrlToCloudinary(
+        uploadUrlToCloudinary(
           {
             url: imageUrl,
             options: {
@@ -78,18 +76,11 @@ const ImageUpload = ({
           },
           {
             onSuccess: (response) => {
-              console.log(
-                "✅ URL upload to Cloudinary successful:",
-                response.url
-              );
               onChange(response.url);
               setIsUrlMode(false);
               clearError();
             },
-            onError: (error) => {
-              console.error("❌ URL upload to Cloudinary failed:", error);
-              // Fallback to using the original URL
-              console.log("📎 Falling back to original URL");
+            onError: () => {
               onChange(imageUrl);
               setIsUrlMode(false);
               clearError();
@@ -97,7 +88,6 @@ const ImageUpload = ({
           }
         );
       } else {
-        // Use URL directly if Cloudinary not configured or not an image URL
         onChange(imageUrl);
         setIsUrlMode(false);
         clearError();
@@ -127,14 +117,10 @@ const ImageUpload = ({
         setUploadError("Please select an image file");
         return;
       }
-
-      // Validate file size (max 10MB)
       if (file.size > 10 * 1024 * 1024) {
         setUploadError("File size must be less than 10MB");
         return;
       }
-
-      // Auto-upload to Cloudinary on drag/drop or file selection
       uploadToCloudinary(
         {
           file,
@@ -146,12 +132,10 @@ const ImageUpload = ({
         },
         {
           onSuccess: (response) => {
-            console.log("✅ File upload successful:", response.url);
             onChange(response.url);
             clearError();
           },
           onError: (error) => {
-            console.error("❌ File upload failed:", error);
             setUploadError(
               error.message || "Failed to upload image. Please try again."
             );
@@ -227,14 +211,12 @@ const ImageUpload = ({
           },
           {
             onSuccess: (response) => {
-              console.log("✅ Cropped upload successful:", response.url);
               onChange(response.url);
               setShowCropper(false);
               setOriginalImage("");
               clearError();
             },
             onError: (error) => {
-              console.error("❌ Cropped upload failed:", error);
               setUploadError(
                 error.message ||
                   "Failed to upload cropped image. Please try again."
@@ -259,7 +241,6 @@ const ImageUpload = ({
     clearError();
   };
 
-  // Error display component
   const ErrorDisplay = ({ message }: { message: string }) => (
     <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
       <AlertCircle className="w-4 h-4 flex-shrink-0" />
@@ -321,32 +302,13 @@ const ImageUpload = ({
                   <X className="w-4 h-4" />
                 </Button>
               </div>
-
-              {/* Upload indicator */}
               {isUploading && (
                 <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                   <div className="bg-white rounded-lg p-4 flex items-center gap-2">
                     <Loader2 className="w-4 h-4 animate-spin" />
                     <span className="text-sm font-medium">
-                      {isUrlUploading
-                        ? "Uploading URL..."
-                        : "Uploading..."}
+                      {isUrlUploading ? "Uploading URL..." : "Uploading..."}
                     </span>
-                  </div>
-                </div>
-              )}
-
-              {/* Success indicator */}
-              {!isUploading && (
-                <div className="absolute bottom-2 left-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <div className="bg-green-600/90 text-white px-3 py-2 rounded-lg text-sm font-medium text-center">
-                    <div className="flex items-center justify-center gap-2">
-                      <Cloud className="w-4 h-4" />
-                      {value.includes("cloudinary.com")
-                        ? "Stored in Cloudinary"
-                        : "External URL"}{" "}
-                      • Click crop to adjust
-                    </div>
                   </div>
                 </div>
               )}
@@ -420,21 +382,24 @@ const ImageUpload = ({
       <div className="space-y-4">
         {uploadError && <ErrorDisplay message={uploadError} />}
 
-
-        {/* Drag & Drop Area */}
         <div
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
           className={`
-            border-2 border-dashed rounded-lg p-6 sm:p-8 text-center transition-all cursor-pointer
-            ${
-              isDragOver
-                ? "border-primary bg-primary/5 scale-[1.02]"
-                : "border-muted-foreground/25 hover:border-muted-foreground/50"
-            }
-            ${isUploading ? "opacity-50 pointer-events-none" : ""}
-          `}
+      border-2 border-dashed text-center transition-all cursor-pointer
+      ${
+        imageType === "avatar"
+          ? "rounded-full size-20 p-2"
+          : "rounded-lg p-6 sm:p-8"
+      }
+      ${
+        isDragOver
+          ? "border-primary bg-primary/5 scale-[1.02]"
+          : "border-muted-foreground/25 hover:border-muted-foreground/50"
+      }
+      ${isUploading ? "opacity-50 pointer-events-none" : ""}
+    `}
           onClick={!isUploading ? handleBrowseClick : undefined}
         >
           <input
@@ -446,51 +411,65 @@ const ImageUpload = ({
             disabled={isUploading}
           />
 
-          <div className="flex flex-col items-center space-y-4">
+          <div
+            className={`flex flex-col items-center justify-center ${
+              imageType === "avatar" ? "h-full w-full" : "space-y-4"
+            }`}
+          >
             <div
               className={`
-              p-3 rounded-full transition-colors
-              ${
-                isDragOver
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground"
-              }
-            `}
+          transition-colors
+          ${imageType === "avatar" ? "p-2" : "p-3 rounded-full"}
+          ${
+            isDragOver
+              ? "bg-primary text-primary-foreground"
+              : "bg-muted text-muted-foreground"
+          }
+        `}
             >
               {isUploading ? (
-                <Loader2 className="w-8 h-8 animate-spin" />
+                <Loader2
+                  className={`animate-spin ${
+                    imageType === "avatar" ? "size-6" : "w-8 h-8"
+                  }`}
+                />
               ) : isDragOver ? (
-                <ImageIcon className="w-8 h-8" />
+                <ImageIcon
+                  className={imageType === "avatar" ? "w-6 h-6" : "w-8 h-8"}
+                />
               ) : (
-                <Upload className="w-8 h-8" />
+                <Upload
+                  className={imageType === "avatar" ? "w-6 h-6" : "w-8 h-8"}
+                />
               )}
             </div>
 
-            <div className="space-y-2">
-              <p className="text-sm sm:text-base font-medium">
-                {isUploading
-                  ? "Uploading to Cloudinary..."
-                  : isDragOver
-                  ? "Drop your image here"
-                  : "Drag & drop an image here"}
-              </p>
-              {!isUploading && (
-                <>
-                  <p className="text-xs sm:text-sm text-muted-foreground">
-                    or click to browse files
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Supports: JPG, PNG
-                    {imageType === "banner" && " • Optimized for 16:9 ratio"}
-                  </p>
-                </>
-              )}
-            </div>
+            {imageType !== "avatar" && (
+              <div className="space-y-2">
+                <p className="text-sm sm:text-base font-medium">
+                  {isUploading
+                    ? "Uploading to Cloudinary..."
+                    : isDragOver
+                    ? "Drop your image here"
+                    : "Drag & drop an image here"}
+                </p>
+                {!isUploading && (
+                  <>
+                    <p className="text-xs sm:text-sm text-muted-foreground">
+                      or click to browse files
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Supports: JPG, PNG
+                      {imageType === "banner" && " • Optimized for 16:9 ratio"}
+                    </p>
+                  </>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Alternative Options */}
-        {!isUploading && (
+        {!isUploading && imageType === "banner" && (
           <div className="flex flex-col sm:flex-row gap-2">
             <Button
               variant="outline"

@@ -12,6 +12,7 @@ import {
   Github,
   Save,
   X,
+  UserRoundPen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,13 +37,14 @@ import type { TUserDataUpdate } from "@/utils/schema/userData";
 import { Badge } from "@/components/ui/badge";
 import ImageUpload from "@/components/create-post-sections/ImageUpload";
 import { useUserAccountDelete } from "@/hooks/useUserAccountDelete";
+import { Textarea } from "@/components/ui/textarea";
 
 const AccountSettingsPage = () => {
   const navigate = useNavigate();
   const { data: userData, isPending: userDataPending } = useUserData();
   const { mutate: updateUser, isPending: updateUserPending } =
     useUserDataUpdate();
- const {mutate:DeleteAccount} = useUserAccountDelete();
+  const { mutate: DeleteAccount } = useUserAccountDelete();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [formData, setFormData] = useState<TUserDataUpdate>({
     name: "",
@@ -83,9 +85,8 @@ const AccountSettingsPage = () => {
   };
 
   const handleDeleteAccount = () => {
-   DeleteAccount();
-   console.log("account deleted successfully");
-   
+    DeleteAccount();
+    console.log("account deleted successfully");
   };
 
   const validateForm = (): boolean => {
@@ -206,56 +207,57 @@ const AccountSettingsPage = () => {
                   </div>
                 </div>
 
-{/* Avatar - Made Circular */}
-<div className="space-y-2">
-  <Label>Profile Picture</Label>
-  <div className="flex items-center space-x-4">
-    <div className="relative">
-      {formData.avatar ? (
-        // Show avatar with remove button when image exists
-        <div className="relative w-20 h-20">
-          <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-border">
-            <img
-              src={formData.avatar}
-              alt="Profile picture"
-              className="w-full h-full object-cover"
-            />
-          </div>
-          {/* Remove button positioned outside the circular container */}
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={() => handleInputChange("avatar", "")}
-            className="absolute -top-1 -right-1 h-6 w-6 p-0 rounded-full shadow-lg"
-            title="Remove profile picture"
-          >
-            <X className="w-3 h-3" />
-          </Button>
-        </div>
-      ) : (
-        // Show upload area when no image - fixed to fit inside circle
-        <div className="relative w-20 h-20 rounded-full border-2 border-border">
-          <div className="absolute inset-0 rounded-full border-2 border-dashed border-muted-foreground/25 flex items-center justify-center m-1">
-            <ImageUpload
-              value={formData.avatar ?? ""}
-              onChange={(url) => handleInputChange("avatar", url)}
-              fileName="profile-avatar"
-              imageType="post"
-            />
-          </div>
-        </div>
-      )}
-    </div>
-    <div className="space-y-1">
-      <p className="text-sm font-medium">
-        Click to change profile picture
-      </p>
-      <p className="text-xs text-muted-foreground">
-        JPG, PNG. Max size 2MB. Square images work best.
-      </p>
-    </div>
-  </div>
-</div>
+                {/* Avatar - Made Circular */}
+                <div className="space-y-2">
+                  <Label>Profile Picture</Label>
+                  <div className="flex items-center space-x-4">
+                    <div className="relative">
+                      {formData.avatar ? (
+                        // Show avatar with remove button when image exists
+                        <div className="relative w-20 h-20">
+                          <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-border">
+                            <img
+                              src={formData.avatar}
+                              alt="Profile picture"
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          {/* Remove button positioned outside the circular container */}
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleInputChange("avatar", "")}
+                            className="absolute -top-1 -right-1 h-6 w-6 p-0 rounded-full shadow-lg"
+                            title="Remove profile picture"
+                          >
+                            <X className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="relative size-20 rounded-full border-2 border-border">
+                          <div className="absolute inset-0 rounded-full border-2 border-dashed border-muted-foreground/25 flex items-center justify-center m-1">
+                            <ImageUpload
+                              value={formData.avatar ?? ""}
+                              onChange={(url) =>
+                                handleInputChange("avatar", url)
+                              }
+                              fileName="profile-avatar"
+                              imageType="avatar"
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium">
+                        Click to change profile picture
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        JPG, PNG. Max size 2MB.
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </CardContent>
             </Card>
 
@@ -335,18 +337,21 @@ const AccountSettingsPage = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="bio">Bio</Label>
-                  <textarea
-                    id="bio"
-                    value={formData.bio}
-                    onChange={(e) => handleInputChange("bio", e.target.value)}
-                    className={cn(
-                      "rounded-xl resize-none",
-                      errors.bio && "border-destructive"
-                    )}
-                    placeholder="Tell us about yourself..."
-                    rows={3}
-                    maxLength={250}
-                  />
+                  <div className="relative">
+                    <Textarea
+                      id="bio"
+                      value={formData.bio}
+                      onChange={(e) => handleInputChange("bio", e.target.value)}
+                      className={cn(
+                        "rounded-xl resize-none w-full pl-10",
+                        errors.bio && "border-destructive"
+                      )}
+                      placeholder="Tell us about yourself..."
+                      rows={3}
+                      maxLength={250}
+                    />
+                    <UserRoundPen className="absolute left-3 top-3 text-muted-foreground w-4 h-4" />
+                  </div>
                   <div className="flex justify-between items-center">
                     {errors.bio && (
                       <p className="text-sm text-destructive">{errors.bio}</p>

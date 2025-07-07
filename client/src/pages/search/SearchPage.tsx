@@ -7,7 +7,6 @@ import {
   Heart,
   MessageCircle,
   Bookmark,
-  Calendar,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -85,12 +84,25 @@ const SearchPage = () => {
     };
   }, []);
 
-  const filteredResults =
-    searchedData?.data?.filter((result) => {
-      if (activeTab === "Posts") return result;
-      if (activeTab === "People") return result.creator;
-      return true;
-    }) || [];
+  const results = searchedData?.data || [];
+  let filteredResults = results;
+  if (activeTab === "Posts") {
+    filteredResults = results.filter(
+      (result, index) =>
+        results.findIndex(
+          (r) =>
+            r.postTitle === result.postTitle &&
+            r.postDescription === result.postDescription &&
+            r.createdAt === result.createdAt
+        ) === index
+    );
+  } else if (activeTab === "People") {
+    filteredResults = results.filter(
+      (result, index) =>
+        results.findIndex((r) => r.creator.email === result.creator.email) ===
+        index
+    );
+  }
 
   const TabButton = ({ tab }: { tab: (typeof tabs)[0] }) => (
     <Button
@@ -117,15 +129,18 @@ const SearchPage = () => {
       <CardContent className="py-6 border-b max-[375px]:px-0 lg:border-0">
         <div className="flex items-center space-x-3 mb-4">
           <Avatar className="size-10 rounded-full border border-border flex items-center justify-center cursor-pointer">
-            <AvatarImage src={post.creator.avatar} alt="avatar-image" />
-            <AvatarFallback className="text-sm font-bold text-foreground">
+            <AvatarImage
+              src={post.creator.avatar}
+              alt="avatar-image"
+              className="rounded-full"
+            />
+            <AvatarFallback className="text-sm font-bold text-foreground rounded-full">
               {post.creator.name.charAt(0).toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <div>
             <p className="font-semibold text-foreground">{post.creator.name}</p>
             <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-              <Calendar className="size-3" />
               <span>{new Date(post.createdAt).toLocaleDateString()}</span>
             </div>
           </div>
@@ -212,8 +227,12 @@ const SearchPage = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <Avatar className="size-12 rounded-full border border-border flex items-center justify-center cursor-pointer">
-              <AvatarImage src={user.creator.avatar} alt="avatar-image" />
-              <AvatarFallback className="text-lg font-bold text-foreground">
+              <AvatarImage
+                src={user.creator.avatar}
+                alt="avatar-image"
+                className="rounded-full"
+              />
+              <AvatarFallback className="text-lg font-bold text-foreground rounded-full">
                 {user.creator.name.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
@@ -221,8 +240,8 @@ const SearchPage = () => {
               <h3 className="font-semibold text-foreground">
                 {user.creator.name}
               </h3>
-              <p className="text-sm text-muted-foreground">
-                {user.creator.userName}
+              <p className="text-sm text-muted-foreground font-medium">
+                @{user.creator.userName}
               </p>
               <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
                 {user.creator.bio}

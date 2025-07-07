@@ -10,9 +10,11 @@ import {
   Clock,
   User,
   ArrowLeft,
+  Ellipsis
 } from "lucide-react";
 import { usePostCommentsData } from "@/hooks/usePostComments";
 import { MarkdownRenderer } from "@/components/post-page-sections/MarkDown";
+import { Button } from "@/components/ui/button";
 
 const PostPage = () => {
   const navigate = useNavigate();
@@ -204,58 +206,65 @@ const PostPage = () => {
 
           <div className="flex items-center justify-between mb-6 sm:mb-8 md:mb-10 py-3 sm:py-4 border-y border-gray-200">
             <div className="flex items-center gap-4 sm:gap-6 md:gap-8">
-              <button
-                onClick={handleLike}
-                className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full transition-all duration-200 text-sm sm:text-base ${
-                  isLiked
-                    ? "text-red-500 bg-red-50 hover:bg-red-100"
-                    : "text-gray-600 hover:text-red-500 hover:bg-gray-100"
-                }`}
+              <Button
+              variant={"ghost"}
+              onClick={handleLike}
+              className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full transition-all duration-200 text-sm sm:text-base ${
+                isLiked
+                ? "text-red-500 bg-red-50 hover:bg-red-100"
+                : "text-gray-600 hover:text-red-500 hover:bg-gray-100"
+              }`}
               >
                 <Heart
-                  className={`w-5 h-5 sm:w-6 sm:h-6 ${
-                    isLiked ? "fill-current" : ""
-                  }`}
-                />
+                  />
                 <span className="font-medium">
                   {likeCount > 0 ? likeCount : "Like"}
                 </span>
-              </button>
+              </Button>
 
-              <button
-                onClick={() => setShowComments(!showComments)}
-                className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full text-gray-600 hover:text-blue-500 hover:bg-gray-100 transition-all duration-200 text-sm sm:text-base"
+              <Button
+              variant={"ghost"}
+              onClick={() => setShowComments(!showComments)}
+              className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full text-gray-600 hover:text-blue-500 hover:bg-gray-100 transition-all duration-200 text-sm sm:text-base"
               >
-                <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6" />
+                <MessageCircle />
                 <span className="font-medium">
                   {postComments?.data?.length} Comment
                   {postComments?.data?.length !== 1 ? "s" : ""}
                 </span>
-              </button>
+              </Button>
             </div>
 
             <div className="flex items-center gap-2 sm:gap-3">
-              <button
+              <Button
                 onClick={handleSave}
+                variant={"ghost"}
                 className={`p-2 sm:p-3 rounded-full transition-all duration-200 ${
                   isSaved
-                    ? "text-blue-500 bg-blue-50 hover:bg-blue-100"
-                    : "text-gray-600 hover:text-blue-500 hover:bg-gray-100"
+                  ? "text-blue-500 bg-blue-50 hover:bg-blue-100"
+                  : "text-gray-600 hover:text-blue-500 hover:bg-gray-100"
                 }`}
-              >
+                >
                 <Bookmark
                   className={`w-5 h-5 sm:w-6 sm:h-6 ${
                     isSaved ? "fill-current" : ""
                   }`}
-                />
-              </button>
+                  />
+              </Button>
 
-              <button
+              <Button
+                variant={"ghost"}
                 onClick={handleShare}
                 className="p-2 sm:p-3 rounded-full text-gray-600 hover:text-green-500 hover:bg-gray-100 transition-all duration-200"
-              >
-                <Share2 className="w-5 h-5 sm:w-6 sm:h-6" />
-              </button>
+                >
+                <Share2 />
+              </Button>
+              <Button
+                variant={"ghost"}
+                className="p-2 sm:p-3 rounded-full text-gray-600 hover:text-green-500 hover:bg-gray-100 transition-all duration-200" 
+                >
+                <Ellipsis/>
+              </Button>
             </div>
           </div>
 

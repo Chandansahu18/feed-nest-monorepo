@@ -51,6 +51,7 @@ const BlogPosts = () => {
     [bookmarkedPostIds]
   );
 
+  // Filter posts based on active tab
   const filteredPosts = useMemo(
     () =>
       activeTab === "Bookmarks"
@@ -124,6 +125,7 @@ const BlogPosts = () => {
       .trim();
   };
 
+  // Tab button component
   const TabButton = ({
     tab,
     icon: Icon,
@@ -147,7 +149,6 @@ const BlogPosts = () => {
     </Button>
   );
 
-
   const PostCard = ({ post }: { post: IPostData }) => {
     const isBookmarked = localBookmarkedPosts.has(post.id);
 
@@ -164,8 +165,9 @@ const BlogPosts = () => {
               <AvatarImage
                 src={post.creator.avatar ?? undefined}
                 alt="avatar-image"
+                className="rounded-full"
               />
-              <AvatarFallback className="text-sm font-bold text-foreground">
+              <AvatarFallback className="text-sm font-bold text-foreground rounded-full">
                 {post.creator.name.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
@@ -281,6 +283,7 @@ const BlogPosts = () => {
     );
   };
 
+  // Empty state component
   const EmptyState = () => (
     <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
       <div className="w-32 h-32 mb-6 flex items-center justify-center bg-muted/50 rounded-full">
@@ -305,6 +308,7 @@ const BlogPosts = () => {
     </div>
   );
 
+  // End of feed component
   const EndOfFeed = () => (
     <div className="text-center py-4 text-muted-foreground">
       <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-muted/50 mb-2">

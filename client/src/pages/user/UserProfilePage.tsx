@@ -13,6 +13,7 @@ import {
   Instagram,
   FileText,
   Bookmark,
+  Pen,
 } from "lucide-react";
 import { useUserData } from "@/hooks/useUserData";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -231,6 +232,7 @@ const PostCard = ({
 };
 
 export default function UserProfile() {
+  const navigate = useNavigate();
   const { data: userData, isPending, isError } = useUserData();
   const [activeTab, setActiveTab] = useState<"published" | "drafts">(
     "published"
@@ -323,12 +325,17 @@ export default function UserProfile() {
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.5, type: "spring" }}
         >
+          <div className="relative">
           <Avatar className="w-32 h-32 border-4 border-background shadow-xl">
             <AvatarImage src={user.avatar || undefined} alt={user.name} />
             <AvatarFallback className="text-2xl font-bold">
               {avatarFallback}
             </AvatarFallback>
           </Avatar>
+          <Button className="absolute bottom-1 right-1 rounded-full dark:bg-black" variant={"outline"} size={"icon"} onClick={() => navigate('/settings')}>
+            <Pen />
+          </Button>
+          </div>
         </motion.div>
       </div>
 
@@ -403,7 +410,6 @@ export default function UserProfile() {
             </div>
           </motion.div>
 
-          {/* Stats Cards */}
           <motion.div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card className="text-center">
               <CardContent className="pt-6">
@@ -427,8 +433,12 @@ export default function UserProfile() {
             </Card>
           </motion.div>
           <Separator />
-
-          <motion.div className="space-y-6">
+          <motion.div className="space-y-4">
+            <div className="text-center w-full">
+              <h1 className="inline-block font-bold text-2xl md:text-3xl lg:text-4xl">
+                Posts
+              </h1>
+            </div>
             <div className="flex border-b">
               <button
                 onClick={() => setActiveTab("published")}

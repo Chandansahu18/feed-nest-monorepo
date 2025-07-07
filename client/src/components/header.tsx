@@ -161,16 +161,17 @@ const Header = () => {
                           <AvatarImage
                             src={data.data?.avatar ?? undefined}
                             alt="avatar"
+                            className="rounded-full"
                           />
-                          <AvatarFallback className="text-sm font-bold">
-                            CS
+                          <AvatarFallback className="text-sm font-bold rounded-full">
+                            {data.data?.name.charAt(0).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
                       </div>
                       <div className="space-y-1 flex-col cursor-pointer">
-                        <h3 className="font-semibold">Chandan K Sahu</h3>
+                        <h3 className="font-semibold">{data.data?.name}</h3>
                         <p className="text-sm font-medium text-muted-foreground">
-                          @ChandanKSahu
+                         @{data.data?.userName}
                         </p>
                       </div>
                     </div>
