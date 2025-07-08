@@ -18,6 +18,7 @@ import SearchPageWrapper from "./app/search/page";
 import UserProfilePageWrapper from "./app/user/page";
 import PostPageWrapper from "./app/posts/post/page";
 import SearchedUserPageWrapper from "./app/search/user/page";
+import EditPostPageWrapper from "./app/posts/edit-post/page";
 
 
 const router = createBrowserRouter(
@@ -31,6 +32,7 @@ const router = createBrowserRouter(
           <Route path="post/:postTitle" element={<PostPageWrapper />} />
           <Route path="user/:username" element={<SearchedUserPageWrapper />} />
           <Route path="profile/:username" element={<ProtectedRouteAccess><UserProfilePageWrapper /></ProtectedRouteAccess>} />
+          <Route path="post/edit" element={<ProtectedRouteAccess><EditPostPageWrapper /></ProtectedRouteAccess>} />
           <Route path="create" element={<ProtectedRouteAccess><CreatePostPageWrapper /></ProtectedRouteAccess>} />
           <Route path="settings" element={<ProtectedRouteAccess><AccountSettingsPageWrapper /></ProtectedRouteAccess>} />
           <Route path="bookmarks" element={<ProtectedRouteAccess><BookmarkedPostsPageWrapper /></ProtectedRouteAccess>} />
