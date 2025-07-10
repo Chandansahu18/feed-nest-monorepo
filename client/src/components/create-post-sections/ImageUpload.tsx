@@ -18,10 +18,12 @@ import {
   useCurrentUser,
 } from "@/hooks/useCloudinaryUpload";
 import { isImageUrl } from "@/utils/cloudinary";
+import axios from "axios";
 
 interface ImageUploadProps {
   value: string;
-  onChange: (url: string) => void;
+  onChange: (response: string) => void;
+  onRemove: () => void;
   imageType?: "banner" | "post" | "avatar";
   fileName?: string;
 }
@@ -29,6 +31,7 @@ interface ImageUploadProps {
 const ImageUpload = ({
   value,
   onChange,
+  onRemove, // This prop is passed from parent
   imageType = "banner",
   fileName,
 }: ImageUploadProps) => {
@@ -42,7 +45,7 @@ const ImageUpload = ({
 
   const { mutate: uploadToCloudinary, isPending: isFileUploading } =
     useCloudinaryUpload();
-   
+
   const { mutate: uploadUrlToCloudinary, isPending: isUrlUploading } =
     useCloudinaryUrlUpload();
   const { userId } = useCurrentUser();
@@ -99,9 +102,9 @@ const ImageUpload = ({
 
   const handleRemove = () => {
     setImageUrl("");
-    onChange("");
     setOriginalImage("");
     clearError();
+    onRemove();
   };
 
   const handleFileSelect = useCallback(
@@ -189,51 +192,50 @@ const ImageUpload = ({
     }
   };
 
-  const handleCropComplete = (croppedImageUrl: string) => {
-    clearError();
+const handleCropComplete = (croppedImageUrl: string) => {
+  clearError();
 
-    // Convert cropped image URL to File for Cloudinary upload
-    fetch(croppedImageUrl)
-      .then((res) => res.blob())
-      .then((blob) => {
-        const file = new File([blob], `${imageType}-cropped.jpg`, {
-          type: "image/jpeg",
-        });
-
-        uploadToCloudinary(
-          {
-            file,
-            options: {
-              userId,
-              imageType,
-              fileName: fileName || `${imageType}-cropped-${Date.now()}`,
-            },
-          },
-          {
-            onSuccess: (response) => {
-              onChange(response.url);
-              setShowCropper(false);
-              setOriginalImage("");
-              clearError();
-            },
-            onError: (error) => {
-              setUploadError(
-                error.message ||
-                  "Failed to upload cropped image. Please try again."
-              );
-              setShowCropper(false);
-              setOriginalImage("");
-            },
-          }
-        );
-      })
-      .catch((error) => {
-        console.error("Error processing cropped image:", error);
-        setUploadError("Error processing image. Please try again.");
-        setShowCropper(false);
-        setOriginalImage("");
+  axios.get(croppedImageUrl, { responseType: 'blob' })
+    .then((response) => {
+      const blob = response.data;
+      const file = new File([blob], `${imageType}-cropped.jpg`, {
+        type: "image/jpeg",
       });
-  };
+
+      uploadToCloudinary(
+        {
+          file,
+          options: {
+            userId,
+            imageType,
+            fileName: fileName || `${imageType}-cropped-${Date.now()}`,
+          },
+        },
+        {
+          onSuccess: (response) => {
+            onChange(response.url);
+            setShowCropper(false);
+            setOriginalImage("");
+            clearError();
+          },
+          onError: (error) => {
+            setUploadError(
+              error.message ||
+                "Failed to upload cropped image. Please try again."
+            );
+            setShowCropper(false);
+            setOriginalImage("");
+          },
+        }
+      );
+    })
+    .catch((error) => {
+      console.error("Error processing cropped image:", error);
+      setUploadError("Error processing image. Please try again.");
+      setShowCropper(false);
+      setOriginalImage("");
+    });
+};
 
   const handleCropCancel = () => {
     setShowCropper(false);

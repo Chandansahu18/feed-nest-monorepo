@@ -75,7 +75,7 @@ const BookmarkedPostsPage = () => {
   };
 
   const handleBookmarkedPost = (postTitle:string,postId: string) => {
-    navigate(`/bookmarks/${postTitle}`,{state:{postId:postId}});
+            navigate(`/bookmarks/${encodeURIComponent(postTitle)}-${postId}`)
   };
 
   const BookmarksSkeleton = () => (

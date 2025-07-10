@@ -159,7 +159,7 @@ const Header = () => {
                       <div className="size-12 mr-2 rounded-full">
                         <Avatar className="size-full rounded-full border flex items-center justify-center cursor-pointer">
                           <AvatarImage
-                            src={data.data?.avatar ?? undefined}
+                            src={data.data?.avatar}
                             alt="avatar"
                             className="rounded-full"
                           />

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { usePostData } from "@/hooks/usePostData";
 import { FEEDNEST_BACKEND_API } from "@/utils/apiClient";
 import {
@@ -20,9 +20,14 @@ import { Separator } from "@/components/ui/separator";
 
 const PostPage = () => {
   const navigate = useNavigate();
-  const { state } = useLocation();
-  const { data: PostData, error, isPending } = usePostData(state.postId);
-  const { data: postComments } = usePostCommentsData(state.postId);
+  const { slug } = useParams<{ slug: string }>();
+  if (!slug) return;
+  const uuidLength = 36;
+  const separatorIndex = slug.length - uuidLength - 1;
+  if (separatorIndex < 0) return;
+  const postId = slug.substring(separatorIndex + 1);
+  const { data: PostData, error, isPending } = usePostData(postId);
+  const { data: postComments } = usePostCommentsData(postId);
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
@@ -86,7 +91,7 @@ const PostPage = () => {
             <h2 className="text-xl font-semibold">Error loading post</h2>
             <p className="text-sm text-article-text-muted">{error.message}</p>
             <Button
-              onClick={() => navigate(-1)}
+              onClick={() => navigate('/')}
               className="flex items-center gap-2"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -233,7 +238,9 @@ const PostPage = () => {
           <div className="flex items-center">
             <Button
               variant="ghost"
-              onClick={() => navigate('/post/edit',{state:{postId:PostData.data?.id}})}
+              onClick={() =>
+                navigate(`/post/${encodeURIComponent(PostData.data?.postTitle??'')}-${PostData.data?.id}/edit`)
+              }
               className="size-6 rounded-full p-0 text-gray-600"
             >
               <Ellipsis className="size-6" />

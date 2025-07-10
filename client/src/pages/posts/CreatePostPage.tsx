@@ -30,6 +30,15 @@ const VALIDATION_LIMITS = {
   MAX_TAGS: 10,
 } as const;
 
+interface ImageUploadResponse {
+  secure_url?: string;
+  url?: string;
+  data?: {
+    secure_url?: string;
+    url?: string;
+  };
+}
+
 const CreatePostPage = () => {
   const navigate = useNavigate();
   const [showPreview, setShowPreview] = useState(false);
@@ -57,7 +66,7 @@ const CreatePostPage = () => {
     setPostData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleImageUpload = (response: any) => {
+  const handleImageUpload = (response: string | ImageUploadResponse) => {
 
     let imageUrl = "";
 
@@ -78,6 +87,9 @@ const CreatePostPage = () => {
     }
   };
 
+    const handleImageRemove = () => {
+    handleInputChange("postBannerImage", "");
+  };
   const handleEnhance = (type: "title" | "description") => {
     const content =
       type === "title" ? postData.postTitle : postData.postDescription;
@@ -379,6 +391,7 @@ const CreatePostPage = () => {
                     <ImageUpload
                       value={postData.postBannerImage}
                       onChange={handleImageUpload}
+                      onRemove={handleImageRemove}
                       imageType="banner"
                       fileName="banner-image"
                     />

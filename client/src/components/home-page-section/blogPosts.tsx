@@ -157,7 +157,7 @@ const BlogPosts = () => {
         <CardContent
           className="py-6 border-b max-[375px]:px-0 lg:border-0"
           onClick={() =>
-            navigate(`/post/${post.postTitle}`, { state: { postId: post.id } })
+            navigate(`/post/${encodeURIComponent(post.postTitle)}-${post.id}`)
           }
         >
           <div className="flex items-center space-x-3 mb-4">

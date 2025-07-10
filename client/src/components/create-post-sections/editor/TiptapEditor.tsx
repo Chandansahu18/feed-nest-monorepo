@@ -1,4 +1,5 @@
 import { useEditor, EditorContent } from '@tiptap/react';
+import { useEffect } from 'react'; 
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import Typography from '@tiptap/extension-typography';
@@ -22,10 +23,11 @@ const lowlight = createLowlight(common)
 interface TiptapEditorProps {
   content: string;
   onChange: (content: string) => void;
+  editable?: boolean;
   maxLength?: number;
 }
 
-const TiptapEditor = ({ content, onChange, maxLength = 5000 }: TiptapEditorProps) => {
+const TiptapEditor = ({ content, onChange, editable = true, maxLength = 5000 }: TiptapEditorProps) => {
   const { mutate: uploadToCloudinary } = useCloudinaryUpload();
   const { mutate: uploadUrlToCloudinary } = useCloudinaryUrlUpload();
   const { userId } = useCurrentUser();
@@ -138,6 +140,7 @@ const TiptapEditor = ({ content, onChange, maxLength = 5000 }: TiptapEditorProps
       SlashCommands,
     ],
     content,
+    editable,
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
     },
@@ -145,8 +148,7 @@ const TiptapEditor = ({ content, onChange, maxLength = 5000 }: TiptapEditorProps
       attributes: {
         class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none min-h-[400px] p-4',
       },
-      // Handle paste events for image URLs and files
-      handlePaste: (view, event) => {
+      handlePaste: (_, event) => {
         const items = Array.from(event.clipboardData?.items || []);
         
         // Check for image files
@@ -263,6 +265,20 @@ const TiptapEditor = ({ content, onChange, maxLength = 5000 }: TiptapEditorProps
       },
     },
   });
+
+  // ADD THIS useEffect to handle content updates
+  useEffect(() => {
+    if (editor && content !== editor.getHTML()) {
+      editor.commands.setContent(content);
+    }
+  }, [content, editor]);
+
+  // ADD THIS useEffect to handle editable prop changes
+  useEffect(() => {
+    if (editor) {
+      editor.setEditable(editable);
+    }
+  }, [editable, editor]);
 
   if (!editor) {
     return null;

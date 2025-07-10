@@ -18,7 +18,7 @@ import {
 import { useUserData } from "@/hooks/useUserData";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState, useEffect, useMemo } from "react";
-import type { IPost } from "../../../../types/dist";
+import type { IPost, IUserData } from "../../../../types/dist";
 import { useNavigate } from "react-router-dom";
 import { usePostBookmark } from "@/hooks/usePostBookmark";
 import { useGetBookmarkedPosts } from "@/hooks/useGetBookmarkedPosts";
@@ -30,11 +30,10 @@ const PostCard = ({
   avatarFallback,
 }: {
   post: IPost;
-  user: any;
+  user: IUserData;
   avatarFallback: string;
 }) => {
   const navigate = useNavigate();
-  const { data: userData } = useUserData();
   const { mutate: BookmarkPost } = usePostBookmark();
   const [removingBookmark, setRemovingBookmark] = useState<string | null>(null);
   const [localBookmarkedPosts, setLocalBookmarkedPosts] = useState<Set<string>>(
@@ -42,7 +41,7 @@ const PostCard = ({
   );
 
   const { data: BookmarkedPost } = useGetBookmarkedPosts({
-    userId: userData?.data?.id!,
+    userId: user?.id!,
   });
 
   const bookmarkedPostIds = useMemo(() => {
@@ -69,7 +68,7 @@ const PostCard = ({
 
   const handleBookmark = async (postId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!userData?.data?.id) return navigate("/");
+    if (!user?.id) return navigate("/");
 
     setRemovingBookmark(postId);
     setLocalBookmarkedPosts((prev) => {
@@ -78,7 +77,7 @@ const PostCard = ({
       return newSet;
     });
 
-    BookmarkPost({ postId, userId: userData.data.id });
+    BookmarkPost({ postId, userId: user.id });
     setRemovingBookmark(null);
   };
 
@@ -109,8 +108,8 @@ const PostCard = ({
       <CardContent
         className="py-6 border-b max-[375px]:px-0 lg:border-0"
         onClick={() =>
-          navigate(`/post/${post.postTitle}`, { state: { postId: post.id } })
-        }
+            navigate(`/post/${encodeURIComponent(post.postTitle)}-${post.id}`)
+          }
       >
         <div className="flex items-center space-x-3 mb-4">
           <Avatar className="size-10 rounded-full border border-border flex items-center justify-center cursor-pointer">
@@ -279,27 +278,9 @@ export default function UserProfile() {
       </div>
     );
   }
-
-  const user = userData?.data || {
-    name: "User",
-    avatar: null,
-    bio: null,
-    location: null,
-    githubHandle: null,
-    linkedInHandle: null,
-    twitterHandle: null,
-    posts: [],
-    postComments: [],
-  };
-
-  const avatarFallback = user.name
-    .split(" ")
-    .map((n) => n[0])
-    .join("");
-
   const publishedPosts =
-    user.posts?.filter((post: IPost) => post.published) || [];
-  const draftPosts = user.posts?.filter((post: IPost) => !post.published) || [];
+    userData?.data?.posts?.filter((post: IPost) => post.published) || [];
+  const draftPosts = userData?.data?.posts?.filter((post: IPost) => !post.published) || [];
 
   const currentPosts = activeTab === "published" ? publishedPosts : draftPosts;
 
@@ -327,9 +308,9 @@ export default function UserProfile() {
         >
           <div className="relative">
           <Avatar className="w-32 h-32 border-4 border-background shadow-xl">
-            <AvatarImage src={user.avatar || undefined} alt={user.name} />
+            <AvatarImage src={userData?.data?.avatar || undefined} alt={'avatar-image'} />
             <AvatarFallback className="text-2xl font-bold">
-              {avatarFallback}
+              {userData?.data?.name.charAt(0).toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <Button className="absolute bottom-1 right-1 rounded-full dark:bg-black" variant={"outline"} size={"icon"} onClick={() => navigate('/settings')}>
@@ -343,22 +324,22 @@ export default function UserProfile() {
         <motion.div initial="hidden" animate="visible" className="space-y-8">
           <motion.div className="text-center space-y-2">
             <div className="flex items-center justify-center gap-4">
-              <h1 className="text-3xl font-bold">{user.name}</h1>
+              <h1 className="text-3xl font-bold">{userData?.data?.name}</h1>
             </div>
 
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              {user.bio || "No bio available"}
+              {userData?.data?.bio || "No bio available"}
             </p>
 
             <div className="flex flex-wrap justify-center items-center gap-6 text-sm text-muted-foreground">
-              {user.location && (
+              {userData?.data?.location && (
                 <div className="flex items-center gap-1">
                   <MapPin className="w-4 h-4" />
-                  {user.location}
+                  {userData?.data?.location}
                 </div>
               )}
               <div className="flex items-center gap-3">
-                {user.githubHandle && (
+                {userData?.data?.githubHandle && (
                   <Button
                     variant="ghost"
                     size="sm"
@@ -366,7 +347,7 @@ export default function UserProfile() {
                     asChild
                   >
                     <a
-                      href={`${user.githubHandle}`}
+                      href={`${userData?.data?.githubHandle}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -374,7 +355,7 @@ export default function UserProfile() {
                     </a>
                   </Button>
                 )}
-                {user.linkedInHandle && (
+                {userData?.data?.linkedInHandle && (
                   <Button
                     variant="ghost"
                     size="sm"
@@ -382,7 +363,7 @@ export default function UserProfile() {
                     asChild
                   >
                     <a
-                      href={`${user.linkedInHandle}`}
+                      href={`${userData.data?.linkedInHandle}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -390,7 +371,7 @@ export default function UserProfile() {
                     </a>
                   </Button>
                 )}
-                {user.twitterHandle && (
+                {userData?.data?.twitterHandle && (
                   <Button
                     variant="ghost"
                     size="sm"
@@ -398,7 +379,7 @@ export default function UserProfile() {
                     asChild
                   >
                     <a
-                      href={`${user.twitterHandle}`}
+                      href={`${userData.data?.twitterHandle}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -424,7 +405,7 @@ export default function UserProfile() {
               <CardContent className="pt-6">
                 <div className="flex items-center justify-center gap-2 text-2xl font-bold">
                   <MessageCircle className="w-6 h-6 text-primary" />
-                  {user.postComments?.length || 0}
+                  {userData?.data?.postComments?.length || 0}
                 </div>
                 <p className="text-sm text-muted-foreground">
                   Comments Written
@@ -471,11 +452,16 @@ export default function UserProfile() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
                   >
-                    <PostCard
+                    {
+                      userData?.data &&
+                      <>
+                      <PostCard
                       post={post}
-                      user={user}
-                      avatarFallback={avatarFallback}
+                      user={userData.data}
+                      avatarFallback={userData?.data?.name.charAt(0).toUpperCase()}
                     />
+                      </>
+                    }
                   </motion.div>
                 ))
               ) : (

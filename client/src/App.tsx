@@ -29,14 +29,14 @@ const router = createBrowserRouter(
           <Route path="auth" element={<PublicRouteAccess><AuthPageWrapper /></PublicRouteAccess>} />
           <Route path="home" element={<PublicRouteAccess><HomePageWrapper /></PublicRouteAccess>} />
           <Route path="search" element={<SearchPageWrapper />} />
-          <Route path="post/:postTitle" element={<PostPageWrapper />} />
-          <Route path="user/:username" element={<SearchedUserPageWrapper />} />
-          <Route path="profile/:username" element={<ProtectedRouteAccess><UserProfilePageWrapper /></ProtectedRouteAccess>} />
-          <Route path="post/edit" element={<ProtectedRouteAccess><EditPostPageWrapper /></ProtectedRouteAccess>} />
+          <Route path="post/:slug" element={<PostPageWrapper />} />
+          <Route path="user/:slug" element={<SearchedUserPageWrapper />} />
+          <Route path="profile/:slug" element={<ProtectedRouteAccess><UserProfilePageWrapper /></ProtectedRouteAccess>} />
+          <Route path="post/:slug/edit" element={<ProtectedRouteAccess><EditPostPageWrapper /></ProtectedRouteAccess>} />
           <Route path="create" element={<ProtectedRouteAccess><CreatePostPageWrapper /></ProtectedRouteAccess>} />
           <Route path="settings" element={<ProtectedRouteAccess><AccountSettingsPageWrapper /></ProtectedRouteAccess>} />
           <Route path="bookmarks" element={<ProtectedRouteAccess><BookmarkedPostsPageWrapper /></ProtectedRouteAccess>} />
-          <Route path="bookmarks/:postTitle" element={<ProtectedRouteAccess><BookmarkedPostPageWrapper /></ProtectedRouteAccess>} />
+          <Route path="bookmarks/:slug" element={<ProtectedRouteAccess><BookmarkedPostPageWrapper /></ProtectedRouteAccess>} />
       </Route>
       <Route path="*" element={<NotFoundPageWrapper />} />
     </>

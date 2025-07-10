@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { usePostData } from "@/hooks/usePostData";
 import { FEEDNEST_BACKEND_API } from "@/utils/apiClient";
 import {
@@ -20,13 +20,15 @@ import { Separator } from "@/components/ui/separator";
 
 const BookmarkedPost = () => {
   const navigate = useNavigate();
-  const { state } = useLocation();
-  console.log(state);
-  
-  const { data: PostData, error, isPending } = usePostData(state.postId);
-  const { data: postComments } = usePostCommentsData(state.postId);
+  const { slug } = useParams<{ slug: string }>();
+  if (!slug) return;
+  const uuidLength = 36;
+  const separatorIndex = slug.length - uuidLength - 1;
+  if (separatorIndex < 0) return;
+  const postId = slug.substring(separatorIndex + 1);
+  const { data: PostData, error, isPending } = usePostData(postId);
+  const { data: postComments } = usePostCommentsData(postId);
   const [isLiked, setIsLiked] = useState(false);
-  const [isSaved, setIsSaved] = useState(true);
   const [likeCount, setLikeCount] = useState(0);
   const [showComments, setShowComments] = useState(true);
   const [newComment, setNewComment] = useState("");
@@ -39,7 +41,6 @@ const BookmarkedPost = () => {
 
   const handleRemoveBookmark = async () => {
     setRemovingBookmark(true);
-    setIsSaved(false);
     setRemovingBookmark(false);
     navigate("/home");
   };
