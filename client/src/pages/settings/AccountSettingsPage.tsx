@@ -84,6 +84,13 @@ const AccountSettingsPage = () => {
     }
   };
 
+  const handleProfileBannerRemove = () => {
+    handleInputChange("profileBanner", "");
+  };
+  const handleAvatarRemove = () => {
+    handleInputChange("avatar", "");
+  };
+
   const handleDeleteAccount = () => {
     DeleteAccount();
     console.log("account deleted successfully");
@@ -188,12 +195,12 @@ const AccountSettingsPage = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* Banner */}
                 <div className="space-y-2">
                   <Label>Profile Banner</Label>
                   <ImageUpload
                     value={formData.profileBanner ?? ""}
                     onChange={(url) => handleInputChange("profileBanner", url)}
+                    onRemove={handleProfileBannerRemove}
                     imageType="banner"
                     fileName="profile-banner"
                   />
@@ -240,7 +247,8 @@ const AccountSettingsPage = () => {
                               value={formData.avatar ?? ""}
                               onChange={(url) =>
                                 handleInputChange("avatar", url)
-                              }
+                              }  
+                              onRemove={handleAvatarRemove}
                               fileName="profile-avatar"
                               imageType="avatar"
                             />

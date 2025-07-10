@@ -31,7 +31,7 @@ interface ImageUploadProps {
 const ImageUpload = ({
   value,
   onChange,
-  onRemove, // This prop is passed from parent
+  onRemove,
   imageType = "banner",
   fileName,
 }: ImageUploadProps) => {
