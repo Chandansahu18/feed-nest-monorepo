@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build && TAILWIND_DISABLE_TOUCH=true vite build",
+    "build": "tsc -b && TAILWIND_DISABLE_TOUCH=true vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
