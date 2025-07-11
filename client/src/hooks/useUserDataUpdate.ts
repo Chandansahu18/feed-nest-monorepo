@@ -10,10 +10,8 @@ const handleUserDataUpdate = async (
     const response = await FEEDNEST_BACKEND_API.patch("/v1/user", updatedData, {
       withCredentials: true,
     });
-    console.log(response.data);
     return response.data;
   } catch (error) {
-    console.log(error);
     const errorMessage =
       error instanceof Error ? error.message : "Something went wrong";
     throw new Error(errorMessage);

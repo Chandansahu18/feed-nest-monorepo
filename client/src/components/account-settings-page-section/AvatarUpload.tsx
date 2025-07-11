@@ -70,7 +70,6 @@ const AvatarUpload = ({
           },
           {
             onSuccess: (response) => {
-              console.log("✅ Avatar URL upload successful:", response.url);
               onChange(response.url);
               setIsUrlMode(false);
               clearError();
@@ -130,12 +129,10 @@ const AvatarUpload = ({
         },
         {
           onSuccess: (response) => {
-            console.log("✅ Avatar upload successful:", response.url);
             onChange(response.url);
             clearError();
           },
           onError: (error) => {
-            console.error("❌ Avatar upload failed:", error);
             setUploadError(
               error.message || "Failed to upload avatar. Please try again."
             );

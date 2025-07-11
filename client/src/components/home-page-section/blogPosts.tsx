@@ -37,7 +37,6 @@ const BlogPosts = () => {
   const { data: BookmarkedPost } = useGetBookmarkedPosts({
     userId: userData?.data?.id!,
   });
-
   const bookmarkedPostIds = useMemo(() => {
     if (!BookmarkedPost?.data) return new Set<string>();
     const bookmarkedPosts = Array.isArray(BookmarkedPost.data)

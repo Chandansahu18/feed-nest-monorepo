@@ -3,35 +3,36 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { IGenericMessageResponse } from "../../../types/dist/index";
 
 const handleUserAccountDelete = async (): Promise<IGenericMessageResponse> => {
-  const response = await FEEDNEST_BACKEND_API.delete("/v1/user", {
-    withCredentials: true,
-  });
-  return response.data;
+  try {
+    const response = await FEEDNEST_BACKEND_API.delete("/v1/user", {
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Something went wrong";
+    throw new Error(errorMessage);
+  }
 };
 
 export const useUserAccountDelete = () => {
   const queryClient = useQueryClient();
 
-  const { data, mutate, isError, error, isPending, reset } = useMutation({
+  const { data, mutate, error, isPending } = useMutation({
     mutationKey: ["account-delete"],
     mutationFn: handleUserAccountDelete,
     onSuccess: async () => {
-      await queryClient.cancelQueries();
-      queryClient.removeQueries({
-        predicate: () => true,
+      queryClient.clear();
+      await queryClient.invalidateQueries({
+        queryKey: ["user-data"],
       });
-    },
-    onError: (error: Error) => {
-      console.error("Account deletion failed:", error.message);
     },
   });
 
   return {
     data,
     mutate,
-    error: error as Error,
+    error,
     isPending,
-    isError,
-    reset,
   };
 };

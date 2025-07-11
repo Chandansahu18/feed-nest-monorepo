@@ -40,15 +40,20 @@ const SignUp = () => {
       name: responseFromGoogle.user.displayName ?? "",
       email: responseFromGoogle.user.email ?? "",
     };
-    googleAuthMutate(userData);
+    googleAuthMutate(userData, {
+      onSuccess: () => {
+        navigate("/home");
+      },
+    });
+    navigate("/home");
   };
 
   if (isGoogleAuthPending) {
     return <PendingLoader />;
   }
 
-  if (error?.message.includes('429')) {
-    return <div>{error.message}</div>
+  if (error?.message.includes("429")) {
+    return <div>{error.message}</div>;
   }
   return (
     <div className="min-h-screen flex relative overflow-hidden">
@@ -102,7 +107,11 @@ const SignUp = () => {
                       className="w-full bg-blue-600 hover:bg-blue-700 text-white py-6 text-sm font-medium cursor-pointer rounded-xl"
                       onClick={handleGoogleAuth}
                     >
-                      <img src="https://res.cloudinary.com/dgquchqc2/image/upload/v1750786711/google-logo_uoj06a.svg" alt="google-logo" className="size-4 mr-2"/>
+                      <img
+                        src="https://res.cloudinary.com/dgquchqc2/image/upload/v1750786711/google-logo_uoj06a.svg"
+                        alt="google-logo"
+                        className="size-4 mr-2"
+                      />
                       Continue with Google
                     </Button>
 

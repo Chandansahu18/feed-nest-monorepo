@@ -112,8 +112,6 @@ export const uploadToCloudinary = async (
       uploadUrl,
       formData
     );
-    console.log(response.data.secure_url);
-
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {

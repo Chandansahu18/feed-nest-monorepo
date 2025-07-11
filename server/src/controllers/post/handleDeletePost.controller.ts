@@ -9,7 +9,8 @@ const handleDeletePost = async (req: Request, res: Response<IGenericMessageRespo
   try {
     const { email } = req as IRequest;
     const { ids } = req.body;
-
+   console.log(req.body);
+   
     if (!ids) {
       throw new Error('required parameters is missing');
     }
@@ -30,7 +31,7 @@ const handleDeletePost = async (req: Request, res: Response<IGenericMessageRespo
     await prisma.post.deleteMany({
       where: {
         id: {
-          in: JSON.parse(ids),
+          in: ids,
         },
         creatorId,
       },

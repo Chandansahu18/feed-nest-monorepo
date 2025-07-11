@@ -82,9 +82,7 @@ const EditorToolbar = ({ editor }: EditorToolbarProps) => {
         // Check if Cloudinary is configured
         const isCloudinaryConfigured = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME && import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
         
-        if (isCloudinaryConfigured) {
-          console.log('🔗 Uploading image URL to Cloudinary:', url);
-          
+        if (isCloudinaryConfigured) {          
           uploadUrlToCloudinary(
             { 
               url, 
@@ -96,7 +94,6 @@ const EditorToolbar = ({ editor }: EditorToolbarProps) => {
             },
             {
               onSuccess: (response) => {
-                console.log('✅ Toolbar URL upload successful:', response.url);
                 editor.chain().focus().setImage({ src: response.url }).run();
               },
               onError: (error) => {

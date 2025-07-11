@@ -60,9 +60,7 @@ const TiptapEditor = ({ content, onChange, editable = true, maxLength = 5000 }: 
             const isCloudinaryConfigured = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME && import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
             
             if (isCloudinaryConfigured) {
-              // Upload URL to Cloudinary first, then insert as image
-              console.log('🔗 Auto-uploading image URL to Cloudinary:', href);
-              
+              // Upload URL to Cloudinary first, then insert as image              
               uploadUrlToCloudinary(
                 { 
                   url: href, 
@@ -74,7 +72,6 @@ const TiptapEditor = ({ content, onChange, editable = true, maxLength = 5000 }: 
                 },
                 {
                   onSuccess: (response) => {
-                    console.log('✅ Auto URL upload successful:', response.url);
                     // Replace with Cloudinary URL
                     setTimeout(() => {
                       if (editor) {
@@ -189,8 +186,6 @@ const TiptapEditor = ({ content, onChange, editable = true, maxLength = 5000 }: 
           const isCloudinaryConfigured = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME && import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
           
           if (isCloudinaryConfigured) {
-            console.log('🔗 Uploading pasted URL to Cloudinary:', text);
-            
             uploadUrlToCloudinary(
               { 
                 url: text, 
@@ -202,7 +197,6 @@ const TiptapEditor = ({ content, onChange, editable = true, maxLength = 5000 }: 
               },
               {
                 onSuccess: (response) => {
-                  console.log('✅ Pasted URL upload successful:', response.url);
                   editor?.chain().focus().setImage({ src: response.url }).run();
                 },
                 onError: (error) => {

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { usePostData } from "@/hooks/usePostData";
 import { FEEDNEST_BACKEND_API } from "@/utils/apiClient";
@@ -10,13 +10,25 @@ import {
   Clock,
   User,
   ArrowLeft,
-  BookmarkX,
+  Ellipsis,
+  Edit,
+  Trash2,
 } from "lucide-react";
 import { usePostCommentsData } from "@/hooks/usePostComments";
 import { MarkdownRenderer } from "@/components/post-page-sections/MarkDown";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { usePostBookmark } from "@/hooks/usePostBookmark";
+import { useUserData } from "@/hooks/useUserData";
+import { useGetBookmarkedPosts } from "@/hooks/useGetBookmarkedPosts";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { usePostDelete } from "@/hooks/usePostDelete";
 
 const BookmarkedPost = () => {
   const navigate = useNavigate();
@@ -27,22 +39,51 @@ const BookmarkedPost = () => {
   if (separatorIndex < 0) return;
   const postId = slug.substring(separatorIndex + 1);
   const { data: PostData, error, isPending } = usePostData(postId);
+  const { data: userData } = useUserData();
+    const { mutate: deletePost } = usePostDelete();
+  const { data: bookmarkedPostsData } = useGetBookmarkedPosts({
+    userId: userData?.data?.id!,
+  });
+  const { mutate: bookmarkPost } = usePostBookmark();
   const { data: postComments } = usePostCommentsData(postId);
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [showComments, setShowComments] = useState(true);
   const [newComment, setNewComment] = useState("");
-  const [removingBookmark, setRemovingBookmark] = useState(false);
+  const [removingBookmark, setRemovingBookmark] = useState<string | null>(null);
+  const [localBookmarkedPosts, setLocalBookmarkedPosts] = useState<Set<string>>(
+    new Set()
+  );
+
+  const bookmarkedPostIds = useMemo(() => {
+    if (!bookmarkedPostsData?.data) return new Set<string>();
+    const posts = Array.isArray(bookmarkedPostsData.data)
+      ? bookmarkedPostsData.data
+      : [bookmarkedPostsData.data];
+    return new Set(posts.map((bp) => bp.post.id));
+  }, [bookmarkedPostsData]);
+  useEffect(() => {
+    setLocalBookmarkedPosts(bookmarkedPostIds);
+  }, [bookmarkedPostIds]);
 
   const handleLike = () => {
     setIsLiked(!isLiked);
     setLikeCount((prev) => (isLiked ? prev - 1 : prev + 1));
   };
 
-  const handleRemoveBookmark = async () => {
-    setRemovingBookmark(true);
-    setRemovingBookmark(false);
-    navigate("/home");
+  const handleRemoveBookmark = async (postId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!userData?.data?.id) return navigate("/");
+
+    setRemovingBookmark(postId);
+    setLocalBookmarkedPosts((prev) => {
+      const newSet = new Set(prev);
+      newSet.delete(postId);
+      return newSet;
+    });
+    bookmarkPost({ postId, userId: userData.data.id });
+    setRemovingBookmark(null);
+    navigate('/home')
   };
 
   const handleShare = () => {
@@ -55,6 +96,26 @@ const BookmarkedPost = () => {
       navigator.clipboard.writeText(window.location.href);
     }
   };
+
+  const handleEditPost = () => {
+    navigate(
+      `/post/${encodeURIComponent(PostData?.data?.postTitle ?? "")}-${
+        PostData?.data?.id
+      }/edit`
+    );
+  };
+
+  const handleDeletePost = () => {
+   if (PostData?.data?.id) {
+      deletePost({ ids: [PostData.data.id] });
+    }
+    userData?.data ? navigate("/home") : navigate("/");
+
+  };
+
+  const isCurrentPostBookmarked = PostData?.data?.id
+    ? localBookmarkedPosts.has(PostData.data.id)
+    : false;
 
   if (isPending) {
     return (
@@ -114,7 +175,8 @@ const BookmarkedPost = () => {
               Bookmarked post not found
             </h2>
             <p className="text-article-text-muted">
-              The bookmarked post you're looking for doesn't exist or has been removed.
+              The bookmarked post you're looking for doesn't exist or has been
+              removed.
             </p>
             <Button
               onClick={() => navigate("/bookmarks")}
@@ -133,39 +195,6 @@ const BookmarkedPost = () => {
 
   return (
     <div className="min-h-screen bg-article-background">
-      {/* Bookmark Status Banner */}
-      <div className="bg-blue-50 border-b border-blue-200">
-        <div className="max-w-4xl mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 rounded-full">
-                <Bookmark className="w-4 h-4 text-blue-600 fill-current" />
-              </div>
-              <div>
-                <p className="font-medium text-blue-900">Bookmarked Post</p>
-                <p className="text-sm text-blue-700">
-                  Saved on {new Date().toLocaleDateString()}
-                </p>
-              </div>
-            </div>
-            <Button
-              onClick={handleRemoveBookmark}
-              disabled={removingBookmark}
-              variant="ghost"
-              className="text-blue-700 hover:text-red-600 text-sm flex items-center gap-1"
-            >
-              {removingBookmark ? (
-                <div className="w-4 h-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-              ) : (
-                <BookmarkX className="w-4 h-4" />
-              )}
-              <span className="ml-1">Remove</span>
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      {/* Hero Section */}
       {hasBannerImage && (
         <div className="relative w-full h-96 bg-gradient-header overflow-hidden">
           <img
@@ -211,75 +240,104 @@ const BookmarkedPost = () => {
           </div>
         </div>
       )}
-
-      {/* Action Buttons - Moved below banner */}
       <div className="max-w-4xl mx-auto px-4 py-4">
         <div className="flex justify-center gap-6">
-          {/* Like Button */}
           <div className="flex items-center">
             <Button
               variant="ghost"
               onClick={handleLike}
               className={`size-12 rounded-full p-0 ${
-                isLiked ? "text-red-500" : "text-gray-600"
+                isLiked ? "text-destructive" : "text-muted-foreground"
               }`}
             >
               <Heart className={`size-6 ${isLiked ? "fill-current" : ""}`} />
             </Button>
-            <span className="text-sm font-medium text-gray-700 mt-1">
+            <span className="text-sm font-medium text-muted-foreground mt-1">
               {likeCount}
             </span>
           </div>
 
-          {/* Comments Button */}
           <div className="flex items-center">
             <Button
               variant="ghost"
               onClick={() => setShowComments(!showComments)}
-              className="size-12 rounded-full p-0 text-gray-600"
+              className="size-12 rounded-full p-0 text-muted-foreground"
             >
               <MessageCircle className="size-6" />
             </Button>
-            <span className="text-sm font-medium text-gray-700 mt-1">
+            <span className="text-sm font-medium text-muted-foreground mt-1">
               {postComments?.data?.length}
             </span>
           </div>
 
-          {/* Remove Bookmark Button */}
           <div className="flex items-center">
             <Button
               variant="ghost"
-              onClick={handleRemoveBookmark}
-              disabled={removingBookmark}
-              className={`size-12 rounded-full p-0 ${
+              onClick={(e) => {
+                if (PostData.data?.id) {
+                  handleRemoveBookmark(PostData.data.id, e);
+                }
+              }}
+              className={`size-10 rounded-full p-0 ${
                 removingBookmark
-                  ? "text-gray-400"
-                  : "text-blue-500 hover:text-red-500"
+                  ? "text-muted"
+                  : isCurrentPostBookmarked
+                  ? "text-blue-600 hover:text-blue-600"
+                  : "text-muted-foreground"
               }`}
             >
               {removingBookmark ? (
                 <div className="w-6 h-6 animate-spin rounded-full border-2 border-current border-t-transparent" />
               ) : (
-                <Bookmark className="size-6 outline-blue-600 fill-blue-600" />
+                <Bookmark
+                  className={`size-6 ${
+                    isCurrentPostBookmarked ? "fill-current" : ""
+                  }`}
+                />
               )}
             </Button>
-            <span className="text-sm font-medium text-gray-700 mt-1">Remove</span>
           </div>
 
-          {/* Share Button */}
           <div className="flex items-center">
             <Button
               variant="ghost"
               onClick={handleShare}
-              className="size-10 rounded-full p-0 text-gray-600"
+              className="size-10 rounded-full p-0 text-muted-foreground"
             >
               <Share2 className="size-6" />
             </Button>
           </div>
+          <div className="flex items-center">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="size-10 rounded-full p-0 text-muted-foreground hover:bg-accent"
+                >
+                  <Ellipsis className="size-6" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-40 p-2 rounded-xl" align="end">
+                <DropdownMenuItem
+                  onClick={handleEditPost}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
+                  <Edit className="size-4 text-muted-foreground" />
+                  <span>Edit Post</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={handleDeletePost}
+                  className="flex items-center gap-2 cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10"
+                >
+                  <Trash2 className="size-4" />
+                  <span>Delete Post</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
       </div>
-
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto px-4">
         <div className="flex-1 overflow-y-auto">
           <div className="p-8 md:p-12">
             {!hasBannerImage && (

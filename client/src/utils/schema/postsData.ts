@@ -29,7 +29,14 @@ const bookmarkPostProp = z.object({
   postId: z.string().optional(),
   userId: z.string(),
 });
+
+// Post delete prop data schema
+const deletePostProp = z.object({
+  ids: z.array(z.string())
+});
+
 export type TEnhancePostData = z.infer<typeof enhancePostData>;
 export type TCreatePostData = z.infer<typeof createPostData>;
 export type TBookmarkPostProp = z.infer<typeof bookmarkPostProp>;
 export type TPostDataUpdate = z.infer<typeof updatePostData>;
+export type TPostDelete = z.infer<typeof deletePostProp>;

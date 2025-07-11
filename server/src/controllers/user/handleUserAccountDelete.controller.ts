@@ -4,6 +4,14 @@ import { IGenericMessageResponse } from '@shared/types';
 import { IRequest } from '../../utils/types';
 
 const prisma = new PrismaClient();
+const accessTokenExpiryTime = parseInt(
+  process.env.ACCESS_TOKEN_EXPIRY as string,
+);
+const refreshTokenExpiryTime = parseInt(
+  process.env.REFRESH_TOKEN_EXPIRY as string,
+);
+const nodeEnv = process.env.NODE_ENV as string;
+
 const handleUserAccountDelete = async (
   req: Request,
   res: Response<IGenericMessageResponse>,
@@ -22,7 +30,18 @@ const handleUserAccountDelete = async (
       },
     });
 
-    res.status(200).json({
+    res.clearCookie('access_token', {
+        httpOnly: true,
+        secure: nodeEnv === 'production' ? true : false,
+        sameSite: nodeEnv === 'production' ? 'none' : 'lax',
+        maxAge: accessTokenExpiryTime,
+      })
+      .clearCookie('refresh_token', {
+        httpOnly: true,
+        secure: nodeEnv === 'production' ? true : false,
+        sameSite: nodeEnv === 'production' ? 'none' : 'lax',
+        maxAge: refreshTokenExpiryTime,
+      }).status(200).json({
       success: true,
       message: 'User account deleted successfully',
     });

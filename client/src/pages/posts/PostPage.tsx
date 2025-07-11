@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { usePostData } from "@/hooks/usePostData";
 import { FEEDNEST_BACKEND_API } from "@/utils/apiClient";
@@ -11,12 +11,24 @@ import {
   User,
   ArrowLeft,
   Ellipsis,
+  Trash2,
+  Edit,
 } from "lucide-react";
 import { usePostCommentsData } from "@/hooks/usePostComments";
 import { MarkdownRenderer } from "@/components/post-page-sections/MarkDown";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { usePostBookmark } from "@/hooks/usePostBookmark";
+import { useUserData } from "@/hooks/useUserData";
+import { useGetBookmarkedPosts } from "@/hooks/useGetBookmarkedPosts";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { usePostDelete } from "@/hooks/usePostDelete";
 
 const PostPage = () => {
   const navigate = useNavigate();
@@ -27,20 +39,61 @@ const PostPage = () => {
   if (separatorIndex < 0) return;
   const postId = slug.substring(separatorIndex + 1);
   const { data: PostData, error, isPending } = usePostData(postId);
+  const { data: userData } = useUserData();
+  const { mutate: deletePost } = usePostDelete();
+  const { data: bookmarkedPostsData } = useGetBookmarkedPosts({
+    userId: userData?.data?.id!,
+  });
+  const { mutate: bookmarkPost } = usePostBookmark();
   const { data: postComments } = usePostCommentsData(postId);
   const [isLiked, setIsLiked] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [showComments, setShowComments] = useState(true);
   const [newComment, setNewComment] = useState("");
+  const [isBookmarking, setIsBookmarking] = useState(false);
+  const [localBookmarkedPosts, setLocalBookmarkedPosts] = useState<Set<string>>(
+    new Set()
+  );
+  const bookmarkedPostIds = useMemo(() => {
+    if (!bookmarkedPostsData?.data) return new Set<string>();
+    const posts = Array.isArray(bookmarkedPostsData.data)
+      ? bookmarkedPostsData.data
+      : [bookmarkedPostsData.data];
+    return new Set(posts.map((bp) => bp.post.id));
+  }, [bookmarkedPostsData]);
+
+  useEffect(() => {
+    setLocalBookmarkedPosts(bookmarkedPostIds);
+  }, [bookmarkedPostIds]);
+
+  const isCurrentPostBookmarked = PostData?.data?.id
+    ? localBookmarkedPosts.has(PostData.data.id)
+    : false;
 
   const handleLike = () => {
     setIsLiked(!isLiked);
     setLikeCount((prev) => (isLiked ? prev - 1 : prev + 1));
   };
 
-  const handleSave = () => {
-    setIsSaved(!isSaved);
+  const handleBookmark = async () => {
+    if (!userData?.data?.id) return navigate("/login");
+    if (!PostData?.data?.id) return;
+
+    setIsBookmarking(true);
+    try {
+      setLocalBookmarkedPosts((prev) => {
+        const newSet = new Set(prev);
+        if (newSet.has(PostData?.data?.id ?? "")) {
+          newSet.delete(PostData?.data?.id ?? "");
+        } else {
+          newSet.add(PostData?.data?.id ?? "");
+        }
+        return newSet;
+      });
+      bookmarkPost({ postId: PostData.data.id, userId: userData.data.id });
+    } finally {
+      setIsBookmarking(false);
+    }
   };
 
   const handleShare = () => {
@@ -52,6 +105,21 @@ const PostPage = () => {
     } else {
       navigator.clipboard.writeText(window.location.href);
     }
+  };
+
+  const handleEditPost = () => {
+    navigate(
+      `/post/${encodeURIComponent(PostData?.data?.postTitle ?? "")}-${
+        PostData?.data?.id
+      }/edit`
+    );
+  };
+
+  const handleDeletePost = () => {
+    if (PostData?.data?.id) {
+      deletePost({ ids: [PostData.data.id] });
+    }
+    userData?.data ? navigate("/home") : navigate("/");
   };
 
   if (isPending) {
@@ -91,7 +159,7 @@ const PostPage = () => {
             <h2 className="text-xl font-semibold">Error loading post</h2>
             <p className="text-sm text-article-text-muted">{error.message}</p>
             <Button
-              onClick={() => navigate('/')}
+              onClick={() => navigate("/")}
               className="flex items-center gap-2"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -131,7 +199,6 @@ const PostPage = () => {
 
   return (
     <div className="min-h-screen bg-article-background">
-      {/* Hero Section */}
       {hasBannerImage && (
         <div className="relative w-full h-96 bg-gradient-header overflow-hidden">
           <img
@@ -177,22 +244,26 @@ const PostPage = () => {
           </div>
         </div>
       )}
-
-      {/* Action Buttons - Moved below banner */}
       <div className="max-w-4xl mx-auto px-4 py-4">
-        <div className="flex justify-center gap-4">
+        <div className="flex flex-wrap justify-center gap-2 sm:gap-4">
           {/* Like Button */}
           <div className="flex items-center">
             <Button
               variant="ghost"
+              size={"icon"}
               onClick={handleLike}
-              className={`size-12 rounded-full p-0 ${
-                isLiked ? "text-red-500" : "text-gray-600"
+              className={`rounded-full p-2 ${
+                isLiked
+                  ? "text-red-600 hover:text-red-600"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              <Heart className={`size-6 ${isLiked ? "fill-current" : ""}`} />
+              <Heart
+                className={`size-5 sm:size-6 ${isLiked ? "fill-current" : ""}`}
+              />
+              <span className="sr-only">Like</span>
             </Button>
-            <span className="text-sm font-medium text-gray-700 mt-1">
+            <span className="text-sm font-medium text-muted-foreground ml-1">
               {likeCount}
             </span>
           </div>
@@ -201,12 +272,14 @@ const PostPage = () => {
           <div className="flex items-center">
             <Button
               variant="ghost"
+              size={"icon"}
               onClick={() => setShowComments(!showComments)}
-              className="size-12 rounded-full p-0 text-gray-600"
+              className={`rounded-full p-2 text-muted-foreground hover:text-foreground`}
             >
-              <MessageCircle className="size-6" />
+              <MessageCircle className="size-5 sm:size-6" />
+              <span className="sr-only">Comments</span>
             </Button>
-            <span className="text-sm font-medium text-gray-700 mt-1">
+            <span className="text-sm font-medium text-muted-foreground ml-1">
               {postComments?.data?.length}
             </span>
           </div>
@@ -215,12 +288,27 @@ const PostPage = () => {
           <div className="flex items-center">
             <Button
               variant="ghost"
-              onClick={handleSave}
-              className={`size-10 rounded-full p-0 ${
-                isSaved ? "text-blue-600" : "text-gray-600"
+              size={"icon"}
+              onClick={handleBookmark}
+              disabled={isBookmarking}
+              className={`rounded-full p-2 ${
+                isBookmarking
+                  ? "text-muted-foreground"
+                  : isCurrentPostBookmarked
+                  ? "text-blue-600 hover:text-blue-600"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              <Bookmark className={`size-6 ${isSaved ? "fill-current" : ""}`} />
+              {isBookmarking ? (
+                <div className="w-5 h-5 sm:w-6 sm:h-6 animate-spin rounded-full border-2 border-current border-t-transparent" />
+              ) : (
+                <Bookmark
+                  className={`size-5 sm:size-6 ${
+                    isCurrentPostBookmarked ? "fill-current" : ""
+                  }`}
+                />
+              )}
+              <span className="sr-only">Bookmark</span>
             </Button>
           </div>
 
@@ -229,27 +317,50 @@ const PostPage = () => {
             <Button
               variant="ghost"
               onClick={handleShare}
-              className="size-10 rounded-full p-0 text-gray-600"
+              className="rounded-full p-2 text-muted-foreground hover:text-foreground"
             >
-              <Share2 className="size-6" />
+              <Share2 className="size-5 sm:size-6" />
+              <span className="sr-only">Share</span>
             </Button>
           </div>
 
+          {/* Options Dropdown */}
           <div className="flex items-center">
-            <Button
-              variant="ghost"
-              onClick={() =>
-                navigate(`/post/${encodeURIComponent(PostData.data?.postTitle??'')}-${PostData.data?.id}/edit`)
-              }
-              className="size-6 rounded-full p-0 text-gray-600"
-            >
-              <Ellipsis className="size-6" />
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="rounded-full p-2 text-muted-foreground hover:text-foreground"
+                >
+                  <Ellipsis className="size-5 sm:size-6" />
+                  <span className="sr-only">Options</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                className="w-40 p-2 rounded-lg border bg-background shadow-lg"
+                align="end"
+              >
+                <DropdownMenuItem
+                  onClick={handleEditPost}
+                  className="flex items-center gap-2 cursor-pointer focus:bg-accent"
+                >
+                  <Edit className="size-4 text-muted-foreground" />
+                  <span>Edit Post</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={handleDeletePost}
+                  className="flex items-center gap-2 cursor-pointer text-red-500 focus:bg-red-50 focus:text-red-600"
+                >
+                  <Trash2 className="size-4" />
+                  <span>Delete Post</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto px-4">
         <div className="flex-1 overflow-y-auto">
           <div className="p-8 md:p-12">
             {!hasBannerImage && (

@@ -92,8 +92,11 @@ const AccountSettingsPage = () => {
   };
 
   const handleDeleteAccount = () => {
-    DeleteAccount();
-    console.log("account deleted successfully");
+    DeleteAccount(undefined,{
+      onSuccess:() =>{
+        navigate('/')
+      }
+    })
   };
 
   const validateForm = (): boolean => {
