@@ -27,7 +27,12 @@ const handleGetUser = async (
 
     const includeDataCondition = {
       followingRelations: true,
-      posts: true,
+      posts: {
+        include: {
+          postLikes: true,
+          postComments: true,
+        },
+      },
       postLikes: true,
       postComments: true,
     };

@@ -42,6 +42,15 @@ const handleComment = async (
           commentId: commentId || '',
           comment: commentData,
         },
+        include: {
+          post: true,
+          user: {
+            omit: {
+              hashedPassword: true,
+              refreshToken: true,
+            },
+          },
+        },
       });
 
       res.status(201).json({
@@ -57,6 +66,15 @@ const handleComment = async (
           userId: user?.id || '',
           postId: postId || '',
           comment: commentData,
+        },
+        include: {
+          post: true,
+          user: {
+            omit: {
+              hashedPassword: true,
+              refreshToken: true,
+            },
+          },
         },
       });
 

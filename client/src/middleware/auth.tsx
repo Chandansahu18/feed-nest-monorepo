@@ -1,5 +1,5 @@
 import PendingLoader from "@/components/pendingLoader";
-import { useUserData } from "@/hooks/useUserData";
+import { useUserData } from "@/hooks/user/useUserData";
 import { useEffect, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -12,7 +12,7 @@ export const PublicRouteAccess = ({ children }: TChildrenProp) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (data?.data) {
+    if (data?.data && !isPending) {
       navigate("/home", { replace: true });
     }
   }, [data,isPending,navigate]);
@@ -32,7 +32,7 @@ export const ProtectedRouteAccess = ({
   const navigate = useNavigate();
 
   useEffect(() => {
-    if ((error || !data?.data)) {
+    if ((error || !data?.data && !isPending)) {
       navigate("/", { replace: true });
     }
   }, [error, navigate, data, isPending]);

@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useEmailAuth } from "@/hooks/useEmailAuth";
+import { useEmailAuth } from "@/hooks/auth/useEmailAuth";
 import PendingLoader from "../../pendingLoader";
 import { Label } from "@radix-ui/react-label";
 import { Input } from "@/components/ui/input";

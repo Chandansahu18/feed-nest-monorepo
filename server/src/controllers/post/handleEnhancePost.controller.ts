@@ -8,23 +8,21 @@ export const handleEnhancePost = async (
   res: Response<IEnhancedPostDataResponse>,
 ): Promise<void> => {
   try {
-    const {email} = req as IRequest;
+    const { email } = req as IRequest;
 
     if (!email) {
-        throw new Error("Unauthorized access - please login again");
+      throw new Error('Unauthorized access - please login again');
     }
     const content = req.body;
     if (!content) {
-        throw new Error("required data is missing");
+      throw new Error('required data is missing');
     }
-  const enhancedData = await enhanceData(content);
-  res.status(200).json({
-    success:true,
-    message:"Data enhanced successfdully",
-    data:enhancedData
-  })
-  
-
+    const enhancedData = await enhanceData(content);
+    res.status(200).json({
+      success: true,
+      message: 'Data enhanced successfdully',
+      data: enhancedData,
+    });
   } catch (error) {
     const errorMessage =
       error instanceof Error
