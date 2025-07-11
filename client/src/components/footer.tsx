@@ -1,4 +1,4 @@
-import { useUserData } from "@/hooks/useUserData";
+import { useUserData } from "@/hooks/user/useUserData";
 import { Button } from "./ui/button";
 import { Bookmark, Newspaper, PencilLine, Search } from "lucide-react";
 import { useEffect, useState } from "react";

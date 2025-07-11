@@ -5,8 +5,8 @@ import type {
   TUploadError,
   TUploadResult,
 } from "@/utils/schema/cloudinary";
-import { useUserData } from "./useUserData";
 import { useState } from "react";
+import { useUserData } from "../user/useUserData";
 
 const validateCloudinaryConfig = (): boolean => {
   const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;

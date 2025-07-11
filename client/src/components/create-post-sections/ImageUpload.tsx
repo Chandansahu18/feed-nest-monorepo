@@ -16,7 +16,7 @@ import {
   useCloudinaryUpload,
   useCloudinaryUrlUpload,
   useCurrentUser,
-} from "@/hooks/useCloudinaryUpload";
+} from "@/hooks/cloudinary/useCloudinaryUpload";
 import { isImageUrl } from "@/utils/cloudinary";
 import axios from "axios";
 

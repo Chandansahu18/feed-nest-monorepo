@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { usePostData } from "@/hooks/usePostData";
 import { FEEDNEST_BACKEND_API } from "@/utils/apiClient";
 import {
   Heart,
@@ -14,24 +13,31 @@ import {
   Trash2,
   Edit,
 } from "lucide-react";
-import { usePostCommentsData } from "@/hooks/usePostComments";
 import { MarkdownRenderer } from "@/components/post-page-sections/MarkDown";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { usePostBookmark } from "@/hooks/usePostBookmark";
-import { useUserData } from "@/hooks/useUserData";
-import { useGetBookmarkedPosts } from "@/hooks/useGetBookmarkedPosts";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { usePostDelete } from "@/hooks/usePostDelete";
+import { useUserData } from "@/hooks/user/useUserData";
+import { usePostLikes } from "@/hooks/post/like/usePostLikes";
+import { usePostDelete } from "@/hooks/post/usePostDelete";
+import { useGetBookmarkedPosts } from "@/hooks/post/bookmark/useGetBookmarkedPosts";
+import { usePostBookmark } from "@/hooks/post/bookmark/usePostBookmark";
+import { usePostData } from "@/hooks/post/usePostData";
+import type { IPostData, IPostLikes } from "../../../../types/dist";
+import { useGetPostComments } from "@/hooks/post/comment/useGetPostComments";
+import { usePostComment } from "@/hooks/post/comment/usePostComment";
+import { useQueryClient } from "@tanstack/react-query";
+import { useGetCommentReplies } from "@/hooks/post/comment/useGetCommentReplies";
 
 const PostPage = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { slug } = useParams<{ slug: string }>();
   if (!slug) return;
   const uuidLength = 36;
@@ -40,27 +46,49 @@ const PostPage = () => {
   const postId = slug.substring(separatorIndex + 1);
   const { data: PostData, error, isPending } = usePostData(postId);
   const { data: userData } = useUserData();
+  const { mutate: postLike } = usePostLikes();
   const { mutate: deletePost } = usePostDelete();
   const { data: bookmarkedPostsData } = useGetBookmarkedPosts({
     userId: userData?.data?.id!,
   });
   const { mutate: bookmarkPost } = usePostBookmark();
-  const { data: postComments } = usePostCommentsData(postId);
+  const { data: postComments } = useGetPostComments(postId);
+  const {data:commentReplies} = useGetCommentReplies(commentId)
+  console.log(postComments?.data);
+  const { mutate: postComment, isPending: isPostingComment } =
+    usePostComment();
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [showComments, setShowComments] = useState(true);
   const [newComment, setNewComment] = useState("");
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [replyTexts, setReplyTexts] = useState<{ [key: string]: string }>({});
   const [isBookmarking, setIsBookmarking] = useState(false);
   const [localBookmarkedPosts, setLocalBookmarkedPosts] = useState<Set<string>>(
     new Set()
   );
+
   const bookmarkedPostIds = useMemo(() => {
     if (!bookmarkedPostsData?.data) return new Set<string>();
     const posts = Array.isArray(bookmarkedPostsData.data)
       ? bookmarkedPostsData.data
       : [bookmarkedPostsData.data];
-    return new Set(posts.map((bp) => bp.post.id));
+    return new Set<string>(posts.map((bp: IPostData) => bp.id));
   }, [bookmarkedPostsData]);
+
+  useEffect(() => {
+    if (PostData?.data) {
+      const postLikes = PostData.data.postLikes || [];
+      setLikeCount(postLikes.length);
+
+      if (userData?.data?.id) {
+        const userHasLiked = postLikes.some(
+          (like: IPostLikes) => like.userId === userData?.data?.id
+        );
+        setIsLiked(userHasLiked);
+      }
+    }
+  }, [PostData, userData]);
 
   useEffect(() => {
     setLocalBookmarkedPosts(bookmarkedPostIds);
@@ -71,8 +99,14 @@ const PostPage = () => {
     : false;
 
   const handleLike = () => {
+    if (!userData?.data?.id) {
+      navigate("/login");
+      return;
+    }
+    if (!PostData?.data?.id) return;
     setIsLiked(!isLiked);
     setLikeCount((prev) => (isLiked ? prev - 1 : prev + 1));
+    postLike(PostData.data.id);
   };
 
   const handleBookmark = async () => {
@@ -120,6 +154,65 @@ const PostPage = () => {
       deletePost({ ids: [PostData.data.id] });
     }
     userData?.data ? navigate("/home") : navigate("/");
+  };
+
+  const handleCommentSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newComment.trim() || !PostData?.data?.id) return;
+
+    if (!userData?.data?.id) {
+      navigate("/login");
+      return;
+    }
+
+    postComment(
+      {
+        postId: PostData.data.id,
+        comment: newComment.trim(),
+      },
+      {
+        onSuccess: () => {
+          setNewComment("");
+          queryClient.invalidateQueries({
+            queryKey: ["post-comments", postId],
+          });
+        },
+        onError: (error) => {
+          console.error("Error posting comment:", error);
+        },
+      }
+    );
+  };
+
+  const handleReplySubmit = (commentId: string, replyText: string) => {
+    if (!replyText.trim() || !PostData?.data?.id) return;
+    if (!userData?.data?.id) {
+      navigate("/login");
+      return;
+    }
+
+    postComment(
+      {
+        commentId: commentId,
+        comment: replyText.trim(),
+      },
+      {
+        onSuccess: () => {
+          setReplyTexts((prev) => ({ ...prev, [commentId]: "" }));
+          setReplyingTo(null);
+          queryClient.invalidateQueries({
+            queryKey: ["post-comments", postId],
+          });
+        },
+        onError: (error) => {
+          console.error("Error posting reply:", error);
+        },
+      }
+    );
+  };
+
+  const handleReplyTextChange = (commentId: string, text: string) => {
+    setReplyTexts((prev) => ({ ...prev, [commentId]: text }));
   };
 
   if (isPending) {
@@ -426,17 +519,18 @@ const PostPage = () => {
                 </div>
 
                 {/* Comment Form */}
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    if (!newComment.trim()) return;
-                    setNewComment("");
-                  }}
-                  className="mb-10"
-                >
+                <form onSubmit={handleCommentSubmit} className="mb-10">
                   <div className="flex gap-4">
                     <div className="w-10 h-10 rounded-full bg-gradient-header flex items-center justify-center flex-shrink-0">
-                      <User className="w-5 h-5 text-white" />
+                      {userData?.data?.avatar ? (
+                        <img
+                          src={`${FEEDNEST_BACKEND_API}${userData.data.avatar}`}
+                          alt={userData.data.name}
+                          className="w-full h-full object-cover rounded-full"
+                        />
+                      ) : (
+                        <User className="w-5 h-5 text-white" />
+                      )}
                     </div>
                     <div className="flex-1">
                       <textarea
@@ -445,14 +539,15 @@ const PostPage = () => {
                         placeholder="Add to the discussion"
                         className="w-full p-4 border border-article-border rounded-lg resize-none focus:ring-2 focus:ring-article-accent focus:border-transparent transition-colors text-article-text bg-article-card"
                         rows={3}
+                        disabled={isPostingComment}
                       />
                       <div className="mt-4 flex justify-end">
                         <Button
                           type="submit"
-                          disabled={!newComment.trim()}
+                          disabled={!newComment.trim() || isPostingComment}
                           className="px-6 py-2"
                         >
-                          Comment
+                          {isPostingComment ? "Posting..." : "Comment"}
                         </Button>
                       </div>
                     </div>
@@ -463,12 +558,20 @@ const PostPage = () => {
                   {postComments?.data?.map((comment) => (
                     <div key={comment.id} className="flex gap-4">
                       <div className="w-8 h-8 rounded-full bg-gradient-header flex items-center justify-center flex-shrink-0">
-                        <User className="w-4 h-4 text-white" />
+                        {comment.user?.avatar ? (
+                          <img
+                            src={`${FEEDNEST_BACKEND_API}${comment.user.avatar}`}
+                            alt={comment.user.name}
+                            className="w-full h-full object-cover rounded-full"
+                          />
+                        ) : (
+                          <User className="w-4 h-4 text-white" />
+                        )}
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
                           <span className="font-medium text-article-text">
-                            Ismail Kovvuru
+                            {comment.user?.name || "Anonymous"}
                           </span>
                           <span className="text-sm text-article-text-muted">
                             {new Date(comment.createdAt).toLocaleDateString()}
@@ -479,13 +582,125 @@ const PostPage = () => {
                         </p>
                         <div className="flex items-center gap-4">
                           <Button variant="ghost" className="px-3 py-1 text-sm">
-                            <Heart className="w-4 h-4" />
+                            <Heart className="w-4 h-4 mr-1" />
                           </Button>
-                          <Button variant="ghost" className="px-3 py-1 text-sm">
-                            <MessageCircle className="w-4 h-4" />
+                          <Button
+                            variant="ghost"
+                            className="px-3 py-1 text-sm"
+                            onClick={() =>
+                              setReplyingTo(
+                                replyingTo === comment.id ? null : comment.id
+                              )
+                            }
+                          >
+                            <MessageCircle className="w-4 h-4 mr-1" />
                             <span>Reply</span>
                           </Button>
                         </div>
+
+                        {/* Reply Form */}
+                        {replyingTo === comment.id && (
+                          <div className="mt-4 ml-4 border-l-2 border-article-border pl-4">
+                            <form
+                              onSubmit={(e) => {
+                                e.preventDefault();
+                                handleReplySubmit(
+                                  comment.id,
+                                  replyTexts[comment.id] || ""
+                                );
+                              }}
+                            >
+                              <div className="flex gap-3">
+                                <div className="w-6 h-6 rounded-full bg-gradient-header flex items-center justify-center flex-shrink-0">
+                                  {userData?.data?.avatar ? (
+                                    <img
+                                      src={`${FEEDNEST_BACKEND_API}${userData.data.avatar}`}
+                                      alt={userData.data.name}
+                                      className="w-full h-full object-cover rounded-full"
+                                    />
+                                  ) : (
+                                    <User className="w-3 h-3 text-white" />
+                                  )}
+                                </div>
+                                <div className="flex-1">
+                                  <textarea
+                                    value={replyTexts[comment.id] || ""}
+                                    onChange={(e) =>
+                                      handleReplyTextChange(
+                                        comment.id,
+                                        e.target.value
+                                      )
+                                    }
+                                    placeholder={`Reply to ${
+                                      comment.user?.name || "Anonymous"
+                                    }...`}
+                                    className="w-full p-3 border border-article-border rounded-lg resize-none focus:ring-2 focus:ring-article-accent focus:border-transparent transition-colors text-article-text bg-article-card text-sm"
+                                    rows={2}
+                                    disabled={isPostingComment}
+                                  />
+                                  <div className="mt-2 flex justify-end gap-2">
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => setReplyingTo(null)}
+                                      disabled={isPostingComment}
+                                    >
+                                      Cancel
+                                    </Button>
+                                    <Button
+                                      type="submit"
+                                      size="sm"
+                                      disabled={
+                                        !replyTexts[comment.id]?.trim() ||
+                                        isPostingComment
+                                      }
+                                    >
+                                      {isPostingComment
+                                        ? "Posting..."
+                                        : "Reply"}
+                                    </Button>
+                                  </div>
+                                </div>
+                              </div>
+                            </form>
+                          </div>
+                        )}
+                        {/* Display Replies */}
+                        {/* {comment.replies && comment.replies.length > 0 && (
+                          <div className="mt-4 ml-4 border-l-2 border-article-border pl-4 space-y-4">
+                            {comment.replies.map((reply) => (
+                              <div key={reply.id} className="flex gap-3">
+                                <div className="w-6 h-6 rounded-full bg-gradient-header flex items-center justify-center flex-shrink-0">
+                                  {reply.creator?.avatar ? (
+                                    <img
+                                      src={`${FEEDNEST_BACKEND_API}${reply.creator.avatar}`}
+                                      alt={reply.creator.name}
+                                      className="w-full h-full object-cover rounded-full"
+                                    />
+                                  ) : (
+                                    <User className="w-3 h-3 text-white" />
+                                  )}
+                                </div>
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-3 mb-1">
+                                    <span className="font-medium text-article-text text-sm">
+                                      {reply.creator?.name || "Anonymous"}
+                                    </span>
+                                    <span className="text-xs text-article-text-muted">
+                                      {new Date(
+                                        reply.createdAt
+                                      ).toLocaleDateString()}
+                                    </span>
+                                  </div>
+                                  <p className="text-article-text text-sm leading-relaxed">
+                                    {reply.comment}
+                                  </p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )} */}
                       </div>
                     </div>
                   ))}

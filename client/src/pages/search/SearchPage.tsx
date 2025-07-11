@@ -12,8 +12,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import BlogsSkeleton from "@/components/home-page-section/blogsSkeleton";
-import { useSearchData } from "@/hooks/useSearchData";
-import type { ISearchData } from "../../../../types/dist";
+import type { IPost, IPostData, ISearchData, IUser, IUserData } from "../../../../types/dist";
+import { useSearchData } from "@/hooks/search/useSearchData";
 
 const SearchPage = () => {
   const navigate = useNavigate();
@@ -88,9 +88,9 @@ const SearchPage = () => {
   let filteredResults = results;
   if (activeTab === "Posts") {
     filteredResults = results.filter(
-      (result, index) =>
+      (result:IPostData, index:number) =>
         results.findIndex(
-          (r) =>
+          (r:IPost) =>
             r.postTitle === result.postTitle &&
             r.postDescription === result.postDescription &&
             r.createdAt === result.createdAt
@@ -98,8 +98,8 @@ const SearchPage = () => {
     );
   } else if (activeTab === "People") {
     filteredResults = results.filter(
-      (result, index) =>
-        results.findIndex((r) => r.creator.email === result.creator.email) ===
+      (result:IUserData, index:number) =>
+        results.findIndex((r:IUser) => r.email === result.id) ===
         index
     );
   }
@@ -319,11 +319,11 @@ const SearchPage = () => {
             ) : filteredResults.length === 0 ? (
               <EmptyState />
             ) : (
-              filteredResults.map((result) =>
+              filteredResults.map((result:ISearchData) =>
                 activeTab === "Posts" ? (
                   <PostCard key={result.id} post={result} />
                 ) : (
-                  <UserCard key={result.id} user={result} />
+                  <UserCard key={result.creator.id} user={result} />
                 )
               )
             )}

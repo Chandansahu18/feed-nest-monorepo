@@ -14,7 +14,7 @@ import TextStyle from '@tiptap/extension-text-style';
 import CharacterCount from '@tiptap/extension-character-count';
 import EditorToolbar from './EditorToolbar';
 import SlashCommands from './SlashCommands';
-import { useCloudinaryUpload, useCloudinaryUrlUpload, useCurrentUser } from '@/hooks/useCloudinaryUpload';
+import { useCloudinaryUpload, useCloudinaryUrlUpload, useCurrentUser } from '@/hooks/cloudinary/useCloudinaryUpload';
 import { isImageUrl } from '@/utils/cloudinary';
 import {common, createLowlight} from 'lowlight'
 

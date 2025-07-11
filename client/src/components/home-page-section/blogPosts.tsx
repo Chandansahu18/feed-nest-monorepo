@@ -10,15 +10,15 @@ import { Button } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { Card, CardContent } from "../ui/card";
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
-import { usePostsData } from "@/hooks/usePostsData";
+import { usePostsData } from "@/hooks/post/usePostsData";
 import BlogsSkeleton from "./blogsSkeleton";
 import { useNavigate } from "react-router-dom";
 import type { IPostData } from "../../../../types/dist";
 import { Badge } from "../ui/badge";
 import { cn } from "@/lib/utils";
-import { useGetBookmarkedPosts } from "@/hooks/useGetBookmarkedPosts";
-import { usePostBookmark } from "@/hooks/usePostBookmark";
-import { useUserData } from "@/hooks/useUserData";
+import { useGetBookmarkedPosts } from "@/hooks/post/bookmark/useGetBookmarkedPosts";
+import { usePostBookmark } from "@/hooks/post/bookmark/usePostBookmark";
+import { useUserData } from "@/hooks/user/useUserData";
 
 const BlogPosts = () => {
   const [activeTab, setActiveTab] = useState("Discover");
@@ -37,20 +37,20 @@ const BlogPosts = () => {
   const { data: BookmarkedPost } = useGetBookmarkedPosts({
     userId: userData?.data?.id!,
   });
+
   const bookmarkedPostIds = useMemo(() => {
     if (!BookmarkedPost?.data) return new Set<string>();
     const bookmarkedPosts = Array.isArray(BookmarkedPost.data)
       ? BookmarkedPost.data
-      : [BookmarkedPost.data];
-    return new Set(bookmarkedPosts.map((bp) => bp.post.id));
+      : [BookmarkedPost.data];      
+    return new Set<string>(bookmarkedPosts.map((bp:IPostData) => bp.id));
   }, [BookmarkedPost]);
-
+  
   useEffect(
     () => setLocalBookmarkedPosts(bookmarkedPostIds),
     [bookmarkedPostIds]
   );
 
-  // Filter posts based on active tab
   const filteredPosts = useMemo(
     () =>
       activeTab === "Bookmarks"

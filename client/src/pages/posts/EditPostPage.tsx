@@ -11,10 +11,10 @@ import TiptapEditor from "@/components/create-post-sections/editor/TiptapEditor"
 import ImageUpload from "@/components/create-post-sections/ImageUpload";
 import TagInput from "@/components/create-post-sections/TagInput";
 import { Save, Eye, Upload, Sparkles, ArrowLeft, Loader2 } from "lucide-react";
-import { usePostDataUpdate } from "@/hooks/usePostDataUpdate";
-import { useEnhanceContent } from "@/hooks/useEnhanceContent";
-import { usePostData } from "@/hooks/usePostData";
 import type { TPostDataUpdate } from "@/utils/schema/postsData";
+import { usePostData } from "@/hooks/post/usePostData";
+import { usePostDataUpdate } from "@/hooks/post/usePostDataUpdate";
+import { useEnhanceContent } from "@/hooks/post/enhance/useEnhanceContent";
 
 const VALIDATION_LIMITS = {
   TITLE_MIN: 5,

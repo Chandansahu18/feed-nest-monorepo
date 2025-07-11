@@ -1,11 +1,11 @@
 import { FEEDNEST_BACKEND_API } from "@/utils/apiClient";
 import { useQuery } from "@tanstack/react-query";
-import type { IAllPostCommentsOrRepliesDataResponse } from "../../../types/dist";
+import type { IAllPostCommentsOrRepliesDataResponse } from "../../../../../types/dist";
 
-const fetchPostComments = async (postId?: string,commentId?:string): Promise<IAllPostCommentsOrRepliesDataResponse> => {
+const fetchPostComments = async (postId?: string): Promise<IAllPostCommentsOrRepliesDataResponse> => {
   try {
     const response = await FEEDNEST_BACKEND_API.get("/v1/comment", {
-      params: { postId,commentId },
+      params: { postId },
       withCredentials: true,
     });
     return response.data;
@@ -15,11 +15,10 @@ const fetchPostComments = async (postId?: string,commentId?:string): Promise<IAl
     throw new Error(errorMessage);
   }
 };
-
-export const usePostCommentsData = (postId?:string,commentId?:string) => {
+export const useGetPostComments = (postId:string) => {
   const {data, isPending, error} = useQuery({
-    queryKey: ["post-comment",postId,commentId],
-    queryFn: () => fetchPostComments(postId,commentId),
+    queryKey: ["post-comment-data",postId],
+    queryFn: () => fetchPostComments(postId),
     retry: false,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
@@ -30,4 +29,4 @@ export const usePostCommentsData = (postId?:string,commentId?:string) => {
     isPending,
     error
   };
-};
+}

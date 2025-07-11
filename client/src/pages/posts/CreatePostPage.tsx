@@ -11,8 +11,9 @@ import TiptapEditor from "@/components/create-post-sections/editor/TiptapEditor"
 import ImageUpload from "@/components/create-post-sections/ImageUpload";
 import TagInput from "@/components/create-post-sections/TagInput";
 import { Save, Eye, Upload, Sparkles, ArrowLeft, Check } from "lucide-react";
-import { useCreatePost } from "@/hooks/useCreatePost";
-import { useEnhanceContent } from "@/hooks/useEnhanceContent";
+import { useCreatePost } from "@/hooks/post/useCreatePost";
+import { useEnhanceContent } from "@/hooks/post/enhance/useEnhanceContent";
+
 
 interface PostData {
   postTitle: string;

@@ -18,10 +18,19 @@ const handleGetAllComments = async (
         where: {
           commentId: commentId as string,
         },
+        include: {
+          post: true,
+          user: {
+            omit: {
+              hashedPassword: true,
+              refreshToken: true,
+            },
+          },
+        },
       });
       res.status(200).json({
         success: true,
-        message:'Data retrieved successfully',
+        message: 'Data retrieved successfully',
         data: commentReplies,
       });
     } else {
@@ -31,11 +40,17 @@ const handleGetAllComments = async (
         },
         include: {
           post: true,
+          user: {
+            omit: {
+              hashedPassword: true,
+              refreshToken: true,
+            },
+          },
         },
       });
       res.status(200).json({
         success: true,
-         message:'Data retrieved successfully',
+        message: 'Data retrieved successfully',
         data: postComments,
       });
     }

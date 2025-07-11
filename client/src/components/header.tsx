@@ -2,7 +2,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useTheme } from "./themeProvider";
 import { Button } from "./ui/button";
 import { ModeToggle } from "./modeToggle";
-import { useUserData } from "@/hooks/useUserData";
 import { Bookmark, LogOut, PenLine, Search, User } from "lucide-react";
 import { Avatar, AvatarFallback } from "@radix-ui/react-avatar";
 import { AvatarImage } from "@/components/ui/avatar";
@@ -14,7 +13,6 @@ import {
   MenubarSeparator,
   MenubarTrigger,
 } from "@/components/ui/menubar";
-import { useUserLogout } from "@/hooks/useUserLogout";
 import {
   Dialog,
   DialogContent,
@@ -24,6 +22,8 @@ import {
 import { DialogFooter, DialogHeader } from "./ui/dialog";
 import { useState } from "react";
 import PendingLoader from "./pendingLoader";
+import { useUserData } from "@/hooks/user/useUserData";
+import { useUserLogout } from "@/hooks/user/useUserLogout";
 
 const Header = () => {
   const { theme } = useTheme();

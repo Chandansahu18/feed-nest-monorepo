@@ -23,7 +23,7 @@ import {
 import {
   useCloudinaryUpload,
   useCurrentUser,
-} from "@/hooks/useCloudinaryUpload";
+} from "@/hooks/cloudinary/useCloudinaryUpload";
 
 interface CommandItem {
   title: string;

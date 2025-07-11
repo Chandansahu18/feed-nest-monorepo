@@ -15,14 +15,14 @@ import {
   Bookmark,
   Pen,
 } from "lucide-react";
-import { useUserData } from "@/hooks/useUserData";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState, useEffect, useMemo } from "react";
-import type { IPost, IUserData } from "../../../../types/dist";
+import type { IPost, IPostData, IUserData } from "../../../../types/dist";
 import { useNavigate } from "react-router-dom";
-import { usePostBookmark } from "@/hooks/usePostBookmark";
-import { useGetBookmarkedPosts } from "@/hooks/useGetBookmarkedPosts";
 import { cn } from "@/lib/utils";
+import { usePostBookmark } from "@/hooks/post/bookmark/usePostBookmark";
+import { useGetBookmarkedPosts } from "@/hooks/post/bookmark/useGetBookmarkedPosts";
+import { useUserData } from "@/hooks/user/useUserData";
 
 const PostCard = ({
   post,
@@ -49,7 +49,7 @@ const PostCard = ({
     const bookmarkedPosts = Array.isArray(BookmarkedPost.data)
       ? BookmarkedPost.data
       : [BookmarkedPost.data];
-    return new Set(bookmarkedPosts.map((bp) => bp.post.id));
+    return new Set<string>(bookmarkedPosts.map((bp:IPostData) => bp.id));
   }, [BookmarkedPost]);
 
   useEffect(() => {

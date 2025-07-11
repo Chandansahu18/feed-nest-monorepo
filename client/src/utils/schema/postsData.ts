@@ -35,8 +35,17 @@ const deletePostProp = z.object({
   ids: z.array(z.string())
 });
 
+// Post comment prop data schema
+const postCommentProp = z.object({
+  postId: z.string().optional(),
+  commentId: z.string().optional(),
+  comment: z.string()
+});
+
+
 export type TEnhancePostData = z.infer<typeof enhancePostData>;
 export type TCreatePostData = z.infer<typeof createPostData>;
 export type TBookmarkPostProp = z.infer<typeof bookmarkPostProp>;
 export type TPostDataUpdate = z.infer<typeof updatePostData>;
 export type TPostDelete = z.infer<typeof deletePostProp>;
+export type TPostComment = z.infer<typeof postCommentProp>

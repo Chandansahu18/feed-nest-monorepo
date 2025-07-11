@@ -113,15 +113,18 @@ export interface IPostCommentOrReply {
   commentId: string | null;
 }
 
+export interface IPostCommentOrReplyData extends IPostCommentOrReply {
+ post:IPost | null;
+ user:IUser | null;
+}
+
 export interface IPostCommentOrReplyDataResponse {
   success: boolean;
   message: string;
-  data?: IPostCommentOrReply | null;
+  data?: IPostCommentOrReplyData | null;
 }
 
-export interface IAllPostCommentsOrReplies extends IPostCommentOrReply {
-  post?: IPost | null;
-}
+export interface IAllPostCommentsOrReplies extends IPostCommentOrReplyData {}
 
 export interface IAllPostCommentsOrRepliesDataResponse {
   success: boolean;

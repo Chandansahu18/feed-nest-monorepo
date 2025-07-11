@@ -21,7 +21,7 @@ import {
   Image,
   Highlighter,
 } from 'lucide-react';
-import { useCloudinaryUpload, useCloudinaryUrlUpload, useCurrentUser } from '@/hooks/useCloudinaryUpload';
+import { useCloudinaryUpload, useCloudinaryUrlUpload, useCurrentUser } from '@/hooks/cloudinary/useCloudinaryUpload';
 import { useRef } from 'react';
 import { isImageUrl } from '@/utils/cloudinary';
 

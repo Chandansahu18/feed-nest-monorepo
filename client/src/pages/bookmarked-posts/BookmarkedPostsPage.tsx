@@ -8,10 +8,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Bookmark, Heart, MessageCircle, Eye } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { useGetBookmarkedPosts } from "@/hooks/useGetBookmarkedPosts";
-import { useUserData } from "@/hooks/useUserData";
-import type { ISavedPostData } from "../../../../types/dist";
-import { usePostBookmark } from "@/hooks/usePostBookmark";
+
+import type { IPostData, ISavedPostData } from "../../../../types/dist";
+import { useUserData } from "@/hooks/user/useUserData";
+import { usePostBookmark } from "@/hooks/post/bookmark/usePostBookmark";
+import { useGetBookmarkedPosts } from "@/hooks/post/bookmark/useGetBookmarkedPosts";
+
 
 const BookmarkedPostsPage = () => {
   const navigate = useNavigate();
@@ -30,7 +32,7 @@ const BookmarkedPostsPage = () => {
     const posts = Array.isArray(bookmarkedPostsData.data)
       ? bookmarkedPostsData.data
       : [bookmarkedPostsData.data];
-    return new Set(posts.map((bp) => bp.post.id));
+    return new Set<string>(posts.map((bp:IPostData) => bp.id));
   }, [bookmarkedPostsData]);
 
   useEffect(() => {
@@ -130,7 +132,7 @@ const BookmarkedPostsPage = () => {
     const posts = Array.isArray(bookmarkedPostsData.data)
       ? bookmarkedPostsData.data
       : [bookmarkedPostsData.data];
-    return posts.filter((post) => localBookmarkedPosts.has(post.post.id));
+    return posts.filter((post:IPostData) => localBookmarkedPosts.has(post.id));
   }, [bookmarkedPostsData, localBookmarkedPosts]);
 
   return (

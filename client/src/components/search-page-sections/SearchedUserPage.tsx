@@ -15,13 +15,13 @@ import {
   Bookmark,
   Pen,
 } from "lucide-react";
-import { useUserData } from "@/hooks/useUserData";
+import { useUserData } from "@/hooks/user/useUserData";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState, useEffect, useMemo } from "react";
-import type { IPost } from "../../../../types/dist";
+import type { IPost, IPostData, IUser } from "../../../../types/dist";
 import { useNavigate } from "react-router-dom";
-import { usePostBookmark } from "@/hooks/usePostBookmark";
-import { useGetBookmarkedPosts } from "@/hooks/useGetBookmarkedPosts";
+import { usePostBookmark } from "@/hooks/post/bookmark/usePostBookmark";
+import { useGetBookmarkedPosts } from "@/hooks/post/bookmark/useGetBookmarkedPosts";
 import { cn } from "@/lib/utils";
 
 const PostCard = ({
@@ -30,7 +30,7 @@ const PostCard = ({
   avatarFallback,
 }: {
   post: IPost;
-  user: any;
+  user: IUser;
   avatarFallback: string;
 }) => {
   const navigate = useNavigate();
@@ -50,7 +50,7 @@ const PostCard = ({
     const bookmarkedPosts = Array.isArray(BookmarkedPost.data)
       ? BookmarkedPost.data
       : [BookmarkedPost.data];
-    return new Set(bookmarkedPosts.map((bp) => bp.post.id));
+    return new Set<string>(bookmarkedPosts.map((bp:IPostData) => bp.id));
   }, [BookmarkedPost]);
 
   useEffect(() => {
@@ -292,11 +292,7 @@ export default function SearchedUserPage() {
     postComments: [],
   };
 
-  const avatarFallback = user.name
-    .split(" ")
-    .map((n) => n[0])
-    .join("");
-
+  const avatarFallback = user.name.charAt(0).toUpperCase()
   const publishedPosts =
     user.posts?.filter((post: IPost) => post.published) || [];
   const draftPosts = user.posts?.filter((post: IPost) => !post.published) || [];

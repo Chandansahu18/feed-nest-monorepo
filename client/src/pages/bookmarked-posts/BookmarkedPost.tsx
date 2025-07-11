@@ -1,6 +1,5 @@
 import { useMemo, useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { usePostData } from "@/hooks/usePostData";
 import { FEEDNEST_BACKEND_API } from "@/utils/apiClient";
 import {
   Heart,
@@ -14,21 +13,25 @@ import {
   Edit,
   Trash2,
 } from "lucide-react";
-import { usePostCommentsData } from "@/hooks/usePostComments";
 import { MarkdownRenderer } from "@/components/post-page-sections/MarkDown";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { usePostBookmark } from "@/hooks/usePostBookmark";
-import { useUserData } from "@/hooks/useUserData";
-import { useGetBookmarkedPosts } from "@/hooks/useGetBookmarkedPosts";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { usePostDelete } from "@/hooks/usePostDelete";
+import { useUserData } from "@/hooks/user/useUserData";
+import { usePostLikes } from "@/hooks/post/like/usePostLikes";
+import { usePostDelete } from "@/hooks/post/usePostDelete";
+import { useGetBookmarkedPosts } from "@/hooks/post/bookmark/useGetBookmarkedPosts";
+import { usePostBookmark } from "@/hooks/post/bookmark/usePostBookmark";
+import { usePostData } from "@/hooks/post/usePostData";
+import type { IPostData, IPostLikes } from "../../../../types/dist";
+import { useGetPostComments } from "@/hooks/post/comment/useGetPostComments";
+
 
 const BookmarkedPost = () => {
   const navigate = useNavigate();
@@ -40,12 +43,13 @@ const BookmarkedPost = () => {
   const postId = slug.substring(separatorIndex + 1);
   const { data: PostData, error, isPending } = usePostData(postId);
   const { data: userData } = useUserData();
-    const { mutate: deletePost } = usePostDelete();
+  const { mutate: postLike } = usePostLikes();
+  const { mutate: deletePost } = usePostDelete();
   const { data: bookmarkedPostsData } = useGetBookmarkedPosts({
     userId: userData?.data?.id!,
   });
   const { mutate: bookmarkPost } = usePostBookmark();
-  const { data: postComments } = usePostCommentsData(postId);
+  const { data: postComments } = useGetPostComments(postId);
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [showComments, setShowComments] = useState(true);
@@ -60,15 +64,36 @@ const BookmarkedPost = () => {
     const posts = Array.isArray(bookmarkedPostsData.data)
       ? bookmarkedPostsData.data
       : [bookmarkedPostsData.data];
-    return new Set(posts.map((bp) => bp.post.id));
+    return new Set<string>(posts.map((bp:IPostData) => bp.id));
   }, [bookmarkedPostsData]);
+
   useEffect(() => {
     setLocalBookmarkedPosts(bookmarkedPostIds);
   }, [bookmarkedPostIds]);
 
+    useEffect(() => {
+    if (PostData?.data) {
+      const postLikes = PostData.data.postLikes || [];
+      setLikeCount(postLikes.length);
+
+      if (userData?.data?.id) {
+        const userHasLiked = postLikes.some(
+          (like:IPostLikes) => like.userId === userData?.data?.id
+        );
+        setIsLiked(userHasLiked);
+      }
+    }
+  }, [PostData, userData]);
+  
   const handleLike = () => {
+    if (!userData?.data?.id) {
+      navigate("/login");
+      return;
+    }
+    if (!PostData?.data?.id) return;
     setIsLiked(!isLiked);
     setLikeCount((prev) => (isLiked ? prev - 1 : prev + 1));
+    postLike(PostData.data.id);
   };
 
   const handleRemoveBookmark = async (postId: string, e: React.MouseEvent) => {
@@ -83,7 +108,7 @@ const BookmarkedPost = () => {
     });
     bookmarkPost({ postId, userId: userData.data.id });
     setRemovingBookmark(null);
-    navigate('/home')
+    navigate("/home");
   };
 
   const handleShare = () => {
@@ -106,11 +131,10 @@ const BookmarkedPost = () => {
   };
 
   const handleDeletePost = () => {
-   if (PostData?.data?.id) {
+    if (PostData?.data?.id) {
       deletePost({ ids: [PostData.data.id] });
     }
     userData?.data ? navigate("/home") : navigate("/");
-
   };
 
   const isCurrentPostBookmarked = PostData?.data?.id

@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@radix-ui/react-label";
 import { motion } from "framer-motion";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
-import { useEmailAuth } from "@/hooks/useEmailAuth";
+import { useEmailAuth } from "@/hooks/auth/useEmailAuth";
 import { useNavigate } from "react-router-dom";
 import PendingLoader from "../../pendingLoader";
 import type { TSetEmailAuthProp } from "@/utils/schema/userAuth";

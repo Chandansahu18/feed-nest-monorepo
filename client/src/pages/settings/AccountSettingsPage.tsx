@@ -31,13 +31,14 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-import { useUserData } from "@/hooks/useUserData";
-import { useUserDataUpdate } from "@/hooks/useUserDataUpdate";
+
 import type { TUserDataUpdate } from "@/utils/schema/userData";
 import { Badge } from "@/components/ui/badge";
 import ImageUpload from "@/components/create-post-sections/ImageUpload";
-import { useUserAccountDelete } from "@/hooks/useUserAccountDelete";
 import { Textarea } from "@/components/ui/textarea";
+import { useUserData } from "@/hooks/user/useUserData";
+import { useUserAccountDelete } from "@/hooks/user/useUserAccountDelete";
+import { useUserDataUpdate } from "@/hooks/user/useUserDataUpdate";
 
 const AccountSettingsPage = () => {
   const navigate = useNavigate();

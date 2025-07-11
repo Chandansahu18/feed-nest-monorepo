@@ -6,7 +6,7 @@ import { Mail } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { signInWithPopup } from "firebase/auth";
 import { auth, googleAuthProvider } from "@/firebase/config";
-import { useGoogleAuth } from "@/hooks/useGoogleAuth";
+import { useGoogleAuth } from "@/hooks/auth/useGoogleAuth";
 import type { TGoogleAuth } from "@/utils/schema/userAuth";
 import BackgroundDecoration from "../backgroundDecoration";
 import EmailSignIn from "./emailSignIn";
