@@ -1,11 +1,8 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
-  Eye,
-  EyeOff,
   Trash2,
   AlertTriangle,
-  ArrowLeft,
   Camera,
   User,
   Mail,
@@ -14,8 +11,8 @@ import {
   Twitter,
   Github,
   Save,
-  Upload,
   X,
+  UserRoundPen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,91 +29,75 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
-interface UserProfile {
-  id: string;
-  name: string;
-  userName: string;
-  email: string;
-  bio?: string;
-  location?: string;
-  avatar?: string;
-  profileBanner?: string;
-  linkedInHandle?: string;
-  twitterHandle?: string;
-  githubHandle?: string;
-}
-
-interface PasswordForm {
-  currentPassword: string;
-  newPassword: string;
-  confirmPassword: string;
-}
+import type { TUserDataUpdate } from "@/utils/schema/userData";
+import { Badge } from "@/components/ui/badge";
+import ImageUpload from "@/components/create-post-sections/ImageUpload";
+import { Textarea } from "@/components/ui/textarea";
+import { useUserData } from "@/hooks/user/useUserData";
+import { useUserAccountDelete } from "@/hooks/user/useUserAccountDelete";
+import { useUserDataUpdate } from "@/hooks/user/useUserDataUpdate";
 
 const AccountSettingsPage = () => {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const { data: userData, isPending: userDataPending } = useUserData();
+  const { mutate: updateUser, isPending: updateUserPending } =
+    useUserDataUpdate();
+  const { mutate: DeleteAccount } = useUserAccountDelete();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [showPasswords, setShowPasswords] = useState({
-    current: false,
-    new: false,
-    confirm: false,
-  });
-  
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [formData, setFormData] = useState<UserProfile>({} as UserProfile);
-  const [passwordData, setPasswordData] = useState<PasswordForm>({
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
+  const [formData, setFormData] = useState<TUserDataUpdate>({
+    name: "",
+    userName: "",
+    email: "",
+    bio: "",
+    location: "",
+    avatar: "",
+    profileBanner: "",
+    linkedInHandle: "",
+    twitterHandle: "",
+    githubHandle: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    const fetchUserProfile = async () => {
-      setLoading(true);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+    if (userData) {
+      setFormData({
+        name: userData.data?.name || "",
+        userName: userData.data?.userName || "",
+        email: userData.data?.email || "",
+        bio: userData.data?.bio || "",
+        location: userData.data?.location || "",
+        avatar: userData.data?.avatar || "",
+        profileBanner: userData.data?.profileBanner || "",
+        linkedInHandle: userData.data?.linkedInHandle || "",
+        twitterHandle: userData.data?.twitterHandle || "",
+        githubHandle: userData.data?.githubHandle || "",
+      });
+    }
+  }, [userData]);
 
-      const mockProfile: UserProfile = {
-        id: "1",
-        name: "John Doe",
-        userName: "johndoe",
-        email: "john.doe@example.com",
-        bio: "Full-stack developer passionate about creating amazing user experiences. Love to write about tech, design, and productivity.",
-        location: "San Francisco, CA",
-        avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-        profileBanner: "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=800&h=200&fit=crop",
-        linkedInHandle: "https://www.linkedin.com/in/johndoe",
-        twitterHandle: "https://x.com/johndoe",
-        githubHandle: "https://github.com/johndoe",
-      };
-
-      setUserProfile(mockProfile);
-      setFormData(mockProfile);
-      setLoading(false);
-    };
-
-    fetchUserProfile();
-  }, []);
-
-  const handleInputChange = (field: keyof UserProfile, value: string) => {
+  const handleInputChange = (field: keyof TUserDataUpdate, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: "" }));
     }
   };
 
-  const handlePasswordChange = (field: keyof PasswordForm, value: string) => {
-    setPasswordData((prev) => ({ ...prev, [field]: value }));
+  const handleProfileBannerRemove = () => {
+    handleInputChange("profileBanner", "");
+  };
+  const handleAvatarRemove = () => {
+    handleInputChange("avatar", "");
   };
 
-  const togglePasswordVisibility = (field: keyof typeof showPasswords) => {
-    setShowPasswords((prev) => ({ ...prev, [field]: !prev[field] }));
+  const handleDeleteAccount = () => {
+    DeleteAccount(undefined,{
+      onSuccess:() =>{
+        navigate('/')
+      }
+    })
   };
 
   const validateForm = (): boolean => {
@@ -133,7 +114,8 @@ const AccountSettingsPage = () => {
     } else if (formData.userName.length < 3) {
       newErrors.userName = "Username must be at least 3 characters";
     } else if (!/^[a-zA-Z0-9_]+$/.test(formData.userName)) {
-      newErrors.userName = "Username can only contain letters, numbers, and underscores";
+      newErrors.userName =
+        "Username can only contain letters, numbers, and underscores";
     }
 
     if (!formData.email?.trim()) {
@@ -150,66 +132,15 @@ const AccountSettingsPage = () => {
       newErrors.location = "Location must be less than 50 characters";
     }
 
-    // Validate social media URLs
-    const socialValidations = [
-      { field: 'linkedInHandle', prefix: 'https://www.linkedin.com/in/', name: 'LinkedIn' },
-      { field: 'twitterHandle', prefix: 'https://x.com/', name: 'X (Twitter)' },
-      { field: 'githubHandle', prefix: 'https://github.com/', name: 'GitHub' },
-    ];
-
-    socialValidations.forEach(({ field, prefix, name }) => {
-      const value = formData[field as keyof UserProfile];
-      if (value && !value.startsWith(prefix)) {
-        newErrors[field] = `Please enter a valid ${name} profile URL`;
-      }
-    });
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSave = async () => {
+  const handleSave = () => {
     if (!validateForm()) return;
-
-    setSaving(true);
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      setUserProfile(formData);
-      navigate("/settings/profile");
-    } catch (error) {
-      console.error("Failed to save profile:", error);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handlePasswordSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setIsLoading(false);
-    setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
-  };
-
-  const handleDeleteAccount = async () => {
-    setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setIsLoading(false);
-    setDeleteDialogOpen(false);
-  };
-
-  const handleImageUpload = (type: "avatar" | "banner") => {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "image/*";
-    input.onchange = (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (file) {
-        const mockUrl = URL.createObjectURL(file);
-        handleInputChange(type === "avatar" ? "avatar" : "profileBanner", mockUrl);
-      }
-    };
-    input.click();
+    updateUser(formData, {
+      onSuccess: () => navigate(`/profile/${formData.userName}`),
+    });
   };
 
   const ProfileSkeleton = () => (
@@ -234,7 +165,7 @@ const AccountSettingsPage = () => {
     </div>
   );
 
-  if (loading) {
+  if (userDataPending) {
     return (
       <div className="pb-16 mt-20 sm:mt-16 sm:p-8 min-h-screen w-full flex justify-center px-4 mx-auto xl:w-7xl sm:px-6 lg:w-3xl">
         <div className="max-[768px]:w-full md:w-2xl lg:w-3xl">
@@ -252,31 +183,10 @@ const AccountSettingsPage = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-4">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => navigate("/settings/profile")}
-                className="rounded-xl"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-              <h1 className="text-xl md:text-2xl font-bold">Account Settings</h1>
+              <h1 className="text-xl md:text-2xl font-bold">Profile Edit</h1>
             </div>
-            <Button
-              onClick={handleSave}
-              disabled={saving}
-              className="hidden md:flex rounded-xl px-6"
-            >
-              {saving ? (
-                <div className="w-4 h-4 animate-spin rounded-full border-2 border-current border-t-transparent mr-2" />
-              ) : (
-                <Save className="w-4 h-4 mr-2" />
-              )}
-              {saving ? "Saving..." : "Save Changes"}
-            </Button>
           </div>
 
           <div className="space-y-6">
@@ -289,73 +199,73 @@ const AccountSettingsPage = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* Banner */}
                 <div className="space-y-2">
                   <Label>Profile Banner</Label>
-                  <div className="relative">
-                    <div
-                      className="h-24 md:h-32 bg-muted rounded-xl overflow-hidden relative group cursor-pointer"
-                      onClick={() => handleImageUpload("banner")}
-                    >
-                      {formData.profileBanner ? (
-                        <img
-                          src={formData.profileBanner}
-                          alt="Profile banner"
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <Upload className="w-6 md:w-8 h-6 md:h-8 text-muted-foreground" />
-                        </div>
-                      )}
-                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <Camera className="w-5 md:w-6 h-5 md:h-6 text-white" />
-                      </div>
-                    </div>
-                    {formData.profileBanner && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleInputChange("profileBanner", "");
-                        }}
-                        className="absolute top-2 right-2 bg-black/50 hover:bg-black/70 text-white size-8"
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
-                    )}
+                  <ImageUpload
+                    value={formData.profileBanner ?? ""}
+                    onChange={(url) => handleInputChange("profileBanner", url)}
+                    onRemove={handleProfileBannerRemove}
+                    imageType="banner"
+                    fileName="profile-banner"
+                  />
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="rounded-xl text-xs">
+                      16:9 Ratio
+                    </Badge>
+                    <p className="text-xs text-muted-foreground">
+                      Recommended size: 1600x900 pixels
+                    </p>
                   </div>
                 </div>
 
-                {/* Avatar */}
+                {/* Avatar - Made Circular */}
                 <div className="space-y-2">
                   <Label>Profile Picture</Label>
                   <div className="flex items-center space-x-4">
-                    <div
-                      className="relative group cursor-pointer"
-                      onClick={() => handleImageUpload("avatar")}
-                    >
-                      <Avatar className="size-16 md:size-20 border-4 border-background">
-                        <AvatarImage
-                          src={formData.avatar ?? undefined}
-                          alt="Profile picture"
-                        />
-                        <AvatarFallback className="text-sm md:text-lg font-bold">
-                          {formData.name
-                            ?.split(" ")
-                            .map((n) => n[0])
-                            .join("") || "U"}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-full flex items-center justify-center">
-                        <Camera className="w-4 md:w-5 h-4 md:h-5 text-white" />
-                      </div>
+                    <div className="relative">
+                      {formData.avatar ? (
+                        // Show avatar with remove button when image exists
+                        <div className="relative w-20 h-20">
+                          <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-border">
+                            <img
+                              src={formData.avatar}
+                              alt="Profile picture"
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          {/* Remove button positioned outside the circular container */}
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleInputChange("avatar", "")}
+                            className="absolute -top-1 -right-1 h-6 w-6 p-0 rounded-full shadow-lg"
+                            title="Remove profile picture"
+                          >
+                            <X className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="relative size-20 rounded-full border-2 border-border">
+                          <div className="absolute inset-0 rounded-full border-2 border-dashed border-muted-foreground/25 flex items-center justify-center m-1">
+                            <ImageUpload
+                              value={formData.avatar ?? ""}
+                              onChange={(url) =>
+                                handleInputChange("avatar", url)
+                              }  
+                              onRemove={handleAvatarRemove}
+                              fileName="profile-avatar"
+                              imageType="avatar"
+                            />
+                          </div>
+                        </div>
+                      )}
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm font-medium">Click to change profile picture</p>
+                      <p className="text-sm font-medium">
+                        Click to change profile picture
+                      </p>
                       <p className="text-xs text-muted-foreground">
-                        JPG, PNG or GIF. Max size 5MB.
+                        JPG, PNG. Max size 2MB.
                       </p>
                     </div>
                   </div>
@@ -377,9 +287,14 @@ const AccountSettingsPage = () => {
                     <Label htmlFor="name">Full Name *</Label>
                     <Input
                       id="name"
-                      value={formData.name || ""}
-                      onChange={(e) => handleInputChange("name", e.target.value)}
-                      className={cn("rounded-xl", errors.name && "border-destructive")}
+                      value={formData.name}
+                      onChange={(e) =>
+                        handleInputChange("name", e.target.value)
+                      }
+                      className={cn(
+                        "rounded-xl",
+                        errors.name && "border-destructive"
+                      )}
                       placeholder="Enter your full name"
                     />
                     {errors.name && (
@@ -391,13 +306,20 @@ const AccountSettingsPage = () => {
                     <Label htmlFor="userName">Username *</Label>
                     <Input
                       id="userName"
-                      value={formData.userName || ""}
-                      onChange={(e) => handleInputChange("userName", e.target.value)}
-                      className={cn("rounded-xl", errors.userName && "border-destructive")}
+                      value={formData.userName}
+                      onChange={(e) =>
+                        handleInputChange("userName", e.target.value)
+                      }
+                      className={cn(
+                        "rounded-xl",
+                        errors.userName && "border-destructive"
+                      )}
                       placeholder="Enter your username"
                     />
                     {errors.userName && (
-                      <p className="text-sm text-destructive">{errors.userName}</p>
+                      <p className="text-sm text-destructive">
+                        {errors.userName}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -409,9 +331,14 @@ const AccountSettingsPage = () => {
                     <Input
                       id="email"
                       type="email"
-                      value={formData.email || ""}
-                      onChange={(e) => handleInputChange("email", e.target.value)}
-                      className={cn("pl-10 rounded-xl", errors.email && "border-destructive")}
+                      value={formData.email}
+                      onChange={(e) =>
+                        handleInputChange("email", e.target.value)
+                      }
+                      className={cn(
+                        "pl-10 rounded-xl",
+                        errors.email && "border-destructive"
+                      )}
                       placeholder="Enter your email address"
                     />
                   </div>
@@ -422,15 +349,21 @@ const AccountSettingsPage = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="bio">Bio</Label>
-                  <textarea
-                    id="bio"
-                    value={formData.bio || ""}
-                    onChange={(e) => handleInputChange("bio", e.target.value)}
-                    className={cn("rounded-xl resize-none", errors.bio && "border-destructive")}
-                    placeholder="Tell us about yourself..."
-                    rows={3}
-                    maxLength={250}
-                  />
+                  <div className="relative">
+                    <Textarea
+                      id="bio"
+                      value={formData.bio}
+                      onChange={(e) => handleInputChange("bio", e.target.value)}
+                      className={cn(
+                        "rounded-xl resize-none w-full pl-10",
+                        errors.bio && "border-destructive"
+                      )}
+                      placeholder="Tell us about yourself..."
+                      rows={3}
+                      maxLength={250}
+                    />
+                    <UserRoundPen className="absolute left-3 top-3 text-muted-foreground w-4 h-4" />
+                  </div>
                   <div className="flex justify-between items-center">
                     {errors.bio && (
                       <p className="text-sm text-destructive">{errors.bio}</p>
@@ -447,15 +380,22 @@ const AccountSettingsPage = () => {
                     <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                     <Input
                       id="location"
-                      value={formData.location || ""}
-                      onChange={(e) => handleInputChange("location", e.target.value)}
-                      className={cn("pl-10 rounded-xl", errors.location && "border-destructive")}
+                      value={formData.location}
+                      onChange={(e) =>
+                        handleInputChange("location", e.target.value)
+                      }
+                      className={cn(
+                        "pl-10 rounded-xl",
+                        errors.location && "border-destructive"
+                      )}
                       placeholder="Where are you based?"
                       maxLength={50}
                     />
                   </div>
                   {errors.location && (
-                    <p className="text-sm text-destructive">{errors.location}</p>
+                    <p className="text-sm text-destructive">
+                      {errors.location}
+                    </p>
                   )}
                 </div>
               </CardContent>
@@ -471,9 +411,24 @@ const AccountSettingsPage = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 {[
-                  { field: 'linkedInHandle', icon: Linkedin, placeholder: 'https://www.linkedin.com/in/username', label: 'LinkedIn Profile' },
-                  { field: 'twitterHandle', icon: Twitter, placeholder: 'https://x.com/username', label: 'X (Twitter) Profile' },
-                  { field: 'githubHandle', icon: Github, placeholder: 'https://github.com/username', label: 'GitHub Profile' },
+                  {
+                    field: "linkedInHandle",
+                    icon: Linkedin,
+                    placeholder: "https://www.linkedin.com/in/username",
+                    label: "LinkedIn Profile",
+                  },
+                  {
+                    field: "twitterHandle",
+                    icon: Twitter,
+                    placeholder: "https://x.com/username",
+                    label: "X (Twitter) Profile",
+                  },
+                  {
+                    field: "githubHandle",
+                    icon: Github,
+                    placeholder: "https://github.com/username",
+                    label: "GitHub Profile",
+                  },
                 ].map(({ field, icon: Icon, placeholder, label }) => (
                   <div key={field} className="space-y-2">
                     <Label htmlFor={field}>{label}</Label>
@@ -481,91 +436,43 @@ const AccountSettingsPage = () => {
                       <Icon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                       <Input
                         id={field}
-                        value={formData[field as keyof UserProfile] || ""}
-                        onChange={(e) => handleInputChange(field as keyof UserProfile, e.target.value)}
-                        className={cn("pl-10 rounded-xl", errors[field] && "border-destructive")}
+                        value={formData[field as keyof TUserDataUpdate] || ""}
+                        onChange={(e) =>
+                          handleInputChange(
+                            field as keyof TUserDataUpdate,
+                            e.target.value
+                          )
+                        }
+                        className={cn(
+                          "pl-10 rounded-xl",
+                          errors[field] && "border-destructive"
+                        )}
                         placeholder={placeholder}
                       />
                     </div>
                     {errors[field] && (
-                      <p className="text-sm text-destructive">{errors[field]}</p>
+                      <p className="text-sm text-destructive">
+                        {errors[field]}
+                      </p>
                     )}
                   </div>
                 ))}
               </CardContent>
             </Card>
 
-            {/* Password Change */}
-            <Card className="rounded-2xl">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2 text-lg">
-                  <Eye className="w-5 h-5" />
-                  <span>Change Password</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handlePasswordSubmit} className="space-y-4">
-                  {[
-                    { field: 'currentPassword', label: 'Current Password', key: 'current' },
-                    { field: 'newPassword', label: 'New Password', key: 'new' },
-                    { field: 'confirmPassword', label: 'Confirm New Password', key: 'confirm' },
-                  ].map(({ field, label, key }) => (
-                    <div key={field} className="space-y-2">
-                      <Label htmlFor={field}>{label}</Label>
-                      <div className="relative">
-                        <Input
-                          id={field}
-                          type={showPasswords[key as keyof typeof showPasswords] ? "text" : "password"}
-                          value={passwordData[field as keyof PasswordForm]}
-                          onChange={(e) => handlePasswordChange(field as keyof PasswordForm, e.target.value)}
-                          className="pr-10 rounded-xl"
-                          placeholder={`Enter ${label.toLowerCase()}`}
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => togglePasswordVisibility(key as keyof typeof showPasswords)}
-                          className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6"
-                        >
-                          {showPasswords[key as keyof typeof showPasswords] ? (
-                            <EyeOff className="w-4 h-4" />
-                          ) : (
-                            <Eye className="w-4 h-4" />
-                          )}
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                  
-                  <Button
-                    type="submit"
-                    disabled={isLoading}
-                    className="w-full rounded-xl"
-                  >
-                    {isLoading ? (
-                      <div className="w-4 h-4 animate-spin rounded-full border-2 border-current border-t-transparent mr-2" />
-                    ) : null}
-                    {isLoading ? "Updating..." : "Update Password"}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-
-            {/* Save Button (Mobile) */}
-            <div className="md:hidden">
+            <div>
               <Button
                 onClick={handleSave}
-                disabled={saving}
+                disabled={updateUserPending}
                 className="w-full rounded-xl py-3"
                 size="lg"
               >
-                {saving ? (
+                {updateUserPending ? (
                   <div className="w-4 h-4 animate-spin rounded-full border-2 border-current border-t-transparent mr-2" />
                 ) : (
                   <Save className="w-4 h-4 mr-2" />
                 )}
-                {saving ? "Saving Changes..." : "Save Changes"}
+                {updateUserPending ? "Saving Changes..." : "Save Changes"}
               </Button>
             </div>
           </div>
@@ -573,7 +480,7 @@ const AccountSettingsPage = () => {
 
         {/* Danger Zone */}
         <Separator className="my-8" />
-        
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -589,18 +496,22 @@ const AccountSettingsPage = () => {
             <CardContent>
               <div className="space-y-4">
                 <div>
-                  <h3 className="font-semibold text-destructive mb-2">Delete Account</h3>
+                  <h3 className="font-semibold text-destructive mb-2">
+                    Delete Account
+                  </h3>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Your personal data will be deleted permanently when you delete your account on feednest. This action is irreversible.
+                    Your personal data will be deleted permanently when you
+                    delete your account on feednest. This action is
+                    irreversible.
                   </p>
                 </div>
 
-                <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                <Dialog
+                  open={deleteDialogOpen}
+                  onOpenChange={setDeleteDialogOpen}
+                >
                   <DialogTrigger asChild>
-                    <Button
-                      variant="destructive"
-                      className="w-full rounded-xl"
-                    >
+                    <Button variant="destructive" className="w-full rounded-xl">
                       <Trash2 className="w-4 h-4 mr-2" />
                       Delete Account
                     </Button>
@@ -616,10 +527,11 @@ const AccountSettingsPage = () => {
                         </DialogTitle>
                       </div>
                       <DialogDescription>
-                        This action cannot be undone. This will permanently delete your account and remove all associated data.
+                        This action cannot be undone. This will permanently
+                        delete your account and remove all associated data.
                       </DialogDescription>
                     </DialogHeader>
-                    
+
                     <div className="bg-destructive/10 p-4 rounded-lg border border-destructive/20">
                       <p className="text-sm font-medium text-destructive mb-2">
                         What will be deleted:
@@ -631,12 +543,11 @@ const AccountSettingsPage = () => {
                         <li>• All comments and interactions</li>
                       </ul>
                     </div>
-                    
+
                     <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2">
                       <Button
                         variant="outline"
                         onClick={() => setDeleteDialogOpen(false)}
-                        disabled={isLoading}
                         className="w-full sm:w-auto"
                       >
                         Cancel
@@ -644,17 +555,9 @@ const AccountSettingsPage = () => {
                       <Button
                         variant="destructive"
                         onClick={handleDeleteAccount}
-                        disabled={isLoading}
                         className="w-full sm:w-auto"
                       >
-                        {isLoading ? (
-                          <div className="flex items-center space-x-2">
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                            <span>Deleting...</span>
-                          </div>
-                        ) : (
-                          "Delete Account"
-                        )}
+                        Delete Account
                       </Button>
                     </DialogFooter>
                   </DialogContent>

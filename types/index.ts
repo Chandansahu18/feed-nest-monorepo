@@ -53,6 +53,8 @@ export interface IPost {
   postDescription: string | null;
   postBannerImage: string | null;
   postTags: string[];
+  postComments?:IPostCommentOrReply[];
+  postLikes?:IPostLikes[];
   published: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -111,15 +113,18 @@ export interface IPostCommentOrReply {
   commentId: string | null;
 }
 
+export interface IPostCommentOrReplyData extends IPostCommentOrReply {
+ post:IPost | null;
+ user:IUser | null;
+}
+
 export interface IPostCommentOrReplyDataResponse {
   success: boolean;
   message: string;
-  data?: IPostCommentOrReply | null;
+  data?: IPostCommentOrReplyData | null;
 }
 
-export interface IAllPostCommentsOrReplies extends IPostCommentOrReply {
-  post?: IPost | null;
-}
+export interface IAllPostCommentsOrReplies extends IPostCommentOrReplyData {}
 
 export interface IAllPostCommentsOrRepliesDataResponse {
   success: boolean;
@@ -147,7 +152,7 @@ export interface ISavedPost {
 }
 
 export interface ISavedPostData extends ISavedPost {
-  post: IPost;
+  post: IPostData;
 }
 export interface ISavedPostsDataResponse {
   success: boolean;
@@ -156,11 +161,7 @@ export interface ISavedPostsDataResponse {
 }
 
 // Search Data Response Types
-export interface ISearchData extends IPost {
-  creator: IUser;
-  postComments: IPostCommentOrReply[];
-  postLikes: IPostLikes[];
-}
+export interface ISearchData extends IPostData {}
 
 export interface ISearchDataResponse {
   success: boolean;

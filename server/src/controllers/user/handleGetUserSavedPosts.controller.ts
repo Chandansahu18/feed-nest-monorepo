@@ -22,7 +22,13 @@ const handleGetUserSavedPosts = async (
         },
         orderBy:{createdAt:'desc'},
         include:{
-          post:true
+          post:{
+            include:{
+              postLikes:true,
+              postComments:true,
+              creator:true
+            }
+          }
         }
       });
       
@@ -38,7 +44,14 @@ const handleGetUserSavedPosts = async (
           userId: userId as string
         },
         include:{
-          post:true
+          post:{
+            include:{
+              postLikes:true,
+              postComments:true,
+              creator:true
+            }
+          },
+          
         }
       });
       res.status(200).json({

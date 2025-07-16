@@ -1,21 +1,16 @@
-import { useUserData } from "@/hooks/useUserData";
+import { useUserData } from "@/hooks/user/useUserData";
 import { Button } from "./ui/button";
 import { Bookmark, Newspaper, PencilLine, Search } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useNavigationHandlers } from "@/hooks/useNavigateHandlers";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const Footer = () => {
   const { data } = useUserData();
-  const {pathname} = useLocation();
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const isLandingPage = pathname === "/"
   const isUserLoggedIn = data?.data;
   const [activeTab, setActiveTab] = useState("Discover");
-  const {
-    handleSearch,
-    handleBookmarks,
-    handleCreateBlogPost,
-    handleDiscover,
-  } = useNavigationHandlers();
 
   useEffect(() => {
     if (pathname === "/bookmarks" || pathname.startsWith("/bookmarks/")) {
@@ -31,24 +26,24 @@ const Footer = () => {
 
   const handlePressDiscover = () => {
     setActiveTab("Discover");
-    handleDiscover();
+    navigate("/home");
   };
   const handlePressBookmark = () => {
     setActiveTab("Bookmark");
-    handleBookmarks();
+    navigate("/bookmarks");
   };
   const handlePressCreateBlog = () => {
     setActiveTab("CreatePost");
-    handleCreateBlogPost();
+    navigate("/create", { state: { authenticated: true } });
   };
   const handlePressSearch = () => {
     setActiveTab("Search");
-    handleSearch();
+    navigate("/search");
   };
-  
+
   return (
     <>
-      {isUserLoggedIn ? (
+      {isUserLoggedIn || !isLandingPage ? (
         <footer className="bg-background border-t h-14 fixed flex justify-around items-center bottom-0 w-full z-10 sm:hidden">
           <Button variant={"ghost"} onClick={handlePressDiscover}>
             <Newspaper
