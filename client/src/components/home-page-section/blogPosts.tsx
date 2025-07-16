@@ -23,33 +23,41 @@ import { useUserData } from "@/hooks/user/useUserData";
 const BlogPosts = () => {
   const [activeTab, setActiveTab] = useState("Discover");
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
-  const [removingBookmark, setRemovingBookmark] = useState<string | null>(null);
   const [localBookmarkedPosts, setLocalBookmarkedPosts] = useState<Set<string>>(
     new Set()
   );
+  console.log(localBookmarkedPosts);
 
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
   const { data: userData } = useUserData();
-  const { mutate: BookmarkPost } = usePostBookmark();
+  const { mutate: bookmarkPost } = usePostBookmark();
   const { posts, hasMore, isLoading, fetchNextPage, isFetchingNextPage } =
     usePostsData();
-  const { data: BookmarkedPost } = useGetBookmarkedPosts({
+  const { data: bookmarkedPosts } = useGetBookmarkedPosts({
     userId: userData?.data?.id!,
   });
 
-  const bookmarkedPostIds = useMemo(() => {
-    if (!BookmarkedPost?.data) return new Set<string>();
-    const bookmarkedPosts = Array.isArray(BookmarkedPost.data)
-      ? BookmarkedPost.data
-      : [BookmarkedPost.data];      
-    return new Set<string>(bookmarkedPosts.map((bp:IPostData) => bp.id));
-  }, [BookmarkedPost]);
-  
-  useEffect(
-    () => setLocalBookmarkedPosts(bookmarkedPostIds),
-    [bookmarkedPostIds]
-  );
+  const handleBookmark = async (postId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!userData?.data?.id) return navigate("/");
+    const isBookmarked = localBookmarkedPosts.has(postId);
+    setLocalBookmarkedPosts((prev) => {
+      const newSet = new Set(prev);
+      isBookmarked ? newSet.delete(postId) : newSet.add(postId);
+      return newSet;
+    });
+    bookmarkPost({ postId, userId: userData.data.id });
+  };
+
+  useEffect(() => {
+    if (bookmarkedPosts?.data) {
+      const bookmarkedPostIds = Array.isArray(bookmarkedPosts.data)
+        ? bookmarkedPosts.data.map((bp: IPostData) => bp.id)
+        : [bookmarkedPosts.data.id];
+      setLocalBookmarkedPosts(new Set(bookmarkedPostIds));
+    }
+  }, [bookmarkedPosts]);
 
   const filteredPosts = useMemo(
     () =>
@@ -87,21 +95,6 @@ const BlogPosts = () => {
     }
   }, [isLoading, isFetchingNextPage, posts, hasMore, fetchNextPage]);
 
-  const handleBookmark = async (postId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (!userData?.data?.id) return navigate("/");
-
-    setRemovingBookmark(postId);
-    setLocalBookmarkedPosts((prev) => {
-      const newSet = new Set(prev);
-      newSet.has(postId) ? newSet.delete(postId) : newSet.add(postId);
-      return newSet;
-    });
-
-    BookmarkPost({ postId, userId: userData.data.id });
-    setRemovingBookmark(null);
-  };
-
   const cleanMarkdownContent = (content: string | null) => {
     if (!content) return "";
     return content
@@ -124,7 +117,6 @@ const BlogPosts = () => {
       .trim();
   };
 
-  // Tab button component
   const TabButton = ({
     tab,
     icon: Icon,
@@ -150,6 +142,8 @@ const BlogPosts = () => {
 
   const PostCard = ({ post }: { post: IPostData }) => {
     const isBookmarked = localBookmarkedPosts.has(post.id);
+    console.log(post.id);
+    console.log(localBookmarkedPosts);
 
     return (
       <Card className="bg-card dark:bg-black dark:lg:bg-card border-0 shadow-none lg:border lg:shadow-sm rounded-2xl hover:shadow-md transition-shadow py-0 cursor-pointer group">
@@ -261,20 +255,15 @@ const BlogPosts = () => {
               size="icon"
               className="text-muted-foreground hover:text-blue-600"
               onClick={(e) => handleBookmark(post.id, e)}
-              disabled={removingBookmark === post.id}
             >
-              {removingBookmark === post.id ? (
-                <div className="w-5 h-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
-              ) : (
-                <Bookmark
-                  className={cn(
-                    "size-5 transition-colors",
-                    isBookmarked
-                      ? "text-blue-600 fill-blue-600"
-                      : "text-muted-foreground"
-                  )}
-                />
-              )}
+              <Bookmark
+                className={cn(
+                  "size-5 transition-colors",
+                  isBookmarked
+                    ? "text-blue-600 fill-blue-600"
+                    : "text-muted-foreground"
+                )}
+              />
             </Button>
           </div>
         </CardContent>

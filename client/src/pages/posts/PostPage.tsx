@@ -33,7 +33,6 @@ import type { IPostData, IPostLikes } from "../../../../types/dist";
 import { useGetPostComments } from "@/hooks/post/comment/useGetPostComments";
 import { usePostComment } from "@/hooks/post/comment/usePostComment";
 import { useQueryClient } from "@tanstack/react-query";
-import { useGetCommentReplies } from "@/hooks/post/comment/useGetCommentReplies";
 
 const PostPage = () => {
   const navigate = useNavigate();
@@ -53,10 +52,7 @@ const PostPage = () => {
   });
   const { mutate: bookmarkPost } = usePostBookmark();
   const { data: postComments } = useGetPostComments(postId);
-  const {data:commentReplies} = useGetCommentReplies(commentId)
-  console.log(postComments?.data);
-  const { mutate: postComment, isPending: isPostingComment } =
-    usePostComment();
+  const { mutate: postComment, isPending: isPostingComment } = usePostComment();
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [showComments, setShowComments] = useState(true);
@@ -202,6 +198,9 @@ const PostPage = () => {
           setReplyingTo(null);
           queryClient.invalidateQueries({
             queryKey: ["post-comments", postId],
+          });
+          queryClient.invalidateQueries({
+            queryKey: ["comment-replies", commentId],
           });
         },
         onError: (error) => {
@@ -524,8 +523,8 @@ const PostPage = () => {
                     <div className="w-10 h-10 rounded-full bg-gradient-header flex items-center justify-center flex-shrink-0">
                       {userData?.data?.avatar ? (
                         <img
-                          src={`${FEEDNEST_BACKEND_API}${userData.data.avatar}`}
-                          alt={userData.data.name}
+                          src={userData.data.avatar}
+                          alt={'avatar'}
                           className="w-full h-full object-cover rounded-full"
                         />
                       ) : (
@@ -560,8 +559,8 @@ const PostPage = () => {
                       <div className="w-8 h-8 rounded-full bg-gradient-header flex items-center justify-center flex-shrink-0">
                         {comment.user?.avatar ? (
                           <img
-                            src={`${FEEDNEST_BACKEND_API}${comment.user.avatar}`}
-                            alt={comment.user.name}
+                            src={comment.user.avatar}
+                            alt='avatar'
                             className="w-full h-full object-cover rounded-full"
                           />
                         ) : (
@@ -580,25 +579,7 @@ const PostPage = () => {
                         <p className="text-article-text mb-3 leading-relaxed">
                           {comment.comment}
                         </p>
-                        <div className="flex items-center gap-4">
-                          <Button variant="ghost" className="px-3 py-1 text-sm">
-                            <Heart className="w-4 h-4 mr-1" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            className="px-3 py-1 text-sm"
-                            onClick={() =>
-                              setReplyingTo(
-                                replyingTo === comment.id ? null : comment.id
-                              )
-                            }
-                          >
-                            <MessageCircle className="w-4 h-4 mr-1" />
-                            <span>Reply</span>
-                          </Button>
-                        </div>
 
-                        {/* Reply Form */}
                         {replyingTo === comment.id && (
                           <div className="mt-4 ml-4 border-l-2 border-article-border pl-4">
                             <form
@@ -666,41 +647,7 @@ const PostPage = () => {
                             </form>
                           </div>
                         )}
-                        {/* Display Replies */}
-                        {/* {comment.replies && comment.replies.length > 0 && (
-                          <div className="mt-4 ml-4 border-l-2 border-article-border pl-4 space-y-4">
-                            {comment.replies.map((reply) => (
-                              <div key={reply.id} className="flex gap-3">
-                                <div className="w-6 h-6 rounded-full bg-gradient-header flex items-center justify-center flex-shrink-0">
-                                  {reply.creator?.avatar ? (
-                                    <img
-                                      src={`${FEEDNEST_BACKEND_API}${reply.creator.avatar}`}
-                                      alt={reply.creator.name}
-                                      className="w-full h-full object-cover rounded-full"
-                                    />
-                                  ) : (
-                                    <User className="w-3 h-3 text-white" />
-                                  )}
-                                </div>
-                                <div className="flex-1">
-                                  <div className="flex items-center gap-3 mb-1">
-                                    <span className="font-medium text-article-text text-sm">
-                                      {reply.creator?.name || "Anonymous"}
-                                    </span>
-                                    <span className="text-xs text-article-text-muted">
-                                      {new Date(
-                                        reply.createdAt
-                                      ).toLocaleDateString()}
-                                    </span>
-                                  </div>
-                                  <p className="text-article-text text-sm leading-relaxed">
-                                    {reply.comment}
-                                  </p>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        )} */}
+
                       </div>
                     </div>
                   ))}
