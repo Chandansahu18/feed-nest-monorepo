@@ -18,7 +18,7 @@ import {
 import { useUserData } from "@/hooks/user/useUserData";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState, useEffect, useMemo } from "react";
-import type { IPost, IPostData, IUser } from "../../../../types/dist";
+import type { IPost } from "../../../../types/dist";
 import { useNavigate } from "react-router-dom";
 import { usePostBookmark } from "@/hooks/post/bookmark/usePostBookmark";
 import { useGetBookmarkedPosts } from "@/hooks/post/bookmark/useGetBookmarkedPosts";
@@ -30,7 +30,7 @@ const PostCard = ({
   avatarFallback,
 }: {
   post: IPost;
-  user: IUser;
+  user: any;
   avatarFallback: string;
 }) => {
   const navigate = useNavigate();
@@ -50,7 +50,7 @@ const PostCard = ({
     const bookmarkedPosts = Array.isArray(BookmarkedPost.data)
       ? BookmarkedPost.data
       : [BookmarkedPost.data];
-    return new Set<string>(bookmarkedPosts.map((bp:IPostData) => bp.id));
+    return new Set<string>(bookmarkedPosts.map((bp) => bp.id));
   }, [BookmarkedPost]);
 
   useEffect(() => {
