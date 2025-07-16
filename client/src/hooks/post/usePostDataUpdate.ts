@@ -1,6 +1,6 @@
 import { FEEDNEST_BACKEND_API } from "@/utils/apiClient";
 import { useMutation } from "@tanstack/react-query";
-import type { IGenericMessageResponse } from "../../../types/dist";
+import type { IGenericMessageResponse } from "../../../../types/dist";
 import type { TPostDataUpdate } from "@/utils/schema/postsData";
 
 const handlePostDataUpdate = async (

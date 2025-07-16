@@ -1,6 +1,6 @@
 import { FEEDNEST_BACKEND_API } from "@/utils/apiClient";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { ISavedPostsDataResponse } from "../../../types/dist";
+import type { ISavedPostsDataResponse } from "../../../../../types/dist";
 import type { TBookmarkPostProp } from "@/utils/schema/postsData";
 
 const handlePostBookmark = async ({

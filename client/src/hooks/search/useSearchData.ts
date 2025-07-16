@@ -1,6 +1,6 @@
 import { FEEDNEST_BACKEND_API } from "@/utils/apiClient";
 import { useQuery } from "@tanstack/react-query";
-import type { ISearchDataResponse } from "../../../types/dist/index";
+import type { ISearchDataResponse } from "../../../../types/dist";
 
 const handleSearchData = async (searchedTerm: string): Promise<ISearchDataResponse> => {
   try {

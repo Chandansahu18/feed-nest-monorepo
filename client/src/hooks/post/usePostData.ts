@@ -1,6 +1,6 @@
 import { FEEDNEST_BACKEND_API } from "@/utils/apiClient";
 import { useQuery } from "@tanstack/react-query";
-import type { IPostDataResponse } from "../../../types/dist";
+import type { IPostDataResponse } from "../../../../types/dist";
 
 const fetchPost = async (postId: string): Promise<IPostDataResponse> => {
   try {

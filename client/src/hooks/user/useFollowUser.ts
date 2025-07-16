@@ -1,6 +1,6 @@
 import { FEEDNEST_BACKEND_API } from "@/utils/apiClient";
 import { useMutation } from "@tanstack/react-query";
-import type { IFollowingRelationsDataResponse } from "../../../types/dist/index";
+import type { IFollowingRelationsDataResponse } from "../../../../types/dist";
 
 const handleFollowingUser = async (userId:string): Promise<IFollowingRelationsDataResponse> => {
   try {

@@ -1,6 +1,6 @@
 import { FEEDNEST_BACKEND_API } from "@/utils/apiClient";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { IGenericMessageResponse } from "../../../types/dist/index";
+import type { IGenericMessageResponse } from "../../../../types/dist";
 import type { TPostDelete } from "@/utils/schema/postsData";
 
 const handlePostDelete = async ({ids}:TPostDelete): Promise<IGenericMessageResponse> => {

@@ -1,6 +1,6 @@
 import { FEEDNEST_BACKEND_API } from "@/utils/apiClient";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { IPostCreatedDataResponse } from "../../../types/dist";
+import type { IPostCreatedDataResponse } from "../../../../types/dist";
 import type { TCreatePostData } from "@/utils/schema/postsData";
 
 const createPost = async (

@@ -1,6 +1,6 @@
 import { FEEDNEST_BACKEND_API } from "@/utils/apiClient";
 import { useQuery } from "@tanstack/react-query";
-import type { IUserDataResponse } from "../../../types/dist/index";
+import type { IUserDataResponse } from "../../../../types/dist";
 
 const handleUserData = async (): Promise<IUserDataResponse> => {
   try {

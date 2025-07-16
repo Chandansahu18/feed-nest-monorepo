@@ -1,7 +1,7 @@
 import { FEEDNEST_BACKEND_API } from "@/utils/apiClient";
 import { useMutation } from "@tanstack/react-query";
-import type { IEnhancedPostDataResponse } from "../../../types/dist";
-import type { TEnhancePostData } from "../utils/schema/postsData";
+import type { IEnhancedPostDataResponse } from "../../../../../types/dist";
+import type { TEnhancePostData } from "@/utils/schema/postsData";
 
 const enhanceContent = async (
   content: TEnhancePostData

@@ -1,7 +1,7 @@
 import { FEEDNEST_BACKEND_API } from "@/utils/apiClient";
 import type { TBookmarkPostProp } from "@/utils/schema/postsData";
 import { useQuery } from "@tanstack/react-query";
-import type { ISavedPostsDataResponse } from "../../../types/dist";
+import type { ISavedPostsDataResponse } from "../../../../../types/dist";
 
 const handleGetBookmarkedPosts = async ({
   postId,
