@@ -29,7 +29,7 @@ import { usePostDelete } from "@/hooks/post/usePostDelete";
 import { useGetBookmarkedPosts } from "@/hooks/post/bookmark/useGetBookmarkedPosts";
 import { usePostBookmark } from "@/hooks/post/bookmark/usePostBookmark";
 import { usePostData } from "@/hooks/post/usePostData";
-import type { IPostData, IPostLikes } from "../../../../types/dist";
+import type { IPostLikes } from "../../../../types/dist";
 import { useGetPostComments } from "@/hooks/post/comment/useGetPostComments";
 import { usePostComment } from "@/hooks/post/comment/usePostComment";
 import { useQueryClient } from "@tanstack/react-query";
@@ -69,7 +69,7 @@ const PostPage = () => {
     const posts = Array.isArray(bookmarkedPostsData.data)
       ? bookmarkedPostsData.data
       : [bookmarkedPostsData.data];
-    return new Set<string>(posts.map((bp: IPostData) => bp.id));
+    return new Set<string>(posts.map((bp) => bp.id));
   }, [bookmarkedPostsData]);
 
   useEffect(() => {

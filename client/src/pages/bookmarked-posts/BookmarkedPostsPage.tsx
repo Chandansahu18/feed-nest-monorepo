@@ -9,7 +9,7 @@ import { Bookmark, Heart, MessageCircle, Eye } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
-import type { IPostData, ISavedPostData } from "../../../../types/dist";
+import type { ISavedPostData } from "../../../../types/dist";
 import { useUserData } from "@/hooks/user/useUserData";
 import { usePostBookmark } from "@/hooks/post/bookmark/usePostBookmark";
 import { useGetBookmarkedPosts } from "@/hooks/post/bookmark/useGetBookmarkedPosts";
@@ -32,7 +32,7 @@ const BookmarkedPostsPage = () => {
     const posts = Array.isArray(bookmarkedPostsData.data)
       ? bookmarkedPostsData.data
       : [bookmarkedPostsData.data];
-    return new Set<string>(posts.map((bp:IPostData) => bp.id));
+    return new Set<string>(posts.map((bp) => bp.id));
   }, [bookmarkedPostsData]);
 
   useEffect(() => {
@@ -132,7 +132,7 @@ const BookmarkedPostsPage = () => {
     const posts = Array.isArray(bookmarkedPostsData.data)
       ? bookmarkedPostsData.data
       : [bookmarkedPostsData.data];
-    return posts.filter((post:IPostData) => localBookmarkedPosts.has(post.id));
+    return posts.filter((post) => localBookmarkedPosts.has(post.id));
   }, [bookmarkedPostsData, localBookmarkedPosts]);
 
   return (

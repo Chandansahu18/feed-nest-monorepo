@@ -53,7 +53,7 @@ const BlogPosts = () => {
   useEffect(() => {
     if (bookmarkedPosts?.data) {
       const bookmarkedPostIds = Array.isArray(bookmarkedPosts.data)
-        ? bookmarkedPosts.data.map((bp: IPostData) => bp.id)
+        ? bookmarkedPosts.data.map((bp) => bp.id)
         : [bookmarkedPosts.data.id];
       setLocalBookmarkedPosts(new Set(bookmarkedPostIds));
     }

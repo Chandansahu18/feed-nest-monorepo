@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState, useEffect, useMemo } from "react";
-import type { IPost, IPostData, IUserData } from "../../../../types/dist";
+import type { IPost, IUserData } from "../../../../types/dist";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { usePostBookmark } from "@/hooks/post/bookmark/usePostBookmark";
@@ -49,7 +49,7 @@ const PostCard = ({
     const bookmarkedPosts = Array.isArray(BookmarkedPost.data)
       ? BookmarkedPost.data
       : [BookmarkedPost.data];
-    return new Set<string>(bookmarkedPosts.map((bp:IPostData) => bp.id));
+    return new Set<string>(bookmarkedPosts.map((bp) => bp.id));
   }, [BookmarkedPost]);
 
   useEffect(() => {

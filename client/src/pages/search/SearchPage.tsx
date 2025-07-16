@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import BlogsSkeleton from "@/components/home-page-section/blogsSkeleton";
-import type { IPost, IPostData, ISearchData, IUser, IUserData } from "../../../../types/dist";
+import type { IPost, IPostData, ISearchData } from "../../../../types/dist";
 import { useSearchData } from "@/hooks/search/useSearchData";
 
 const SearchPage = () => {
@@ -98,8 +98,8 @@ const SearchPage = () => {
     );
   } else if (activeTab === "People") {
     filteredResults = results.filter(
-      (result:IUserData, index:number) =>
-        results.findIndex((r:IUser) => r.email === result.id) ===
+      (result, index:number) =>
+        results.findIndex((r) => r.creator.email === result.id) ===
         index
     );
   }
